@@ -36,8 +36,8 @@ class CompatibilityLevel(StrEnum):
 class SchemaRegistryClient():
     def __init__(self, schema_registry_config: dict):
         self.schema_registry_url = schema_registry_config[SCHEMA_REGISTRY_URL]
-        self.api_key = schema_registry_config[SCHEMA_REGISTRY_API_KEY]
-        self.api_secret = schema_registry_config[SCHEMA_REGISTRY_API_SECRET]
+        self.api_key = str(schema_registry_config[SCHEMA_REGISTRY_API_KEY])
+        self.api_secret = str(schema_registry_config[SCHEMA_REGISTRY_API_SECRET])
        
  
     def get_topic_subject_latest_schema(self, subject_name: str) -> Tuple[int, str, dict]:

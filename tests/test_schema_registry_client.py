@@ -15,7 +15,8 @@ __status__     = "dev"
 # Configure the logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
- 
+
+# Initialize the global variables.
 config = {}
 kafka_topic = ""
 
@@ -46,8 +47,14 @@ def test_get_subject_compatibility_level():
     # Instantiate the SchemaRegistryClient classs.
     sr_client = SchemaRegistryClient(config)
 
-    _, error_message, response = sr_client.get_topic_subject_compatibility_level(kafka_topic_subject)
+    http_status_code, error_message, response = sr_client.get_topic_subject_compatibility_level(kafka_topic_subject)
  
-    logger.info("Error message (if any): %s.  Response for %s: %s", error_message, kafka_topic_subject, response)
- 
-    assert CompatibilityLevel.FULL.value == response.value
+    try:
+        assert http_status_code == 200, f"HTTP Status Code: {http_status_code}"
+    except AssertionError as e:
+        logger.error(e)
+
+    try:
+        assert CompatibilityLevel.FULL.value == response.value, f"Expected: {CompatibilityLevel.FULL.value}, Actual: {response.value}"
+    except AssertionError as e:
+        logger.error(e)

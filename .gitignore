@@ -1,7 +1,6 @@
 .venv/
 .DS_Store
 **/__pycache__
-cc-clients-lib.egg-info/
 *.log
 .env
 .pytest_cache/

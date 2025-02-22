@@ -10,6 +10,7 @@ authors = [
 dependencies = [
     "attrs>=25.1.0",
     "avro>=1.12.0",
+    "dotenv>=0.9.9",
     "fastavro>=1.10.0",
     "httpx>=0.28.1",
     "pytest>=8.3.4",

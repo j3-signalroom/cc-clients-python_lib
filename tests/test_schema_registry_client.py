@@ -2,7 +2,7 @@ import src.common as common
 import logging
 import os
 import pytest
-from src.schema_registry_client import SchemaRegistryClient, CompatibilityLevel
+from src.cc_clients_lib.schema_registry_client import SchemaRegistryClient, CompatibilityLevel
  
 
 __copyright__  = "Copyright (c) 2025 Jeffrey Jonathan Jennings"

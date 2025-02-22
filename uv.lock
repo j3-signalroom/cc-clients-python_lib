@@ -34,9 +34,9 @@ wheels = [
 ]
 
 [[package]]
-name = "cc-clients-pkg"
+name = "cc-clients-lib"
 version = "0.1.0.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "attrs" },
     { name = "avro" },

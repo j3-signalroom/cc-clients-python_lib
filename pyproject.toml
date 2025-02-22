@@ -1,0 +1,16 @@
+[project]
+name = "cc-clients-pkg"
+version = "0.01.00.000"
+description = "Confluent Cloud Clients Package"
+readme = "README.md"
+requires-python = ">=3.11.9"
+dependencies = [
+    "attrs>=25.1.0",
+    "avro>=1.12.0",
+    "fastavro>=1.10.0",
+    "httpx>=0.28.1",
+    "requests>=2.32.3",
+    "setuptools>=75.8.0",
+    "urllib3>=2.3.0",
+    "wheel>=0.45.1",
+]

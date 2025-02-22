@@ -4,3 +4,4 @@
 cc-clients-lib.egg-info/
 *.log
 .env
+.pytest_cache/

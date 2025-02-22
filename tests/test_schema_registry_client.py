@@ -47,7 +47,7 @@ def test_get_subject_compatibility_level():
     # Instantiate the SchemaRegistryClient classs.
     sr_client = SchemaRegistryClient(config)
 
-    http_status_code, error_message, response = sr_client.get_topic_subject_compatibility_level(kafka_topic_subject)
+    http_status_code, _, response = sr_client.get_topic_subject_compatibility_level(kafka_topic_subject)
  
     try:
         assert http_status_code == 200, f"HTTP Status Code: {http_status_code}"

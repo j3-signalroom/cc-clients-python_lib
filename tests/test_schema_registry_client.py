@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import os
 import pytest
 from src.cc_clients_lib.schema_registry_client import SchemaRegistryClient, CompatibilityLevel
+from src.cc_clients_lib.common import HttpStatus
  
 
 __copyright__  = "Copyright (c) 2025 Jeffrey Jonathan Jennings"
@@ -50,7 +51,7 @@ def test_get_subject_compatibility_level():
     http_status_code, _, response = sr_client.get_topic_subject_compatibility_level(kafka_topic_subject)
  
     try:
-        assert http_status_code == 200, f"HTTP Status Code: {http_status_code}"
+        assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
     except AssertionError as e:
         logger.error(e)
 

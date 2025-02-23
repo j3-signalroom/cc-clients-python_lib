@@ -4,6 +4,7 @@ from requests.auth import HTTPBasicAuth
 import fastavro
 from enum import StrEnum
 import json
+from src.cc_clients_lib.common import HttpStatus
  
 
 __copyright__  = "Copyright (c) 2025 Jeffrey Jonathan Jennings"
@@ -63,7 +64,7 @@ class SchemaRegistryClient():
             response.raise_for_status()
  
             # Return the latest schema for the subject.
-            return 200, "", response.json().get("schema")
+            return HttpStatus.OK, "", response.json().get("schema")
         except requests.exceptions.RequestException as e:
             return response.status_code, f"Error retrieving subject '{subject_name}': {e}", {}
        
@@ -100,7 +101,7 @@ class SchemaRegistryClient():
             response.raise_for_status()
  
             # Return the new schema ID of the newly registered schema.
-            return 200, "", response.json().get("id")
+            return HttpStatus.OK, "", response.json().get("id")
         except requests.exceptions.RequestException as e:
             return response.status_code, f"Error registering subject '{subject_name}': {e}", -1
    

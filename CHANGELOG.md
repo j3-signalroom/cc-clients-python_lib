@@ -5,7 +5,7 @@ The format is base on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), 
 
 ## [0.03.00.000] - TBD
 ### Added
-- Issue
+- Issue [#30](https://github.com/j3-signalroom/cc-clients-lib/issues/30)
 
 ### Changed
 - Issue [#28](https://github.com/j3-signalroom/cc-clients-lib/issues/28)

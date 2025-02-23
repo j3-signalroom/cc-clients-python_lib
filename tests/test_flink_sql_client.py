@@ -44,7 +44,7 @@ def load_configurations():
 
 
 def test_delete_statement():
-    """Test the delete_flink_statement() function."""
+    """Test the delete_statement() function."""
 
     # Instantiate the FlinkSqlClient classs.
     flink_client = FlinkSqlClient(config)
@@ -53,6 +53,22 @@ def test_delete_statement():
  
     try:
         assert http_status_code == HttpStatus.ACCEPTED, f"HTTP Status Code: {http_status_code}"
+    except AssertionError as e:
+        logger.error(e)
+        logger.error("Response: %s", response)
+
+def test_get_statement_list():
+    """Test the get_statement_list() function."""
+
+    # Instantiate the FlinkSqlClient classs.
+    flink_client = FlinkSqlClient(config)
+
+    http_status_code, _, response = flink_client.get_statement_list()
+ 
+    try:
+        assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
+
+        logger.info("Response: %s", response)
     except AssertionError as e:
         logger.error(e)
         logger.error("Response: %s", response)

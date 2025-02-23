@@ -49,9 +49,10 @@ def test_delete_flink_statement():
     # Instantiate the FlinkSqlClient classs.
     flink_client = FlinkSqlClient(config)
 
-    http_status_code, _ = flink_client.delete_flink_statement(statement_name)
+    http_status_code, response = flink_client.delete_flink_statement(statement_name)
  
     try:
         assert http_status_code == HttpStatus.ACCEPTED, f"HTTP Status Code: {http_status_code}"
     except AssertionError as e:
         logger.error(e)
+        logger.error("Response: %s", response)

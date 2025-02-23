@@ -32,7 +32,7 @@ class FlinkSqlClient():
         self.cloud_provider = flink_sql_config[FLINK_CONFIG["cloud_provider"]]
         self.cloud_region = flink_sql_config[FLINK_CONFIG["cloud_region"]]
         self.compute_pool_id = flink_sql_config[FLINK_CONFIG["compute_pool_id"]]
-        self.flink_sql_base_url = f"https://flink.${self.cloud_region}.${self.cloud_provider}.confluent.cloud/sql/v1/organizations/${self.organization_id}/environments/${self.environment_id}/"
+        self.flink_sql_base_url = f"https://flink.{self.cloud_region}.{self.cloud_provider}.confluent.cloud/sql/v1/organizations/{self.organization_id}/environments/{self.environment_id}/"
 
     def delete_flink_statement(self, statement_name: str) -> Tuple[int, str]:
         """This function submits a RESTful API call to delete a Flink SQL statement.

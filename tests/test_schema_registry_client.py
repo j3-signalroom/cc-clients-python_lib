@@ -2,7 +2,7 @@ import logging
 from dotenv import load_dotenv
 import os
 import pytest
-from src.cc_clients_lib.schema_registry_client import SchemaRegistryClient, CompatibilityLevel
+from src.cc_clients_lib.schema_registry_client import SchemaRegistryClient, CompatibilityLevel, SCHEMA_REGISTRY_CONFIG
 from src.cc_clients_lib.common import HttpStatus
  
 
@@ -34,9 +34,9 @@ def load_configurations():
     kafka_topic = os.getenv("KAFKA_TOPIC")
 
     # Set the Schema Registry Cluster configuration.
-    config['url'] = os.getenv("SCHEMA_REGISTRY_URL")
-    config['api_key'] = os.getenv("SCHEMA_REGISTRY_API_KEY")
-    config['api_secret'] = os.getenv("SCHEMA_REGISTRY_API_SECRET")
+    config[SCHEMA_REGISTRY_CONFIG["url"]] = os.getenv("SCHEMA_REGISTRY_URL")
+    config[SCHEMA_REGISTRY_CONFIG["api_key"]] = os.getenv("SCHEMA_REGISTRY_API_KEY")
+    config[SCHEMA_REGISTRY_CONFIG["api_secret"]] = os.getenv("SCHEMA_REGISTRY_API_SECRET")
 
 
 def test_get_subject_compatibility_level():

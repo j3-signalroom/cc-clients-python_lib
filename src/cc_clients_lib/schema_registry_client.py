@@ -16,10 +16,11 @@ __status__     = "dev"
  
 
 # Schema Registry Config Keys.
-SCHEMA_REGISTRY_URL = "url"
-SCHEMA_REGISTRY_API_KEY = "api_key"
-SCHEMA_REGISTRY_API_SECRET = "api_secret"
-
+SCHEMA_REGISTRY_CONFIG = {
+    "url": "url",
+    "api_key": "api_key",
+    "api_secret": "api_secret"
+}
 
 # The Kafka Topic Subject Compatibility Level List.
 class CompatibilityLevel(StrEnum):
@@ -36,9 +37,9 @@ class CompatibilityLevel(StrEnum):
 # The Schema Registry Client Class.
 class SchemaRegistryClient():
     def __init__(self, schema_registry_config: dict):
-        self.schema_registry_url = schema_registry_config[SCHEMA_REGISTRY_URL]
-        self.api_key = str(schema_registry_config[SCHEMA_REGISTRY_API_KEY])
-        self.api_secret = str(schema_registry_config[SCHEMA_REGISTRY_API_SECRET])
+        self.schema_registry_url = schema_registry_config[SCHEMA_REGISTRY_CONFIG["url"]]
+        self.api_key = str(schema_registry_config[SCHEMA_REGISTRY_CONFIG["api_key"]])
+        self.api_secret = str(schema_registry_config[SCHEMA_REGISTRY_CONFIG["api_secret"]])
        
  
     def get_topic_subject_latest_schema(self, subject_name: str) -> Tuple[int, str, dict]:

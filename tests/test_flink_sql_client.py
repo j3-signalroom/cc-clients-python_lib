@@ -43,13 +43,13 @@ def load_configurations():
     statement_name = os.getenv("FLINK_STATEMENT_NAME")
 
 
-def test_delete_flink_statement():
+def test_delete_statement():
     """Test the delete_flink_statement() function."""
 
     # Instantiate the FlinkSqlClient classs.
     flink_client = FlinkSqlClient(config)
 
-    http_status_code, response = flink_client.delete_flink_statement(statement_name)
+    http_status_code, response = flink_client.delete_statement(statement_name)
  
     try:
         assert http_status_code == HttpStatus.ACCEPTED, f"HTTP Status Code: {http_status_code}"

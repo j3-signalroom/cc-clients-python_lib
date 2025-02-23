@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Dict
 import requests
 from requests.auth import HTTPBasicAuth
 
@@ -34,6 +34,27 @@ class FlinkSqlClient():
         self.compute_pool_id = flink_sql_config[FLINK_CONFIG["compute_pool_id"]]
         self.flink_sql_base_url = f"https://flink.{self.cloud_region}.{self.cloud_provider}.confluent.cloud/sql/v1/organizations/{self.organization_id}/environments/{self.environment_id}/"
 
+    def get_statement_list(self) -> Tuple[int, str, Dict]:
+        """This function submits a RESTful API call to get the Flink SQL statement list.
+
+        Returns:
+            int:    HTTP Status Code.
+            str:    HTTP Error, if applicable.
+        """
+        # The Flink SQL endpoint to get statement list.
+        endpoint = f"{self.flink_sql_base_url}statements"
+
+        try:
+            # Send a GET request to get statement list.
+            response = requests.get(endpoint, auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
+            
+            # Raise HTTPError, if occurred.
+            response.raise_for_status()
+
+            return response.status_code, "", response.json()
+        except requests.exceptions.RequestException as e:
+            return response.status_code, f"Fail to retrieve the statement list because {e}", {}
+        
     def delete_statement(self, statement_name: str) -> Tuple[int, str]:
         """This function submits a RESTful API call to delete a Flink SQL statement.
 
@@ -50,6 +71,10 @@ class FlinkSqlClient():
         try:
             # Send a DELETE request to delete the statement.
             response = requests.delete(endpoint, auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
+
+            # Raise HTTPError, if occurred.
+            response.raise_for_status()
+
             return response.status_code, response.text
-        except Exception as e:
-            return 500, str(e)
+        except requests.exceptions.RequestException as e:
+            return response.status_code, f"Fail to delete the statement because {e}"

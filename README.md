@@ -2,6 +2,7 @@
 
 The Confluent Cloud Clients Python Library provides a set of clients for interacting with Confluent Cloud REST APIs. The library includes clients for:
 + **Flink**
++ **Kafka**
 + **Schema Registry**
 
 **Table of Contents**
@@ -9,7 +10,8 @@ The Confluent Cloud Clients Python Library provides a set of clients for interac
 <!-- toc -->
 - [**1.0 Library Clients**](#10-library-clients)
     * [**1.1 Flink Client**](#11-flink-client)
-    * [**1.2 Schema Registry Client**](#12-schema-registry-client)
+    * [**1.2 Kafka Client**](#12-kafka-client)
+    * [**1.3 Schema Registry Client**](#13-schema-registry-client)
 + [**2.0 Resources**](#20-resources)
     * [**2.1 API Documentation**](#21-api-documentation)
 <!-- tocstop -->
@@ -23,7 +25,11 @@ The **Flink Client** provides the following methods:
 - `delete_statement`
 - `get_statement_list`
 
-### **1.2 Schema Registry Client**
+### **1.2 Kafka Client**
+The **Kafka Client** provides the following methods:
+- `delete_kafka_topic`
+
+### **1.3 Schema Registry Client**
 The **Schema Registry Client** provides the following methods:
 - `convert_avro_schema_into_string`
 - `delete_kafka_topic_key_schema_subject`
@@ -38,4 +44,5 @@ The **Schema Registry Client** provides the following methods:
 
 ### **2.1 API Documentation**
 * [Flink SQL REST API for Confluent Cloud for Apache Flink](https://docs.confluent.io/cloud/current/flink/operate-and-deploy/flink-rest-api.html)
+* [Kafka REST APIs for Confluent Cloud](https://docs.confluent.io/cloud/current/kafka-rest/kafka-rest-cc.html)
 * [Confluent Cloud Schema Registry REST API Usage](https://docs.confluent.io/cloud/current/sr/sr-rest-apis.html)

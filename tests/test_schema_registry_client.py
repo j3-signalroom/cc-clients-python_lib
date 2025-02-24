@@ -76,3 +76,19 @@ def test_delete_kafka_topic_key_schema_subject():
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
     except AssertionError as e:
         logger.error(e)
+
+def test_delete_kafka_topic_value_schema_subject():
+    """Test the delete_kafka_topic_value_schema_subject() function."""
+
+    # Set the Kafka topic name.
+    kafka_topic_name = f"{kafka_topic}"
+ 
+    # Instantiate the SchemaRegistryClient classs.
+    sr_client = SchemaRegistryClient(config)
+
+    http_status_code, _ = sr_client.delete_kafka_topic_value_schema_subject(kafka_topic_name)
+ 
+    try:
+        assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
+    except AssertionError as e:
+        logger.error(e)

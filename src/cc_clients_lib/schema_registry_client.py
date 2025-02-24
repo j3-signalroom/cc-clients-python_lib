@@ -260,6 +260,48 @@ class SchemaRegistryClient():
 
             return response.status_code, ""
         except requests.exceptions.RequestException as e:
-            return response.status_code, f"Delete topic schema subject hard-delete failed because {e}"
+            return response.status_code, f"Delete topic key schema subject hard-delete failed because {e}"
+        
+    def delete_kafka_topic_value_schema_subject(self, kafka_topic_name) -> Tuple[int, str]:
+        """This function submits a RESTful API call to delete the topic value schema subject.
+ 
+        Arg(s):
+            kafka_topic_name (str):  The Kafka topic name of the value schema subject.
+ 
+        Returns:
+            int:                  HTTP Status Code.
+            str:                  HTTP Error, if applicable.
+        """
+        # The Confluent Schema Registry endpoint to delete the topic schema subject soft-delete of all versions registered.
+        endpoint = f"{self.schema_registry_url}/subjects/{kafka_topic_name}-value"
+ 
+        try:
+            # Send a DELETE to perform a soft-delete of all version of the schema.
+            response = requests.delete(
+                endpoint,
+                auth=HTTPBasicAuth(self.api_key, self.api_secret)
+            )
+ 
+            # Raise HTTPError, if occurred.
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            return response.status_code, f"Delete topic schema subject soft-delete failed because {e}"
+        
+        # The Confluent Schema Registry endpoint to delete the topic schema subject hard-delete of all versions registered.
+        endpoint = f"{self.schema_registry_url}/subjects/{kafka_topic_name}-value?permanent=true"
+ 
+        try:
+            # Send a DELETE to perform a hard-delete of all version of the schema.
+            response = requests.delete(
+                endpoint,
+                auth=HTTPBasicAuth(self.api_key, self.api_secret)
+            )
+ 
+            # Raise HTTPError, if occurred.
+            response.raise_for_status()
+
+            return response.status_code, ""
+        except requests.exceptions.RequestException as e:
+            return response.status_code, f"Delete topic value schema subject hard-delete failed because {e}"
 
  

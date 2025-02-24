@@ -1,4 +1,7 @@
 # Confluent Cloud Clients Python Library
+
+> **Note:** _This library is in active development and is subject to change.  It covers only the methods I have needed so far.  If you need a method that is not covered, please feel free to open an issue or submit a pull request._
+
 This library provides a set of clients for interacting with Confluent Cloud REST APIs. The library includes clients for:
 
 + **Flink Client** provides the following methods:

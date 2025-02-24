@@ -15,21 +15,21 @@ __status__     = "dev"
 KAFKA_CONFIG = {
     "kafka_api_key": "kafka_api_key",
     "kafka_api_secret": "kafka_api_secret",
-    "cluster_id": "cluster_id",
-    "environment_id": "environment_id",
-    "cloud_provider": "cloud_provider",
-    "cloud_region": "cloud_region"
+    "bootstrap_server_id": "bootstrap_server_id",
+    "bootstrap_server_cloud_region": "bootstrap_server_cloud_region",
+    "bootstrap_server_cloud_provider": "bootstrap_server_cloud_provider",
+    "kafka_cluster_id": "kafka_cluster_id"
 }
 
 class KafkaClient():
     def __init__(self, kafka_config: dict):
-        self.cluster_id = kafka_config[KAFKA_CONFIG["cluster_id"]]
-        self.environment_id = kafka_config[KAFKA_CONFIG["environment_id"]]
+        self.bootstrap_server_id = kafka_config[KAFKA_CONFIG["bootstrap_server_id"]]
+        self.bootstrap_server_cloud_region = kafka_config[KAFKA_CONFIG["bootstrap_server_cloud_region"]]
+        self.bootstrap_server_cloud_provider = kafka_config[KAFKA_CONFIG["bootstrap_server_cloud_provider"]]
+        self.kafka_cluster_id = kafka_config[KAFKA_CONFIG["kafka_cluster_id"]]
         self.kafka_api_key = str(kafka_config[KAFKA_CONFIG["kafka_api_key"]])
         self.kafka_api_secret = str(kafka_config[KAFKA_CONFIG["kafka_api_secret"]])
-        self.cloud_provider = kafka_config[KAFKA_CONFIG["cloud_provider"]]
-        self.cloud_region = kafka_config[KAFKA_CONFIG["cloud_region"]]
-        self.kafka_base_url = f"https://confluent.cloud/environments/{self.environment_id}/clusters/{self.cluster_id}"
+        self.kafka_base_url = f"https://{self.bootstrap_server_id}.{self.bootstrap_server_cloud_region}.{self.bootstrap_server_cloud_provider}.confluent.cloud/kafka/v3/clusters/{self.kafka_cluster_id}/"
 
     def delete_kafka_topic(self, kafka_topic_name: str) -> Tuple[int, str]:
         """This function submits a RESTful API call to delete a Kafka topic name.

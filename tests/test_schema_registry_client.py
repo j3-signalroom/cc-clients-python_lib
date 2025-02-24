@@ -19,7 +19,7 @@ logger.setLevel(logging.INFO)
 
 # Initialize the global variables.
 config = {}
-kafka_topic = ""
+kafka_topic_name = ""
 
 
 @pytest.fixture(autouse=True)
@@ -28,10 +28,10 @@ def load_configurations():
     load_dotenv()
  
     global config
-    global kafka_topic
+    global kafka_topic_name
 
     # Set the Kafka test topic.
-    kafka_topic = os.getenv("KAFKA_TOPIC")
+    kafka_topic_name = os.getenv("KAFKA_TOPIC_NAME")
 
     # Set the Schema Registry Cluster configuration.
     config[SCHEMA_REGISTRY_CONFIG["url"]] = os.getenv("SCHEMA_REGISTRY_URL")
@@ -43,7 +43,7 @@ def test_get_subject_compatibility_level():
     """Test the get_topic_subject_compatibility_level() function."""
 
     # Set the Kafka topic subject name.
-    kafka_topic_subject = f"{kafka_topic}-value"
+    kafka_topic_subject = f"{kafka_topic_name}-value"
  
     # Instantiate the SchemaRegistryClient classs.
     sr_client = SchemaRegistryClient(config)
@@ -64,9 +64,6 @@ def test_get_subject_compatibility_level():
 def test_delete_kafka_topic_key_schema_subject():
     """Test the delete_kafka_topic_key_schema_subject() function."""
 
-    # Set the Kafka topic name.
-    kafka_topic_name = f"{kafka_topic}"
- 
     # Instantiate the SchemaRegistryClient classs.
     sr_client = SchemaRegistryClient(config)
 
@@ -77,12 +74,10 @@ def test_delete_kafka_topic_key_schema_subject():
     except AssertionError as e:
         logger.error(e)
 
+
 def test_delete_kafka_topic_value_schema_subject():
     """Test the delete_kafka_topic_value_schema_subject() function."""
 
-    # Set the Kafka topic name.
-    kafka_topic_name = f"{kafka_topic}"
- 
     # Instantiate the SchemaRegistryClient classs.
     sr_client = SchemaRegistryClient(config)
 

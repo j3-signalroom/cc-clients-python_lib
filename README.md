@@ -26,6 +26,7 @@ The **Flink Client** provides the following methods:
 ### **1.2 Schema Registry Client**
 The **Schema Registry Client** provides the following methods:
 - `convert_avro_schema_into_string`
+- `delete_kafka_topic_key_schema_subject`
 - `get_global_topic_subject_compatibility_level`
 - `get_topic_subject_compatibility_level`
 - `get_topic_subject_latest_schema`

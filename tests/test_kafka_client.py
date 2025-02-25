@@ -55,3 +55,18 @@ def test_delete_kafka_topic():
     except AssertionError as e:
         logger.info(f"HTTP Status Code: {http_status_code}, and the Error Message: {error_message}")
         logger.error(e)
+
+
+def test_kafka_topic_exist():
+    """Test the kafka_topic_exist() function."""
+
+    # Instantiate the KafkaClient classs.
+    kafka_client = KafkaClient(config)
+
+    http_status_code, error_message, exist = kafka_client.kafka_topic_exist(kafka_topic_name)
+
+    try:
+        assert not exist, f"HTTP Status Code: {http_status_code}"
+    except AssertionError as e:
+        logger.info(f"HTTP Status Code: {http_status_code}, and the Error Message: {error_message}")
+        logger.error(e)

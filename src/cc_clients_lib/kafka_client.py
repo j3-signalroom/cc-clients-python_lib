@@ -78,5 +78,5 @@ class KafkaClient():
 
             return response.status_code, response.json(), True
         except requests.exceptions.RequestException as e:
-            return response.status_code, f"Fail to delete the Kafka topic because {e}", False
+            return response.status_code, f"Fail to determine the Kafka topic exist because {e}", False
     

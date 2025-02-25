@@ -28,6 +28,7 @@ The **Flink Client** provides the following methods:
 ### **1.2 Kafka Client**
 The **Kafka Client** provides the following methods:
 - `delete_kafka_topic`
+- `kafka_topic_exist`
 
 ### **1.3 Schema Registry Client**
 The **Schema Registry Client** provides the following methods:

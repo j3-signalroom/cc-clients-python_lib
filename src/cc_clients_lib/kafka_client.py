@@ -32,7 +32,7 @@ class KafkaClient():
         self.kafka_base_url = f"https://{self.bootstrap_server_id}.{self.bootstrap_server_cloud_region}.{self.bootstrap_server_cloud_provider}.confluent.cloud/kafka/v3/clusters/{self.kafka_cluster_id}/"
 
     def delete_kafka_topic(self, kafka_topic_name: str) -> Tuple[int, str]:
-        """This function submits a RESTful API call to delete a Kafka topic name.
+        """This function submits a RESTful API call to delete a Kafka topic.
 
         Arg(s):
             kafka_topic_name (str):  The Kafka topic name.
@@ -45,7 +45,7 @@ class KafkaClient():
         endpoint = f"{self.kafka_base_url}topics/{kafka_topic_name}"
 
         try:
-            # Send a DELETE request to delete the Kafka topic.
+            # Send a GET request to delete the Kafka topic.
             response = requests.delete(endpoint, auth=HTTPBasicAuth(self.kafka_api_key, self.kafka_api_secret))
 
             # Raise HTTPError, if occurred.
@@ -54,3 +54,29 @@ class KafkaClient():
             return response.status_code, response.json()
         except requests.exceptions.RequestException as e:
             return response.status_code, f"Fail to delete the Kafka topic because {e}"
+        
+    def kafka_topic_exist(self, kafka_topic_name: str) -> Tuple[int, str, bool]:
+        """This function submits a RESTful API call to get a Kafka topic to see if it exist or not.
+
+        Arg(s):
+            kafka_topic_name (str):  The Kafka topic name.
+
+        Returns:
+            int:    HTTP Status Code.
+            str:    HTTP Error, if applicable.
+            bool:   True if the Kafka topic exist, False otherwise.
+        """
+        # The Kafka cluster endpoint to delete a Kafka topic.
+        endpoint = f"{self.kafka_base_url}topics/{kafka_topic_name}"
+
+        try:
+            # Send a GET request to get the Kafka topic.
+            response = requests.get(endpoint, auth=HTTPBasicAuth(self.kafka_api_key, self.kafka_api_secret))
+
+            # Raise HTTPError, if occurred.
+            response.raise_for_status()
+
+            return response.status_code, response.json(), True
+        except requests.exceptions.RequestException as e:
+            return response.status_code, f"Fail to delete the Kafka topic because {e}", False
+    

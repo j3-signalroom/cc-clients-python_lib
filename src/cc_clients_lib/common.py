@@ -9,7 +9,7 @@ __email__      = "j3@thej3.com"
 __status__     = "dev"
 
 
-# The HTTP Status Codes.
+# Common HTTP Status Codes.
 class HttpStatus(IntEnum):
     OK = 200
     CREATED = 201

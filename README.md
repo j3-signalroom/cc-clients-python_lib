@@ -24,6 +24,7 @@ The Confluent Cloud Clients Python Library provides a set of clients for interac
 The **Flink Client** provides the following methods:
 - `delete_statement`
 - `get_statement_list`
+- `submit_statement`
 
 ### **1.2 Kafka Client**
 The **Kafka Client** provides the following methods:

@@ -4,7 +4,6 @@ from requests.auth import HTTPBasicAuth
 import fastavro
 from enum import StrEnum
 import json
-from src.cc_clients_lib.common import HttpStatus
  
 
 __copyright__  = "Copyright (c) 2025 Jeffrey Jonathan Jennings"
@@ -54,18 +53,16 @@ class SchemaRegistryClient():
             str:    HTTP Error, if applicable.
             dict:   The subject's latest schema.  Otherwise, an empty dict is returned.
         """
-        # The Confluent Schema Registry endpoint to get the subject's latest schema.
-        endpoint = f"{self.schema_registry_url}/subjects/{subject_name}/versions/latest"
+        # Send a GET request to get the subject's latest schema.
+        response = requests.get(url=f"{self.schema_registry_url}/subjects/{subject_name}/versions/latest", 
+                                auth=HTTPBasicAuth(self.api_key, self.api_secret))
  
         try:
-            # Send a GET request to get the subject's latest schema.
-            response = requests.get(endpoint, auth=HTTPBasicAuth(self.api_key, self.api_secret))
- 
             # Raise HTTPError, if occurred.
             response.raise_for_status()
  
             # Return the latest schema for the subject.
-            return HttpStatus.OK, "", response.json().get("schema")
+            return response.status_code, "", response.json().get("schema")
         except requests.exceptions.RequestException as e:
             return response.status_code, f"Error retrieving subject '{subject_name}': {e}", {}
        
@@ -82,27 +79,17 @@ class SchemaRegistryClient():
             str:  HTTP Error, if applicable.
             int:  The schema ID of the newly created schema.
         """
-        # The Confluent Schema Registry endpoint to register the subject's schema.
-        endpoint = f"{self.schema_registry_url}/subjects/{subject_name}/versions"
+        # Send a POST request to register the schema.
+        response = requests.post(url=f"{self.schema_registry_url}/subjects/{subject_name}/versions",
+                                 json={"scheam": schema_str},
+                                 auth=HTTPBasicAuth(self.api_key, self.api_secret))
  
         try:    
-            # Construct payload.
-            payload = {
-                "schema": schema_str
-            }
- 
-            # Send a POST request to register the schema.
-            response = requests.post(
-                endpoint,
-                json=payload,
-                auth=HTTPBasicAuth(self.api_key, self.api_secret)
-            )
- 
             # Raise HTTPError, if occurred.
             response.raise_for_status()
  
             # Return the new schema ID of the newly registered schema.
-            return HttpStatus.OK, "", response.json().get("id")
+            return response.status_code, "", response.json().get("id")
         except requests.exceptions.RequestException as e:
             return response.status_code, f"Error registering subject '{subject_name}': {e}", -1
    
@@ -118,20 +105,12 @@ class SchemaRegistryClient():
             int:  HTTP Status Code.
             str:  HTTP Error, if applicable.
         """
-        # The Confluent Schema Registry endpoint to set the subject compatibility settting.
-        endpoint = f"{self.schema_registry_url}/config/{subject_name}"
- 
-        # The payload for updating the compatibility setting.
-        payload = {"compatibility": compatibility_level.value}
- 
+        # Send a PUT request to update the compatibility setting of the subject.
+        response = requests.put(url=f"{self.schema_registry_url}/config/{subject_name}",
+                                json={"compatibility": compatibility_level.value},
+                                auth=HTTPBasicAuth(self.api_key, self.api_secret))
+
         try:
-            # Send a PUT request to update the compatibility setting of the subject.
-            response = requests.put(
-                endpoint,
-                json=payload,
-                auth=HTTPBasicAuth(self.api_key, self.api_secret)
-            )
- 
             # Raise HTTPError, if occurred.
             response.raise_for_status()
  
@@ -181,16 +160,11 @@ class SchemaRegistryClient():
             str:                  HTTP Error, if applicable.
             compatibility_level:  The Topic Subject compatibility level.
         """
-        # The Confluent Schema Registry endpoint to get the global subject compatibility level.
-        endpoint = f"{self.schema_registry_url}/config"
- 
+        # Send a GET the Topic Subject compatibility setting level.
+        response = requests.get(url=f"{self.schema_registry_url}/config",
+                                auth=HTTPBasicAuth(self.api_key, self.api_secret))
+
         try:
-            # Send a GET the Topic Subject compatibility setting level.
-            response = requests.get(
-                endpoint,
-                auth=HTTPBasicAuth(self.api_key, self.api_secret)
-            )
- 
             # Raise HTTPError, if occurred.
             response.raise_for_status()
  
@@ -230,16 +204,11 @@ class SchemaRegistryClient():
             int:                  HTTP Status Code.
             str:                  HTTP Error, if applicable.
         """
-        # The Confluent Schema Registry endpoint to delete the topic schema subject soft-delete of all versions registered.
-        endpoint = f"{self.schema_registry_url}/subjects/{kafka_topic_name}-key"
+        # Send a DELETE to perform a soft-delete of all version of the schema.
+        response = requests.delete(url=f"{self.schema_registry_url}/subjects/{kafka_topic_name}-key",
+                                   auth=HTTPBasicAuth(self.api_key, self.api_secret))
  
         try:
-            # Send a DELETE to perform a soft-delete of all version of the schema.
-            response = requests.delete(
-                endpoint,
-                auth=HTTPBasicAuth(self.api_key, self.api_secret)
-            )
- 
             # Raise HTTPError, if occurred.
             response.raise_for_status()
         except requests.exceptions.RequestException as e:
@@ -272,35 +241,26 @@ class SchemaRegistryClient():
             int:                  HTTP Status Code.
             str:                  HTTP Error, if applicable.
         """
-        # The Confluent Schema Registry endpoint to delete the topic schema subject soft-delete of all versions registered.
-        endpoint = f"{self.schema_registry_url}/subjects/{kafka_topic_name}-value"
+        # Send a DELETE to perform a soft-delete of all version of the schema.
+        response = requests.delete(url=f"{self.schema_registry_url}/subjects/{kafka_topic_name}-value",
+                                   auth=HTTPBasicAuth(self.api_key, self.api_secret))
  
         try:
-            # Send a DELETE to perform a soft-delete of all version of the schema.
-            response = requests.delete(
-                endpoint,
-                auth=HTTPBasicAuth(self.api_key, self.api_secret)
-            )
- 
             # Raise HTTPError, if occurred.
             response.raise_for_status()
         except requests.exceptions.RequestException as e:
             return response.status_code, f"Delete topic schema subject soft-delete failed because {e}"
         
         # The Confluent Schema Registry endpoint to delete the topic schema subject hard-delete of all versions registered.
-        endpoint = f"{self.schema_registry_url}/subjects/{kafka_topic_name}-value?permanent=true"
+        # Send a DELETE to perform a hard-delete of all version of the schema.
+        response = requests.delete(url=f"{self.schema_registry_url}/subjects/{kafka_topic_name}-value?permanent=true",
+                                   auth=HTTPBasicAuth(self.api_key, self.api_secret))
  
         try:
-            # Send a DELETE to perform a hard-delete of all version of the schema.
-            response = requests.delete(
-                endpoint,
-                auth=HTTPBasicAuth(self.api_key, self.api_secret)
-            )
- 
             # Raise HTTPError, if occurred.
             response.raise_for_status()
 
-            return response.status_code, ""
+            return response.status_code, response.text
         except requests.exceptions.RequestException as e:
             return response.status_code, f"Delete topic value schema subject hard-delete failed because {e}"
 

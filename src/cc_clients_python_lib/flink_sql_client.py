@@ -45,13 +45,11 @@ class FlinkSqlClient():
             int:    HTTP Status Code.
             str:    HTTP Error, if applicable.
         """
-        # The Flink SQL endpoint to get statement list.
-        endpoint = f"{self.flink_sql_base_url}statements"
+        # Send a GET request to get statement list.
+        response = requests.get(url=f"{self.flink_sql_base_url}statements", 
+                                auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
 
         try:
-            # Send a GET request to get statement list.
-            response = requests.get(endpoint, auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
-            
             # Raise HTTPError, if occurred.
             response.raise_for_status()
 
@@ -69,13 +67,11 @@ class FlinkSqlClient():
             int:    HTTP Status Code.
             str:    HTTP Error, if applicable.
         """
-        # The Flink SQL endpoint to delete a statement.
-        endpoint = f"{self.flink_sql_base_url}statements/{statement_name}"
+        # Send a DELETE request to delete the statement.
+        response = requests.delete(url=f"{self.flink_sql_base_url}statements/{statement_name}", 
+                                   auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
 
         try:
-            # Send a DELETE request to delete the statement.
-            response = requests.delete(endpoint, auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
-
             # Raise HTTPError, if occurred.
             response.raise_for_status()
 
@@ -96,30 +92,27 @@ class FlinkSqlClient():
             str:    HTTP Error, if applicable.
             dict:   The response JSON.
         """
-        # The Flink SQL endpoint to submit a statement.
-        endpoint = f"{self.flink_sql_base_url}statements"
+        # Create a JSON payload to submit a statement.
+        statement_name += (f"-{str(uuid.uuid4())}").replace("_", "-")
+        payload = {
+            "name": statement_name,
+            "organization_id": self.organization_id,
+            "environment_id": self.environment_id,
+            "spec": {
+                "statement": sql_query,
+                "properties": sql_query_properties,
+                "compute_pool_id": self.compute_pool_id,
+                "principal": self.principal_id,
+                "stopped": False
+            }
+        }
+
+        # Send a POST request to submit a statement.
+        response = requests.post(url=f"{self.flink_sql_base_url}statements",
+                                    data=json.dumps(payload),
+                                    auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
 
         try:
-            # Create a JSON payload to submit a statement.
-            statement_name += (f"-{str(uuid.uuid4())}").replace("_", "-")
-            payload = {
-                "name": statement_name,
-                "organization_id": self.organization_id,
-                "environment_id": self.environment_id,
-                "spec": {
-                    "statement": sql_query,
-                    "properties": sql_query_properties,
-                    "compute_pool_id": self.compute_pool_id,
-                    "principal": self.principal_id,
-                    "stopped": False
-                }
-            }
-
-            # Send a POST request to submit a statement.
-            response = requests.post(url=endpoint,
-                                     data=json.dumps(payload),
-                                     auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
-
             # Raise HTTPError, if occurred.
             response.raise_for_status()
 

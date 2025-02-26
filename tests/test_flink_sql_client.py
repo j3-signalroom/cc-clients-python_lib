@@ -38,6 +38,7 @@ def load_configurations():
     config[FLINK_CONFIG["cloud_provider"]] = os.getenv("CLOUD_PROVIDER")
     config[FLINK_CONFIG["cloud_region"]] = os.getenv("CLOUD_REGION")
     config[FLINK_CONFIG["compute_pool_id"]] = os.getenv("COMPUTE_POOL_ID")
+    config[FLINK_CONFIG["principal_id"]] = os.getenv("PRINCIPAL_ID")
     
     # Set the Flink SQL statement name.
     statement_name = os.getenv("FLINK_STATEMENT_NAME")

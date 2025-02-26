@@ -1,6 +1,7 @@
 from typing import Tuple, Dict
 import requests
 import uuid
+import json
 from requests.auth import HTTPBasicAuth
 
 
@@ -100,7 +101,7 @@ class FlinkSqlClient():
 
         try:
             # Create a JSON payload to submit a statement.
-            statement_name += f"-{str(uuid.uuid4())}"
+            statement_name += (f"-{str(uuid.uuid4())}").replace("_", "-")
             payload = {
                 "name": statement_name,
                 "organization_id": self.organization_id,
@@ -109,19 +110,19 @@ class FlinkSqlClient():
                     "statement": sql_query,
                     "properties": sql_query_properties,
                     "compute_pool_id": self.compute_pool_id,
-                    "principal": "${PRINCIPAL_ID}",
+                    "principal": self.principal_id,
                     "stopped": False
                 }
             }
 
             # Send a POST request to submit a statement.
             response = requests.post(url=endpoint,
-                                     data=payload,
+                                     data=json.dumps(payload),
                                      auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
 
             # Raise HTTPError, if occurred.
             response.raise_for_status()
 
-            return response.status_code, response.txt, response.json()
+            return response.status_code, response.text, response.json()
         except requests.exceptions.RequestException as e:
-            return response.status_code, f"Fail to submit astatement because {e}", {}
+            return response.status_code, f"Fail to submit astatement because {e}", response.json()

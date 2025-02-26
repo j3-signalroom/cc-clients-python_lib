@@ -20,6 +20,8 @@ logger.setLevel(logging.INFO)
 # Initialize the global variables.
 config = {}
 statement_name = ""
+catalog_name = ""
+database_name = ""
 
 
 @pytest.fixture(autouse=True)
@@ -27,10 +29,8 @@ def load_configurations():
     """Load the Schema Registry Cluster configuration and Kafka test topic from the environment variables."""
     load_dotenv()
  
-    global config
-    global statement_name
-
     # Set the Flink configuration.
+    global config
     config[FLINK_CONFIG["flink_api_key"]] = os.getenv("FLINK_API_KEY")
     config[FLINK_CONFIG["flink_api_secret"]] = os.getenv("FLINK_API_SECRET")
     config[FLINK_CONFIG["organization_id"]] = os.getenv("ORGANIZATION_ID")
@@ -41,7 +41,14 @@ def load_configurations():
     config[FLINK_CONFIG["principal_id"]] = os.getenv("PRINCIPAL_ID")
     
     # Set the Flink SQL statement name.
+    global statement_name
     statement_name = os.getenv("FLINK_STATEMENT_NAME")
+
+    # Set the Flink SQL catalog and database names.
+    global catalog_name
+    global database_name
+    catalog_name = os.getenv("FLINK_CATALOG_NAME")
+    database_name = os.getenv("FLINK_DATABASE_NAME")
 
 
 def test_delete_statement():
@@ -73,3 +80,20 @@ def test_get_statement_list():
     except AssertionError as e:
         logger.error(e)
         logger.error("Response: %s", response)
+
+def test_submit_statement():
+    """Test the submit_statement() function."""
+
+    # Instantiate the FlinkSqlClient classs.
+    flink_client = FlinkSqlClient(config)
+
+    http_status_code, error_message, response = flink_client.submit_statement("drop-statement",
+                                                                              "DROP TABLE IF EXISTS hello;", 
+                                                                              {"sql.current-catalog": catalog_name, "sql.current-database": database_name})
+ 
+    try:
+        logger.info("HTTP Status Code: %d, Error Message: %s, Response: %s", http_status_code, error_message, response)
+        assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"        
+    except AssertionError as e:
+        logger.error(e)
+        logger.error("HTTP Status Code: %d, Error Message: %s, Response: %s", http_status_code, error_message, response)

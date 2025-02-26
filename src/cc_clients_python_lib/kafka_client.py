@@ -44,10 +44,10 @@ class KafkaClient():
         # The Kafka cluster endpoint to delete a Kafka topic.
         endpoint = f"{self.kafka_base_url}topics/{kafka_topic_name}"
 
-        try:
-            # Send a GET request to delete the Kafka topic.
-            response = requests.delete(endpoint, auth=HTTPBasicAuth(self.kafka_api_key, self.kafka_api_secret))
+        # Send a GET request to delete the Kafka topic.
+        response = requests.delete(endpoint, auth=HTTPBasicAuth(self.kafka_api_key, self.kafka_api_secret))
 
+        try:
             # Raise HTTPError, if occurred.
             response.raise_for_status()
 
@@ -66,13 +66,13 @@ class KafkaClient():
             str:    HTTP Error, if applicable.
             bool:   True if the Kafka topic exist, False otherwise.
         """
-        # The Kafka cluster endpoint to delete a Kafka topic.
+        # The Kafka cluster endpoint to get a Kafka topic.
         endpoint = f"{self.kafka_base_url}topics/{kafka_topic_name}"
 
-        try:
-            # Send a GET request to get the Kafka topic.
-            response = requests.get(endpoint, auth=HTTPBasicAuth(self.kafka_api_key, self.kafka_api_secret))
+        # Send a GET request to get the Kafka topic.
+        response = requests.get(endpoint, auth=HTTPBasicAuth(self.kafka_api_key, self.kafka_api_secret))
 
+        try:
             # Raise HTTPError, if occurred.
             response.raise_for_status()
 

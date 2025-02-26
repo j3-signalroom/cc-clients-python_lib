@@ -2,8 +2,8 @@ import logging
 from dotenv import load_dotenv
 import os
 import pytest
-from src.cc_clients_lib.flink_sql_client import FlinkSqlClient, FLINK_CONFIG
-from src.cc_clients_lib.common import HttpStatus
+from src.cc_clients_python_lib.flink_sql_client import FlinkSqlClient, FLINK_CONFIG
+from src.cc_clients_python_lib.common import HttpStatus
 
 
 __copyright__  = "Copyright (c) 2025 Jeffrey Jonathan Jennings"
@@ -50,6 +50,8 @@ def load_configurations():
     catalog_name = os.getenv("FLINK_CATALOG_NAME")
     database_name = os.getenv("FLINK_DATABASE_NAME")
 
+    logger.info("Flink Configuration: %s", config)
+
 
 def test_delete_statement():
     """Test the delete_statement() function."""
@@ -64,6 +66,7 @@ def test_delete_statement():
     except AssertionError as e:
         logger.error(e)
         logger.error("Response: %s", response)
+
 
 def test_get_statement_list():
     """Test the get_statement_list() function."""
@@ -80,6 +83,7 @@ def test_get_statement_list():
     except AssertionError as e:
         logger.error(e)
         logger.error("Response: %s", response)
+
 
 def test_submit_statement():
     """Test the submit_statement() function."""

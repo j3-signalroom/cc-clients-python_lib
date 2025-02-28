@@ -115,8 +115,9 @@ def test_get_compute_pool_list():
 
     http_status_code, error_message, response = flink_client.get_compute_pool_list()
 
-    logger.info("Response: %s", response)
-
+    for item in response.get("data"):
+        logger.info("%s, %d, %d, %s", item.get("id"), item.get("status").get("current_cfu"), item.get("spec").get("max_cfu"), item.get("status").get("phase"))
+        
     try:
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
     except AssertionError as e:

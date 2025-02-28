@@ -13,7 +13,7 @@ __email__      = "j3@thej3.com"
 __status__     = "dev"
 
 
-# Flink SQL Config Keys.
+# Flink Config Keys.
 FLINK_CONFIG = {
     "flink_api_key": "flink_api_key",
     "flink_api_secret": "flink_api_secret",

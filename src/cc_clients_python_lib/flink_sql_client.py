@@ -37,7 +37,7 @@ class FlinkSqlClient():
         self.compute_pool_id = flink_sql_config[FLINK_CONFIG["compute_pool_id"]]
         self.principal_id = flink_sql_config[FLINK_CONFIG["principal_id"]]
         self.flink_sql_base_url = f"https://flink.{self.cloud_region}.{self.cloud_provider}.confluent.cloud/sql/v1/organizations/{self.organization_id}/environments/{self.environment_id}/"
-        self.flink_compute_pool_base_url = f"https://api.confluent.cloud/fcpm/v2/compute-pools/"
+        self.flink_compute_pool_base_url = "https://api.confluent.cloud/fcpm/v2/compute-pools/"
 
     def get_statement_list(self, page_size: int = None) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to get the Flink SQL statement list.

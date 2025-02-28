@@ -23,7 +23,7 @@ The Confluent Cloud Clients Python Library provides a set of clients for interac
 ### **1.1 Flink Client**
 The **Flink Client** provides the following methods:
 - `delete_statement`
-- `get_compute_pool`
+- `get_compute_pool_list`
 - `get_statement_list`
 - `submit_statement`
 

@@ -2,7 +2,7 @@ import logging
 from dotenv import load_dotenv
 import os
 import pytest
-from src.cc_clients_python_lib.flink_sql_client import FlinkSqlClient, FLINK_CONFIG
+from cc_clients_python_lib.flink_client import FlinkClient, FLINK_CONFIG
 from src.cc_clients_python_lib.common import HttpStatus
 
 
@@ -39,6 +39,8 @@ def load_configurations():
     config[FLINK_CONFIG["cloud_region"]] = os.getenv("CLOUD_REGION")
     config[FLINK_CONFIG["compute_pool_id"]] = os.getenv("COMPUTE_POOL_ID")
     config[FLINK_CONFIG["principal_id"]] = os.getenv("PRINCIPAL_ID")
+    config[FLINK_CONFIG["confluent_cloud_api_key"]] = os.getenv("CONFLUENT_CLOUD_API_KEY")
+    config[FLINK_CONFIG["confluent_cloud_api_secret"]] = os.getenv("CONFLUENT_CLOUD_API_SECRET")
     
     # Set the Flink SQL statement name.
     global statement_name
@@ -54,8 +56,8 @@ def load_configurations():
 def test_delete_statement():
     """Test the delete_statement() function."""
 
-    # Instantiate the FlinkSqlClient classs.
-    flink_client = FlinkSqlClient(config)
+    # Instantiate the FlinkClient classs.
+    flink_client = FlinkClient(config)
 
     http_status_code, response = flink_client.delete_statement(statement_name)
  
@@ -69,8 +71,8 @@ def test_delete_statement():
 def test_get_statement_list():
     """Test the get_statement_list() function."""
 
-    # Instantiate the FlinkSqlClient classs.
-    flink_client = FlinkSqlClient(config)
+    # Instantiate the FlinkClient classs.
+    flink_client = FlinkClient(config)
 
     http_status_code, _, response = flink_client.get_statement_list()
 
@@ -90,8 +92,8 @@ def test_get_statement_list():
 def test_submit_statement():
     """Test the submit_statement() function."""
 
-    # Instantiate the FlinkSqlClient classs.
-    flink_client = FlinkSqlClient(config)
+    # Instantiate the FlinkClient classs.
+    flink_client = FlinkClient(config)
 
     http_status_code, error_message, response = flink_client.submit_statement("drop-statement",
                                                                               "DROP TABLE IF EXISTS hello;", 
@@ -103,3 +105,20 @@ def test_submit_statement():
     except AssertionError as e:
         logger.error(e)
         logger.error("HTTP Status Code: %d, Error Message: %s, Response: %s", http_status_code, error_message, response)
+
+
+def test_get_compute_pool_list():
+    """Test the get_compute_pool() function."""
+
+    # Instantiate the FlinkClient classs.
+    flink_client = FlinkClient(config)
+
+    http_status_code, error_message, response = flink_client.get_compute_pool_list()
+
+    logger.info("Response: %s", response)
+
+    try:
+        assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
+    except AssertionError as e:
+        logger.error(e)
+        logger.error("Error Message: %s, Response: %s", error_message, response)

@@ -22,22 +22,26 @@ FLINK_CONFIG = {
     "cloud_provider": "cloud_provider",
     "cloud_region": "cloud_region",
     "compute_pool_id": "compute_pool_id",
-    "principal_id": "principal_id"
+    "principal_id": "principal_id",
+    "confluent_cloud_api_key": "confluent_cloud_api_key",
+    "confluent_cloud_api_secret": "confluent_cloud_api_secret"
 }
 
 
-class FlinkSqlClient():
-    def __init__(self, flink_sql_config: dict):
-        self.organization_id = flink_sql_config[FLINK_CONFIG["organization_id"]]
-        self.environment_id = flink_sql_config[FLINK_CONFIG["environment_id"]]
-        self.flink_api_key = str(flink_sql_config[FLINK_CONFIG["flink_api_key"]])
-        self.flink_api_secret = str(flink_sql_config[FLINK_CONFIG["flink_api_secret"]])
-        self.cloud_provider = flink_sql_config[FLINK_CONFIG["cloud_provider"]]
-        self.cloud_region = flink_sql_config[FLINK_CONFIG["cloud_region"]]
-        self.compute_pool_id = flink_sql_config[FLINK_CONFIG["compute_pool_id"]]
-        self.principal_id = flink_sql_config[FLINK_CONFIG["principal_id"]]
+class FlinkClient():
+    def __init__(self, flink_config: dict):
+        self.organization_id = flink_config[FLINK_CONFIG["organization_id"]]
+        self.environment_id = flink_config[FLINK_CONFIG["environment_id"]]
+        self.flink_api_key = str(flink_config[FLINK_CONFIG["flink_api_key"]])
+        self.flink_api_secret = str(flink_config[FLINK_CONFIG["flink_api_secret"]])
+        self.cloud_provider = flink_config[FLINK_CONFIG["cloud_provider"]]
+        self.cloud_region = flink_config[FLINK_CONFIG["cloud_region"]]
+        self.compute_pool_id = flink_config[FLINK_CONFIG["compute_pool_id"]]
+        self.principal_id = flink_config[FLINK_CONFIG["principal_id"]]
+        self.confluent_cloud_api_key = flink_config[FLINK_CONFIG["confluent_cloud_api_key"]]
+        self.confluent_cloud_api_secret = flink_config[FLINK_CONFIG["confluent_cloud_api_secret"]]
         self.flink_sql_base_url = f"https://flink.{self.cloud_region}.{self.cloud_provider}.confluent.cloud/sql/v1/organizations/{self.organization_id}/environments/{self.environment_id}/"
-        self.flink_compute_pool_base_url = "https://api.confluent.cloud/fcpm/v2/compute-pools/"
+        self.flink_compute_pool_base_url = "https://api.confluent.cloud/fcpm/v2/compute-pools"
 
     def get_statement_list(self, page_size: int = None) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to get the Flink SQL statement list.
@@ -126,21 +130,21 @@ class FlinkSqlClient():
         except requests.exceptions.RequestException as e:
             return response.status_code, f"Fail to submit astatement because {e}", response.json()
         
-    def get_compute_pool(self) -> Tuple[int, str, Dict]:
-        """This function submits a RESTful API call to get the Flink Compute Pool.
+    def get_compute_pool_list(self) -> Tuple[int, str, Dict]:
+        """This function submits a RESTful API call to get the Flink Compute Pool List.
 
         Returns:
             int:    HTTP Status Code.
             str:    HTTP Error, if applicable.
         """
         # Send a GET request to get compute list.
-        response = requests.get(url=f"{self.flink_compute_pool_base_url}?spec.region={self.cloud_region}&environment={self.environment_id}&spec.network={self.compute_pool_id}", 
-                                auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
+        response = requests.get(url=f"{self.flink_compute_pool_base_url}?spec.region={self.cloud_region}&environment={self.environment_id}", 
+                                auth=HTTPBasicAuth(self.confluent_cloud_api_key, self.confluent_cloud_api_secret))
 
         try:
             # Raise HTTPError, if occurred.
             response.raise_for_status()
 
-            return response.status_code, "", response.json()
+            return response.status_code, response.text, response.json()
         except requests.exceptions.RequestException as e:
-            return response.status_code, f"Fail to retrieve the computer pool because {e}", {}
+            return response.status_code, f"Fail to retrieve the computer pool because {e}", response.json()

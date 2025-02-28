@@ -37,16 +37,22 @@ class FlinkSqlClient():
         self.compute_pool_id = flink_sql_config[FLINK_CONFIG["compute_pool_id"]]
         self.principal_id = flink_sql_config[FLINK_CONFIG["principal_id"]]
         self.flink_sql_base_url = f"https://flink.{self.cloud_region}.{self.cloud_provider}.confluent.cloud/sql/v1/organizations/{self.organization_id}/environments/{self.environment_id}/"
+        self.flink_compute_pool_base_url = f"https://api.confluent.cloud/fcpm/v2/compute-pools/"
 
-    def get_statement_list(self) -> Tuple[int, str, Dict]:
+    def get_statement_list(self, page_size: int = None) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to get the Flink SQL statement list.
 
         Returns:
             int:    HTTP Status Code.
             str:    HTTP Error, if applicable.
         """
+        if page_size is None:
+            query_parameters = ""
+        else:
+            query_parameters = f"?page_size={page_size}"
+
         # Send a GET request to get statement list.
-        response = requests.get(url=f"{self.flink_sql_base_url}statements", 
+        response = requests.get(url=f"{self.flink_sql_base_url}statements{query_parameters}", 
                                 auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
 
         try:
@@ -119,3 +125,22 @@ class FlinkSqlClient():
             return response.status_code, response.text, response.json()
         except requests.exceptions.RequestException as e:
             return response.status_code, f"Fail to submit astatement because {e}", response.json()
+        
+    def get_compute_pool(self) -> Tuple[int, str, Dict]:
+        """This function submits a RESTful API call to get the Flink Compute Pool.
+
+        Returns:
+            int:    HTTP Status Code.
+            str:    HTTP Error, if applicable.
+        """
+        # Send a GET request to get compute list.
+        response = requests.get(url=f"{self.flink_compute_pool_base_url}?spec.region={self.cloud_region}&environment={self.environment_id}&spec.network={self.compute_pool_id}", 
+                                auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
+
+        try:
+            # Raise HTTPError, if occurred.
+            response.raise_for_status()
+
+            return response.status_code, "", response.json()
+        except requests.exceptions.RequestException as e:
+            return response.status_code, f"Fail to retrieve the computer pool because {e}", {}

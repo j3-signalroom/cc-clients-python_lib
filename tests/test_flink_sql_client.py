@@ -50,8 +50,6 @@ def load_configurations():
     catalog_name = os.getenv("FLINK_CATALOG_NAME")
     database_name = os.getenv("FLINK_DATABASE_NAME")
 
-    logger.info("Flink Configuration: %s", config)
-
 
 def test_delete_statement():
     """Test the delete_statement() function."""
@@ -75,11 +73,15 @@ def test_get_statement_list():
     flink_client = FlinkSqlClient(config)
 
     http_status_code, _, response = flink_client.get_statement_list()
+
+    logger.info("total_size: %s", response.get("metadata").get("total_size"))
+
+
+    for item in response.get("data"):
+        logger.info("%s, %s, %s, %s, %s", item.get("spec").get("properties").get("sql.current-catalog"), item.get("spec").get("properties").get("sql.current-database"), item.get("spec").get("statement"), item.get("status").get("phase"), item.get("name"))
  
     try:
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
-
-        logger.info("Response: %s", response)
     except AssertionError as e:
         logger.error(e)
         logger.error("Response: %s", response)

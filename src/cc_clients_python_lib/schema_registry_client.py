@@ -64,7 +64,7 @@ class SchemaRegistryClient():
             # Return the latest schema for the subject.
             return response.status_code, "", response.json().get("schema")
         except requests.exceptions.RequestException as e:
-            return response.status_code, f"Error retrieving subject '{subject_name}': {e}", {}
+            return response.status_code, f"Error retrieving subject '{subject_name}': {e}",  response.json() if response.content else {}
        
     def register_topic_subject_schema(self, subject_name: str, schema_str: str) -> Tuple[int, str, int]:
         """This function submits a RESTful API call to register the subject's schema.

@@ -75,13 +75,11 @@ def test_get_statement_list():
     flink_client = FlinkClient(config)
 
     http_status_code, _, response = flink_client.get_statement_list()
-
-    logger.info("total_size: %s", response.get("metadata").get("total_size"))
  
     try:
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
 
-        for item in response.get("data"):
+        for item in response:
             logger.info("%s, %s, %s, %s, %s", item.get("spec").get("properties").get("sql.current-catalog"), item.get("spec").get("properties").get("sql.current-database"), item.get("spec").get("statement"), item.get("status").get("phase"), item.get("name"))
     except AssertionError as e:
         logger.error(e)

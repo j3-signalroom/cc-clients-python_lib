@@ -52,6 +52,7 @@ class FlinkClient():
             str:    HTTP Error, if applicable.
             dict:   The response JSON.
         """
+        # Set the query parameters.
         if page_size is None:
             query_parameters = ""
         else:
@@ -65,7 +66,36 @@ class FlinkClient():
             # Raise HTTPError, if occurred.
             response.raise_for_status()
 
-            return response.status_code, "", response.json()
+            # Retrieve the statement list.
+            statements = response.json().get("data")
+
+            # Retrieve the page token from the next page URL.
+            next_page_url = str(response.json().get("metadata").get("next"))
+            page_token = next_page_url[next_page_url.find("&page_token=") + 12:]
+
+            # Retrieve the next collection of statements, there are more statements to retrieve.
+            while page_token != "":
+                # Set the query parameters.
+                if page_size is None:
+                    query_parameters = f"?page_token={page_token}"
+                else:
+                    query_parameters = f"?page_size={page_size}&page_token={page_token}"
+                    
+                # Send a GET request to get the next collection of statements.
+                response = requests.get(url=f"{self.flink_sql_base_url}statements{query_parameters}", 
+                                        auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
+                
+                # Raise HTTPError, if occurred.
+                response.raise_for_status()
+
+                # Append the next collection of statements to the current statement list.
+                statements.extend(response.json().get("data"))
+
+                # Retrieve the page token from the next page URL.
+                next_page_url = str(response.json().get("metadata").get("next"))
+                page_token = next_page_url[next_page_url.find("&page_token=") + 12:]
+
+            return response.status_code, "", statements
         except requests.exceptions.RequestException as e:
             return response.status_code, f"Fail to retrieve the statement list because {e}", response.json()
         

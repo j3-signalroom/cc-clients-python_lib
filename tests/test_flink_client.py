@@ -77,13 +77,12 @@ def test_get_statement_list():
     http_status_code, _, response = flink_client.get_statement_list()
 
     logger.info("total_size: %s", response.get("metadata").get("total_size"))
-
-
-    for item in response.get("data"):
-        logger.info("%s, %s, %s, %s, %s", item.get("spec").get("properties").get("sql.current-catalog"), item.get("spec").get("properties").get("sql.current-database"), item.get("spec").get("statement"), item.get("status").get("phase"), item.get("name"))
  
     try:
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
+
+        for item in response.get("data"):
+            logger.info("%s, %s, %s, %s, %s", item.get("spec").get("properties").get("sql.current-catalog"), item.get("spec").get("properties").get("sql.current-database"), item.get("spec").get("statement"), item.get("status").get("phase"), item.get("name"))
     except AssertionError as e:
         logger.error(e)
         logger.error("Response: %s", response)
@@ -114,12 +113,28 @@ def test_get_compute_pool_list():
     flink_client = FlinkClient(config)
 
     http_status_code, error_message, response = flink_client.get_compute_pool_list()
-
-    for item in response.get("data"):
-        logger.info("%s, %d, %d, %s", item.get("id"), item.get("status").get("current_cfu"), item.get("spec").get("max_cfu"), item.get("status").get("phase"))
         
     try:
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
+
+        for item in response.get("data"):
+            logger.info("%s, %d, %d, %s", item.get("id"), item.get("status").get("current_cfu"), item.get("spec").get("max_cfu"), item.get("status").get("phase"))
+    except AssertionError as e:
+        logger.error(e)
+        logger.error("Error Message: %s, Response: %s", error_message, response)
+
+
+def test_get_compute_pool():
+    """Test the get_compute_pool() function."""
+
+    # Instantiate the FlinkClient classs.
+    flink_client = FlinkClient(config)
+
+    http_status_code, error_message, response = flink_client.get_compute_pool()
+
+    try:        
+        assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
+        logger.info("%s, %d, %d, %s", response.get("id"), response.get("status").get("current_cfu"), response.get("spec").get("max_cfu"), response.get("status").get("phase"))    
     except AssertionError as e:
         logger.error(e)
         logger.error("Error Message: %s, Response: %s", error_message, response)

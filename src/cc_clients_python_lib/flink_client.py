@@ -165,7 +165,7 @@ class FlinkClient():
         if http_status_code != HttpStatus.OK:
             return http_status_code, error_message, response
         else:
-            for compute_pool in response["data"]:
+            for compute_pool in response.get("data"):
                 if compute_pool["id"] == self.compute_pool_id:
                     return HttpStatus.OK, "", compute_pool
 

@@ -28,6 +28,8 @@ FLINK_CONFIG = {
     "confluent_cloud_api_secret": "confluent_cloud_api_secret"
 }
 
+# Default values.
+DEFAULT_PAGE_SIZE = 10
 
 class FlinkClient():
     def __init__(self, flink_config: dict):
@@ -44,7 +46,7 @@ class FlinkClient():
         self.flink_sql_base_url = f"https://flink.{self.cloud_region}.{self.cloud_provider}.confluent.cloud/sql/v1/organizations/{self.organization_id}/environments/{self.environment_id}/"
         self.flink_compute_pool_base_url = "https://api.confluent.cloud/fcpm/v2/compute-pools"
 
-    def get_statement_list(self, page_size: int = None) -> Tuple[int, str, Dict]:
+    def get_statement_list(self, page_size: int = DEFAULT_PAGE_SIZE) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to get the Flink SQL statement list.
 
         Returns:
@@ -52,39 +54,21 @@ class FlinkClient():
             str:    HTTP Error, if applicable.
             dict:   The response JSON.
         """
-        # Set the query parameters.
-        if page_size is None:
-            query_parameters = ""
-        else:
-            query_parameters = f"?page_size={page_size}"
+        # Initialize the page token, statement list, and query parameters.
+        page_token = "ITERATE_AT_LEAST_ONCE"
+        statements = []
+        query_parameters = f"?page_size={page_size}"
 
-        # Send a GET request to get statement list.
-        response = requests.get(url=f"{self.flink_sql_base_url}statements{query_parameters}", 
-                                auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
-
-        try:
-            # Raise HTTPError, if occurred.
-            response.raise_for_status()
-
-            # Retrieve the statement list.
-            statements = response.json().get("data")
-
-            # Retrieve the page token from the next page URL.
-            next_page_url = str(response.json().get("metadata").get("next"))
-            page_token = next_page_url[next_page_url.find("&page_token=") + 12:]
-
-            # Retrieve the next collection of statements, there are more statements to retrieve.
-            while page_token != "":
-                # Set the query parameters.
-                if page_size is None:
-                    query_parameters = f"?page_token={page_token}"
-                else:
-                    query_parameters = f"?page_size={page_size}&page_token={page_token}"
-                    
-                # Send a GET request to get the next collection of statements.
-                response = requests.get(url=f"{self.flink_sql_base_url}statements{query_parameters}", 
-                                        auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
+        while page_token != "":
+            # Set the query parameters.
+            if page_token != "ITERATE_AT_LEAST_ONCE":
+                query_parameters = f"?page_size={page_size}&page_token={page_token}"
                 
+            # Send a GET request to get the next collection of statements.
+            response = requests.get(url=f"{self.flink_sql_base_url}statements{query_parameters}", 
+                                    auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
+            
+            try:
                 # Raise HTTPError, if occurred.
                 response.raise_for_status()
 
@@ -95,9 +79,10 @@ class FlinkClient():
                 next_page_url = str(response.json().get("metadata").get("next"))
                 page_token = next_page_url[next_page_url.find("&page_token=") + 12:]
 
-            return response.status_code, "", statements
-        except requests.exceptions.RequestException as e:
-            return response.status_code, f"Fail to retrieve the statement list because {e}", response.json()
+            except requests.exceptions.RequestException as e:
+                return response.status_code, f"Fail to retrieve the statement list because {e}", response.json() if response.content else {}
+            
+        return response.status_code, response.text, statements
         
     def delete_statement(self, statement_name: str) -> Tuple[int, str]:
         """This function submits a RESTful API call to delete a Flink SQL statement.
@@ -160,7 +145,7 @@ class FlinkClient():
 
             return response.status_code, response.text, response.json()
         except requests.exceptions.RequestException as e:
-            return response.status_code, f"Fail to submit astatement because {e}", response.json()
+            return response.status_code, f"Fail to submit astatement because {e}", response.json() if response.content else {}
         
     def get_compute_pool_list(self) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to get the Flink Compute Pool List.
@@ -180,7 +165,7 @@ class FlinkClient():
 
             return response.status_code, response.text, response.json()
         except requests.exceptions.RequestException as e:
-            return response.status_code, f"Fail to retrieve the computer pool because {e}", response.json()
+            return response.status_code, f"Fail to retrieve the computer pool because {e}", response.json() if response.content else {}
         
 
     def get_compute_pool(self) -> Tuple[int, str, Dict]:

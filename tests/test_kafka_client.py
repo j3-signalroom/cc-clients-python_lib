@@ -2,8 +2,8 @@ import logging
 from dotenv import load_dotenv
 import os
 import pytest
-from src.cc_clients_python_lib.kafka_client import KafkaClient, KAFKA_CONFIG
-from src.cc_clients_python_lib.common import HttpStatus
+from cc_clients_python_lib.kafka_client import KafkaClient, KAFKA_CONFIG
+from cc_clients_python_lib.http_status import HttpStatus
  
 
 __copyright__  = "Copyright (c) 2025 Jeffrey Jonathan Jennings"

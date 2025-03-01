@@ -3,6 +3,7 @@ import requests
 import uuid
 import json
 from requests.auth import HTTPBasicAuth
+from cc_clients_python_lib.http_status import HttpStatus
 
 
 __copyright__  = "Copyright (c) 2025 Jeffrey Jonathan Jennings"
@@ -49,6 +50,7 @@ class FlinkClient():
         Returns:
             int:    HTTP Status Code.
             str:    HTTP Error, if applicable.
+            dict:   The response JSON.
         """
         if page_size is None:
             query_parameters = ""
@@ -65,7 +67,7 @@ class FlinkClient():
 
             return response.status_code, "", response.json()
         except requests.exceptions.RequestException as e:
-            return response.status_code, f"Fail to retrieve the statement list because {e}", {}
+            return response.status_code, f"Fail to retrieve the statement list because {e}", response.json()
         
     def delete_statement(self, statement_name: str) -> Tuple[int, str]:
         """This function submits a RESTful API call to delete a Flink SQL statement.
@@ -136,6 +138,7 @@ class FlinkClient():
         Returns:
             int:    HTTP Status Code.
             str:    HTTP Error, if applicable.
+            dict:   The response JSON.
         """
         # Send a GET request to get compute list.
         response = requests.get(url=f"{self.flink_compute_pool_base_url}?spec.region={self.cloud_region}&environment={self.environment_id}", 
@@ -148,3 +151,22 @@ class FlinkClient():
             return response.status_code, response.text, response.json()
         except requests.exceptions.RequestException as e:
             return response.status_code, f"Fail to retrieve the computer pool because {e}", response.json()
+        
+
+    def get_compute_pool(self) -> Tuple[int, str, Dict]:
+        """This function submits a RESTful API call to get the Flink Compute Pool.
+
+        Returns:
+            int:    HTTP Status Code.
+            str:    HTTP Error, if applicable.
+        """
+        http_status_code, error_message, response = self.get_compute_pool_list()
+
+        if http_status_code != HttpStatus.OK:
+            return http_status_code, error_message, response
+        else:
+            for compute_pool in response["data"]:
+                if compute_pool["id"] == self.compute_pool_id:
+                    return HttpStatus.OK, "", compute_pool
+
+            return HttpStatus.NOT_FOUND, f"Fail to find the compute pool with ID {self.compute_pool_id}", response

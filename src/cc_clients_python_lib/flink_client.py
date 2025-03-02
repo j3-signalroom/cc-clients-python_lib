@@ -32,8 +32,8 @@ FLINK_CONFIG = {
 # Default values.
 DEFAULT_PAGE_SIZE = 10
 
-# The Statement Status List.
-class StatementStatus(StrEnum):
+# The Statement Phase List.
+class StatementPhase(StrEnum):
     COMPLETED = "COMPLETED"
     DEGRADED = "DEGRADED"
     DELETED = "DELETED"

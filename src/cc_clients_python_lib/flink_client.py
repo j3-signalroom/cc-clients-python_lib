@@ -1,3 +1,4 @@
+from enum import StrEnum
 from typing import Tuple, Dict
 import requests
 import uuid
@@ -30,6 +31,18 @@ FLINK_CONFIG = {
 
 # Default values.
 DEFAULT_PAGE_SIZE = 10
+
+# The Statement Status List.
+class StatementStatus(StrEnum):
+    COMPLETED = "COMPLETED"
+    DEGRADED = "DEGRADED"
+    DELETED = "DELETED"
+    FAILED = "FAILED"
+    PENDING = "PENDING"
+    RUNNING = "RUNNING"
+    STOPPED = "STOPPED"
+    STOPPING = "STOPPING"
+
 
 class FlinkClient():
     def __init__(self, flink_config: dict):

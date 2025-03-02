@@ -45,7 +45,13 @@ class StatementPhase(StrEnum):
 
 
 class FlinkClient():
-    def __init__(self, flink_config: dict):
+    def __init__(self, flink_config: dict, private_network: bool = False):
+        """This class initializes the Flink Client.
+
+        Arg(s):            
+            flink_config (dict):        The Flink configuration.
+            private_network (bool):     (Optional) The private network flag.
+        """
         self.organization_id = flink_config[FLINK_CONFIG["organization_id"]]
         self.environment_id = flink_config[FLINK_CONFIG["environment_id"]]
         self.flink_api_key = str(flink_config[FLINK_CONFIG["flink_api_key"]])
@@ -56,7 +62,7 @@ class FlinkClient():
         self.principal_id = flink_config[FLINK_CONFIG["principal_id"]]
         self.confluent_cloud_api_key = flink_config[FLINK_CONFIG["confluent_cloud_api_key"]]
         self.confluent_cloud_api_secret = flink_config[FLINK_CONFIG["confluent_cloud_api_secret"]]
-        self.flink_sql_base_url = f"https://flink.{self.cloud_region}.{self.cloud_provider}.confluent.cloud/sql/v1/organizations/{self.organization_id}/environments/{self.environment_id}/"
+        self.flink_sql_base_url = f"https://flink.{self.cloud_region}.{self.cloud_provider}.{'private.' if private_network else ''}confluent.cloud/sql/v1/organizations/{self.organization_id}/environments/{self.environment_id}/"
         self.flink_compute_pool_base_url = "https://api.confluent.cloud/fcpm/v2/compute-pools"
 
     def get_statement_list(self, page_size: int = DEFAULT_PAGE_SIZE) -> Tuple[int, str, Dict]:

@@ -124,7 +124,33 @@ class FlinkClient():
             return response.status_code, response.text
         except requests.exceptions.RequestException as e:
             return response.status_code, f"Fail to delete the statement because {e}"
-        
+    
+    def delete_statements_by_phase(self, statement_phase: StatementPhase) -> Tuple[int, str]:
+        """This function deletes all Flink SQL statements by phase.
+
+        Arg(s):
+            statement_phase (StatementPhase): The Flink SQL statement phase.
+
+        Returns:
+            int:    HTTP Status Code.
+            str:    HTTP Error, if applicable.
+        """
+        # Get the statement list.
+        http_status_code, error_message, response = self.get_statement_list()
+
+        if http_status_code != HttpStatus.OK:
+            return http_status_code, error_message
+
+        # Delete the statements by phase.
+        for statement in response:
+            if StatementPhase(statement.get("status").get("phase")) == statement_phase:
+                http_status_code, error_message = self.delete_statement(statement.get("name"))
+
+                if http_status_code != HttpStatus.OK:
+                    return http_status_code, error_message
+
+        return HttpStatus.OK, ""
+    
     def submit_statement(self, statement_name: str, sql_query: str, sql_query_properties: Dict) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to submit a Flink SQL statement.
 

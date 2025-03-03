@@ -62,7 +62,7 @@ class SchemaRegistryClient():
             response.raise_for_status()
  
             # Return the latest schema for the subject.
-            return response.status_code, "", response.json().get("schema")
+            return response.status_code, response.text, response.json().get("schema")
         except requests.exceptions.RequestException as e:
             return response.status_code, f"Error retrieving subject '{subject_name}': {e}",  response.json() if response.content else {}
        
@@ -89,7 +89,7 @@ class SchemaRegistryClient():
             response.raise_for_status()
  
             # Return the new schema ID of the newly registered schema.
-            return response.status_code, "", response.json().get("id")
+            return response.status_code, response.text, response.json().get("id")
         except requests.exceptions.RequestException as e:
             return response.status_code, f"Error registering subject '{subject_name}': {e}", -1
    
@@ -145,7 +145,7 @@ class SchemaRegistryClient():
             response.raise_for_status()
  
             # Return the success code and message.
-            return response.status_code, "", CompatibilityLevel(response.json()['compatibilityLevel'])
+            return response.status_code, response.text, CompatibilityLevel(response.json()['compatibilityLevel'])
         except requests.exceptions.RequestException as e:
             return response.status_code, f"Compatibility level changed failed because {e}", CompatibilityLevel.UNASSIGNED
  
@@ -169,7 +169,7 @@ class SchemaRegistryClient():
             response.raise_for_status()
  
             # Return the success code and message.
-            return response.status_code, "", CompatibilityLevel(response.json()['compatibilityLevel'])
+            return response.status_code, response.text, CompatibilityLevel(response.json()['compatibilityLevel'])
         except requests.exceptions.RequestException as e:
             return response.status_code, f"Compatibility level changed failed because {e}", CompatibilityLevel.UNASSIGNED
            
@@ -227,7 +227,7 @@ class SchemaRegistryClient():
             # Raise HTTPError, if occurred.
             response.raise_for_status()
 
-            return response.status_code, ""
+            return response.status_code, response.text
         except requests.exceptions.RequestException as e:
             return response.status_code, f"Delete topic key schema subject hard-delete failed because {e}"
         

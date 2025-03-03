@@ -32,6 +32,10 @@ FLINK_CONFIG = {
 # Default values.
 DEFAULT_PAGE_SIZE = 10
 
+# Query Parameters.
+QUERY_PARAMETER_PAGE_SIZE = "page_size"
+QUERY_PARAMETER_PAGE_TOKEN = "page_token"
+
 # The Statement Phase List.
 class StatementPhase(StrEnum):
     COMPLETED = "COMPLETED"
@@ -76,12 +80,13 @@ class FlinkClient():
         # Initialize the page token, statement list, and query parameters.
         page_token = "ITERATE_AT_LEAST_ONCE"
         statements = []
-        query_parameters = f"?page_size={page_size}"
+        query_parameters = f"?{QUERY_PARAMETER_PAGE_SIZE}={page_size}"
+        page_token_parameter_length = len(f"&{QUERY_PARAMETER_PAGE_TOKEN}=")
 
         while page_token != "":
             # Set the query parameters.
             if page_token != "ITERATE_AT_LEAST_ONCE":
-                query_parameters = f"?page_size={page_size}&page_token={page_token}"
+                query_parameters = f"?{QUERY_PARAMETER_PAGE_SIZE}={page_size}&{QUERY_PARAMETER_PAGE_TOKEN}={page_token}"
                 
             # Send a GET request to get the next collection of statements.
             response = requests.get(url=f"{self.flink_sql_base_url}statements{query_parameters}", 
@@ -96,7 +101,7 @@ class FlinkClient():
 
                 # Retrieve the page token from the next page URL.
                 next_page_url = str(response.json().get("metadata").get("next"))
-                page_token = next_page_url[next_page_url.find("&page_token=") + 12:]
+                page_token = next_page_url[next_page_url.find(f"&{QUERY_PARAMETER_PAGE_TOKEN}=") + page_token_parameter_length:]
 
             except requests.exceptions.RequestException as e:
                 return response.status_code, f"Fail to retrieve the statement list because {e}", response.json() if response.content else {}

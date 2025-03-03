@@ -146,10 +146,10 @@ class FlinkClient():
             if StatementPhase(statement.get("status").get("phase")) == statement_phase:
                 http_status_code, error_message = self.delete_statement(statement.get("name"))
 
-                if http_status_code != HttpStatus.OK:
+                if http_status_code != HttpStatus.ACCEPTED:
                     return http_status_code, error_message
 
-        return HttpStatus.OK, ""
+        return HttpStatus.ACCEPTED, ""
     
     def submit_statement(self, statement_name: str, sql_query: str, sql_query_properties: Dict) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to submit a Flink SQL statement.

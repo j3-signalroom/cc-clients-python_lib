@@ -2,7 +2,7 @@ import logging
 from dotenv import load_dotenv
 import os
 import pytest
-from cc_clients_python_lib.flink_client import FlinkClient, FLINK_CONFIG
+from cc_clients_python_lib.flink_client import FlinkClient, FLINK_CONFIG, StatementPhase
 from cc_clients_python_lib.http_status import HttpStatus
 
 
@@ -66,6 +66,21 @@ def test_delete_statement():
     except AssertionError as e:
         logger.error(e)
         logger.error("Response: %s", response)
+
+
+def test_delete_statements_by_phase():
+    """Test the delete_statements_by_phase() function."""
+
+    # Instantiate the FlinkClient classs.
+    flink_client = FlinkClient(config)
+
+    http_status_code, error_message = flink_client.delete_statements_by_phase(StatementPhase.COMPLETED)
+
+    try:
+        assert http_status_code == HttpStatus.ACCEPTED, f"HTTP Status Code: {http_status_code}"
+    except AssertionError as e:
+        logger.error(e)
+        logger.error("Error Message: %s", error_message)
 
 
 def test_get_statement_list():

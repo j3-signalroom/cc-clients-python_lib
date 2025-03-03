@@ -81,7 +81,7 @@ class SchemaRegistryClient():
         """
         # Send a POST request to register the schema.
         response = requests.post(url=f"{self.schema_registry_url}/subjects/{subject_name}/versions",
-                                 json={"scheam": schema_str},
+                                 json={"schema": schema_str},
                                  auth=HTTPBasicAuth(self.api_key, self.api_secret))
  
         try:    

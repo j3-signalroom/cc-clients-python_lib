@@ -68,14 +68,14 @@ class SchemaRegistryClient():
         except requests.exceptions.RequestException as e:
             return response.status_code, f"Error retrieving subject '{subject_name}': {e}",  response.json() if response.content else {}
        
-    def register_topic_subject_schema(self, subject_name: str, schema_str: str, force_registration: bool = False) -> Tuple[int, str, int]:
+    def register_topic_subject_schema(self, subject_name: str, subject_schema, force: bool = False) -> Tuple[int, str, int]:
         """This function submits a RESTful API call to register the subject's schema.
  
         Arg(s):
             schema_registry_confg (dict):  The Schema Registry Cluster configuration.
             subject_name (str):            The Kafka topic subject name.
-            schema_str (str):              The subject's new schema to be registered.
-            force_registration (bool):     (Optional)  A flag to force the registration of the schema, by setting the Compatibility
+            subject_schema (any):          The subject's new schema to be registered.
+            force (bool):                  (Optional)  A flag to force the registration of the schema, by setting the Compatibility
                                            to NONE, register schema, and then set back to orginal setting.
  
         Returns:
@@ -83,7 +83,7 @@ class SchemaRegistryClient():
             str:  HTTP Error, if applicable.
             int:  The schema ID of the newly created schema.
         """
-        if force_registration:
+        if force:
             # Get the current Kafka topic subject compatibility level.
             http_status_code, http_error_message, current_compatibility_level = self.get_topic_subject_compatibility_level(subject_name)
             match http_status_code:
@@ -104,6 +104,14 @@ class SchemaRegistryClient():
             if http_status_code != HttpStatus.OK:
                 return http_status_code, f"Error setting the current compatibility level because {http_error_message}.", -1
     
+        # Convert the Avro schema to a string.
+        if isinstance(subject_schema, dict):
+            schema_str, error_message = self.convert_avro_schema_into_string(subject_name, subject_schema)
+            if error_message != "":
+                return HttpStatus.INTERNAL_SERVER_ERROR, error_message, -1
+        else:
+            schema_str = subject_schema        
+   
         # Send a POST request to register the schema.
         response = requests.post(url=f"{self.schema_registry_url}/subjects/{subject_name}/versions",
                                  json={"schema": schema_str},
@@ -116,7 +124,7 @@ class SchemaRegistryClient():
             schema_id = response.json().get("id")
             schema_registration_result = response.text
 
-            if force_registration:
+            if force:
                 # Restore the topic subject compatibility level.
                 http_status_code, http_error_message = self.set_topic_subject_compatibility_level(subject_name, current_compatibility_level)
                 if http_status_code == HttpStatus.OK:

@@ -4,6 +4,8 @@ from requests.auth import HTTPBasicAuth
 import fastavro
 from enum import StrEnum
 import json
+
+from cc_clients_python_lib.http_status import HttpStatus
  
 
 __copyright__  = "Copyright (c) 2025 Jeffrey Jonathan Jennings"
@@ -66,19 +68,42 @@ class SchemaRegistryClient():
         except requests.exceptions.RequestException as e:
             return response.status_code, f"Error retrieving subject '{subject_name}': {e}",  response.json() if response.content else {}
        
-    def register_topic_subject_schema(self, subject_name: str, schema_str: str) -> Tuple[int, str, int]:
+    def register_topic_subject_schema(self, subject_name: str, schema_str: str, force_registration: bool = False) -> Tuple[int, str, int]:
         """This function submits a RESTful API call to register the subject's schema.
  
         Arg(s):
             schema_registry_confg (dict):  The Schema Registry Cluster configuration.
             subject_name (str):            The Kafka topic subject name.
             schema_str (str):              The subject's new schema to be registered.
+            force_registration (bool):     (Optional)  A flag to force the registration of the schema, by setting the Compatibility
+                                           to NONE, register schema, and then set back to orginal setting.
  
         Returns:
             int:  HTTP Status Code.
             str:  HTTP Error, if applicable.
             int:  The schema ID of the newly created schema.
         """
+        if force_registration:
+            # Get the current Kafka topic subject compatibility level.
+            http_status_code, http_error_message, current_compatibility_level = self.get_topic_subject_compatibility_level(subject_name)
+            match http_status_code:
+                case HttpStatus.OK:
+                    pass
+                case HttpStatus.NOT_FOUND:
+                    http_status_code, http_error_message, current_compatibility_level = self.get_global_topic_subject_compatibility_level()
+                    if not http_error_message:
+                        pass
+                    else:
+                        return http_status_code, f"Error retrieving the global compatibility level because {http_error_message}.", -1
+                case _:
+                    return http_status_code, f"Error retrieving the current compatibility level because {http_error_message}.", -1
+        
+            # Set the topic subject compatibility setting to "NONE", so the existing subject's latest schema
+            # can be overwritten.
+            http_status_code, http_error_message = self.set_topic_subject_compatibility_level(subject_name, CompatibilityLevel.NONE)
+            if http_status_code != HttpStatus.OK:
+                return http_status_code, f"Error setting the current compatibility level because {http_error_message}.", -1
+    
         # Send a POST request to register the schema.
         response = requests.post(url=f"{self.schema_registry_url}/subjects/{subject_name}/versions",
                                  json={"schema": schema_str},
@@ -87,9 +112,19 @@ class SchemaRegistryClient():
         try:    
             # Raise HTTPError, if occurred.
             response.raise_for_status()
- 
-            # Return the new schema ID of the newly registered schema.
-            return response.status_code, response.text, response.json().get("id")
+
+            schema_id = response.json().get("id")
+            schema_registration_result = response.text
+
+            if force_registration:
+                # Restore the topic subject compatibility level.
+                http_status_code, http_error_message = self.set_topic_subject_compatibility_level(subject_name, current_compatibility_level)
+                if http_status_code == HttpStatus.OK:
+                    return response.status_code, schema_registration_result, schema_id
+                else:
+                    return http_status_code, http_error_message, -1
+            else:
+                return response.status_code, schema_registration_result, schema_id
         except requests.exceptions.RequestException as e:
             return response.status_code, f"Error registering subject '{subject_name}': {e}", -1
    

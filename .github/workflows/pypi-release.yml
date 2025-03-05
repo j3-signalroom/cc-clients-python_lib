@@ -56,5 +56,10 @@ jobs:
           name: release-dists
           path: dist/
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.6.4"
+
       - name: Publish release distributions PyPI
         run: uv publish

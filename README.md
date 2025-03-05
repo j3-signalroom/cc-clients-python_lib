@@ -5,6 +5,8 @@ The Confluent Cloud Clients Python Library provides a set of clients for interac
 + **Kafka**
 + **Schema Registry**
 
+> **Note:** _This library is in active development and is subject to change.  It covers only the methods I have needed so far.  If you need a method that is not covered, please feel free to open an issue or submit a pull request._
+
 **Table of Contents**
 
 <!-- toc -->
@@ -12,13 +14,12 @@ The Confluent Cloud Clients Python Library provides a set of clients for interac
     * [**1.1 Flink Client**](#11-flink-client)
     * [**1.2 Kafka Client**](#12-kafka-client)
     * [**1.3 Schema Registry Client**](#13-schema-registry-client)
-+ [**2.0 Resources**](#20-resources)
-    * [**2.1 API Documentation**](#21-api-documentation)
+- [**2.0 Installation**](#20-installation)
++ [**3.0 Resources**](#30-resources)
+    * [**3.1 API Documentation**](#31-api-documentation)
 <!-- tocstop -->
 
 ## **1.0 Library Clients**
-> **Note:** _This library is in active development and is subject to change.  It covers only the methods I have needed so far.  If you need a method that is not covered, please feel free to open an issue or submit a pull request._
-
 
 ### **1.1 Flink Client**
 The **Flink Client** provides the following methods:
@@ -45,9 +46,15 @@ The **Schema Registry Client** provides the following methods:
 - `register_topic_subject_schema`
 - `set_topic_subject_compatibility_level`
 
-## **2.0 Resources**
+## **2.0 Installation**
+Install the Confluent Cloud Clients Python Library using pip:
+```bash
+pip install cc-clients-python-lib
+```
 
-### **2.1 API Documentation**
+## **3.0 Resources**
+
+### **3.1 API Documentation**
 * [Flink SQL REST API for Confluent Cloud for Apache Flink](https://docs.confluent.io/cloud/current/flink/operate-and-deploy/flink-rest-api.html)
 * [Kafka REST APIs for Confluent Cloud](https://docs.confluent.io/cloud/current/kafka-rest/kafka-rest-cc.html)
 * [Confluent Cloud APIs - Topic (v3)](https://docs.confluent.io/cloud/current/api.html#tag/Topic-(v3))

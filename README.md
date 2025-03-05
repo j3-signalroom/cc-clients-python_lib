@@ -47,7 +47,7 @@ The **Schema Registry Client** provides the following methods:
 - `set_topic_subject_compatibility_level`
 
 ## **2.0 Installation**
-Install the Confluent Cloud Clients Python Library using pip:
+Install the Confluent Cloud Clients Python Library using **`pip`**:
 ```bash
 pip install cc-clients-python-lib
 ```

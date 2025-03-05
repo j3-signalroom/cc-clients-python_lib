@@ -52,7 +52,7 @@ Install the Confluent Cloud Clients Python Library using **`pip`**:
 pip install cc-clients-python-lib
 ```
 
-Or, using **`uv`**:
+Or, using [**`uv`**](https://docs.astral.sh/uv/):
 ```bash
 uv add cc-clients-python-lib
 ```

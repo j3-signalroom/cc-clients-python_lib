@@ -6,8 +6,8 @@ on:
       - main
 
 jobs:
-  uv-example:
-    name: python
+  uv-build:
+    name: Distribution Build
     runs-on: ubuntu-latest
 
     steps:

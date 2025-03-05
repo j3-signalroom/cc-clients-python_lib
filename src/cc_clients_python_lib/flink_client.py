@@ -72,10 +72,13 @@ class FlinkClient():
     def get_statement_list(self, page_size: int = DEFAULT_PAGE_SIZE) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to get the Flink SQL statement list.
 
+        Arg(s):
+            page_size (int):    (Optional) The page size.
+
         Returns:
             int:    HTTP Status Code.
             str:    HTTP Error, if applicable.
-            dict:   The response JSON.
+            dict:   The enitre list of available statements.
         """
         # Initialize the page token, statement list, and query parameters.
         page_token = "ITERATE_AT_LEAST_ONCE"
@@ -197,25 +200,47 @@ class FlinkClient():
         except requests.exceptions.RequestException as e:
             return response.status_code, f"Fail to submit astatement because {e}", response.json() if response.content else {}
         
-    def get_compute_pool_list(self) -> Tuple[int, str, Dict]:
+    def get_compute_pool_list(self, page_size: int = DEFAULT_PAGE_SIZE) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to get the Flink Compute Pool List.
+
+        Arg(s):
+            page_size (int):    (Optional) The page size.
 
         Returns:
             int:    HTTP Status Code.
             str:    HTTP Error, if applicable.
-            dict:   The response JSON.
+            dict:   The entire list of available compute pools.
         """
-        # Send a GET request to get compute list.
-        response = requests.get(url=f"{self.flink_compute_pool_base_url}?spec.region={self.cloud_region}&environment={self.environment_id}", 
-                                auth=HTTPBasicAuth(self.confluent_cloud_api_key, self.confluent_cloud_api_secret))
+         # Initialize the page token, statement list, and query parameters.
+        page_token = "ITERATE_AT_LEAST_ONCE"
+        compute_pools = []
+        query_parameters = f"?spec.region={self.cloud_region}&environment={self.environment_id}&{QUERY_PARAMETER_PAGE_SIZE}={page_size}"
+        page_token_parameter_length = len(f"&{QUERY_PARAMETER_PAGE_TOKEN}=")
 
-        try:
-            # Raise HTTPError, if occurred.
-            response.raise_for_status()
+        while page_token != "":
+            # Set the query parameters.
+            if page_token != "ITERATE_AT_LEAST_ONCE":
+                query_parameters = f"?spec.region={self.cloud_region}&environment={self.environment_id}&{QUERY_PARAMETER_PAGE_SIZE}={page_size}&{QUERY_PARAMETER_PAGE_TOKEN}={page_token}"
 
-            return response.status_code, response.text, response.json()
-        except requests.exceptions.RequestException as e:
-            return response.status_code, f"Fail to retrieve the computer pool because {e}", response.json() if response.content else {}
+
+            # Send a GET request to get compute list.
+            response = requests.get(url=f"{self.flink_compute_pool_base_url}{query_parameters}", 
+                                    auth=HTTPBasicAuth(self.confluent_cloud_api_key, self.confluent_cloud_api_secret))
+
+            try:
+                # Raise HTTPError, if occurred.
+                response.raise_for_status()
+
+                # Append the next collection of statements to the current statement list.
+                compute_pools.extend(response.json().get("data"))
+
+                # Retrieve the page token from the next page URL.
+                next_page_url = str(response.json().get("metadata").get("next"))
+                page_token = next_page_url[next_page_url.find(f"&{QUERY_PARAMETER_PAGE_TOKEN}=") + page_token_parameter_length:]
+            except requests.exceptions.RequestException as e:
+                return response.status_code, f"Fail to retrieve the computer pool because {e}", response.json() if response.content else {}
+            
+        return response.status_code, response.text, compute_pools
         
 
     def get_compute_pool(self) -> Tuple[int, str, Dict]:
@@ -230,7 +255,7 @@ class FlinkClient():
         if http_status_code != HttpStatus.OK:
             return http_status_code, error_message, response
         else:
-            for compute_pool in response.get("data"):
+            for compute_pool in response:
                 if compute_pool["id"] == self.compute_pool_id:
                     return HttpStatus.OK, "", compute_pool
 

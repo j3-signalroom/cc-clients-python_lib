@@ -130,7 +130,7 @@ def test_get_compute_pool_list():
     try:
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
 
-        for item in response.get("data"):
+        for item in response:
             logger.info("%s, %d, %d, %s", item.get("id"), item.get("status").get("current_cfu"), item.get("spec").get("max_cfu"), item.get("status").get("phase"))
     except AssertionError as e:
         logger.error(e)

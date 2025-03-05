@@ -52,6 +52,10 @@ Install the Confluent Cloud Clients Python Library using **`pip`**:
 pip install cc-clients-python-lib
 ```
 
+Or, using **`uv`**:
+```bash
+uv add cc-clients-python-lib
+```
 ## **3.0 Resources**
 
 ### **3.1 API Documentation**

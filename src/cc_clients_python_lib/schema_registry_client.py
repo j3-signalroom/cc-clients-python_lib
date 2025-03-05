@@ -91,9 +91,7 @@ class SchemaRegistryClient():
                     pass
                 case HttpStatus.NOT_FOUND:
                     http_status_code, http_error_message, current_compatibility_level = self.get_global_topic_subject_compatibility_level()
-                    if not http_error_message:
-                        pass
-                    else:
+                    if current_compatibility_level == CompatibilityLevel.UNASSIGNED:
                         return http_status_code, f"Error retrieving the global compatibility level because {http_error_message}.", -1
                 case _:
                     return http_status_code, f"Error retrieving the current compatibility level because {http_error_message}.", -1

@@ -64,8 +64,8 @@ class FlinkClient():
         self.cloud_region = flink_config[FLINK_CONFIG["cloud_region"]]
         self.compute_pool_id = flink_config[FLINK_CONFIG["compute_pool_id"]]
         self.principal_id = flink_config[FLINK_CONFIG["principal_id"]]
-        self.confluent_cloud_api_key = flink_config[FLINK_CONFIG["confluent_cloud_api_key"]]
-        self.confluent_cloud_api_secret = flink_config[FLINK_CONFIG["confluent_cloud_api_secret"]]
+        self.confluent_cloud_api_key = str(flink_config[FLINK_CONFIG["confluent_cloud_api_key"]])
+        self.confluent_cloud_api_secret = str(flink_config[FLINK_CONFIG["confluent_cloud_api_secret"]])
         self.flink_sql_base_url = f"https://flink.{self.cloud_region}.{self.cloud_provider}.{'private.' if private_network else ''}confluent.cloud/sql/v1/organizations/{self.organization_id}/environments/{self.environment_id}/"
         self.flink_compute_pool_base_url = "https://api.confluent.cloud/fcpm/v2/compute-pools"
 

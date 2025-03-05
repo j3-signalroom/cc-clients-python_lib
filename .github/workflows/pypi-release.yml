@@ -6,8 +6,8 @@ on:
       - main
 
 jobs:
-  uv-build:
-    name: Distribution Build
+  uv-build-publish:
+    name: Build and Publish to PyPi
     runs-on: ubuntu-latest
 
     steps:
@@ -28,3 +28,6 @@ jobs:
 
       - name: Build distribution files
         run: uv build
+      
+      - name: Publish distribution build to PyPI
+        run: uv publish

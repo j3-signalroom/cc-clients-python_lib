@@ -1,4 +1,4 @@
-name: Distribution Build
+name: PyPI Release
 
 on:
   release:
@@ -56,10 +56,7 @@ jobs:
           name: release-dists
           path: dist/
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
+      - name: Publish release distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          version: "0.6.4"
-
-      - name: Publish release distributions PyPI
-        run: uv publish
+          packages-dir: dist/

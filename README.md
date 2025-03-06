@@ -56,6 +56,7 @@ Or, using [**`uv`**](https://docs.astral.sh/uv/):
 ```bash
 uv add cc-clients-python-lib
 ```
+
 ## **3.0 Resources**
 
 ### **3.1 API Documentation**

@@ -10,8 +10,8 @@ from typing import Any, Dict, List, Literal, Optional, Union
 
 from pydantic import AnyUrl, BaseModel, ConfigDict, Field, RootModel, conint, constr
 
-from . import v2 as v2_1
-from .partner import v2
+from . import v2
+#from .partner import v2
 
 
 class SearchFilter(RootModel[str]):
@@ -2221,7 +2221,7 @@ class PartnerSignupRequest(BaseModel):
         populate_by_name=True,
     )
     organization: v2.Organization
-    user: Optional[v2_1.User] = None
+    user: Optional[v2.User] = None
     entitlement: Union[v2.Entitlement, ObjectReference]
 
 
@@ -2229,7 +2229,7 @@ class ActivatePartnerSignupRequest(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
     )
-    user: v2_1.User
+    user: v2.User
     organization_id: str = Field(
         ...,
         description='The ID of the organization',

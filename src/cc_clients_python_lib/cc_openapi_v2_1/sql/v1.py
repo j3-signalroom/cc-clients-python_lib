@@ -12,9 +12,9 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field, constr
 
 from .. import ColumnDetails, ExceptionListMeta, ResultListMeta
-from ..ListMeta import ListMeta
-from ..ObjectMeta import ObjectMeta
-from ..StatementObjectMeta import StatementObjectMeta
+from .. import ListMeta
+from .. import ObjectMeta
+from .. import StatementObjectMeta
 
 
 class ApiVersion(Enum):

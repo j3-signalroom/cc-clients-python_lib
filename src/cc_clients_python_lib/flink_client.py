@@ -2,9 +2,10 @@ from enum import StrEnum
 from typing import Tuple, Dict
 import requests
 import uuid
-import json
 from requests.auth import HTTPBasicAuth
+
 from cc_clients_python_lib.http_status import HttpStatus
+from cc_clients_python_lib.cc_openapi_v2_1.sql.v1 import Statement, StatementSpec
 
 
 __copyright__  = "Copyright (c) 2025 Jeffrey Jonathan Jennings"
@@ -172,24 +173,21 @@ class FlinkClient():
             str:    HTTP Error, if applicable.
             dict:   The response JSON.
         """
-        # Create a JSON payload to submit a statement.
-        statement_name += (f"-{str(uuid.uuid4())}").replace("_", "-")
-        payload = {
-            "name": statement_name,
-            "organization_id": self.organization_id,
-            "environment_id": self.environment_id,
-            "spec": {
-                "statement": sql_query,
-                "properties": sql_query_properties,
-                "compute_pool_id": self.compute_pool_id,
-                "principal": self.principal_id,
-                "stopped": False
-            }
-        }
+        
+        
+        # Create an instance of the Statement model.
+        statement = Statement(name=(f"{statement_name}-{str(uuid.uuid4())}").replace("_", "-"),
+                              organization_id=self.organization_id,
+                              environment_id=self.environment_id,
+                              spec=StatementSpec(statement=sql_query, 
+                                                 properties=sql_query_properties, 
+                                                 compute_pool_id=self.compute_pool_id,
+                                                 principal=self.principal_id,
+                                                 stopped=False))
 
         # Send a POST request to submit a statement.
         response = requests.post(url=f"{self.flink_sql_base_url}statements",
-                                    data=json.dumps(payload),
+                                    data=statement.model_dump_json(),
                                     auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
 
         try:
@@ -198,7 +196,7 @@ class FlinkClient():
 
             return response.status_code, response.text, response.json()
         except requests.exceptions.RequestException as e:
-            return response.status_code, f"Fail to submit astatement because {e}", response.json() if response.content else {}
+            return response.status_code, f"Fail to submit a statement because {e}", response.json() if response.content else {}
         
     def get_compute_pool_list(self, page_size: int = DEFAULT_PAGE_SIZE) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to get the Flink Compute Pool List.

@@ -173,8 +173,6 @@ class FlinkClient():
             str:    HTTP Error, if applicable.
             dict:   The response JSON.
         """
-        
-        
         # Create an instance of the Statement model.
         statement = Statement(name=(f"{statement_name}-{str(uuid.uuid4())}").replace("_", "-"),
                               organization_id=self.organization_id,

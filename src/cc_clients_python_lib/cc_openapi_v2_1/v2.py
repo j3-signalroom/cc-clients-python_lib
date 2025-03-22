@@ -12,3 +12,10 @@ class User(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
     )
+
+
+class Organization(BaseModel):
+    pass
+
+class Entitlement(BaseModel):
+    pass

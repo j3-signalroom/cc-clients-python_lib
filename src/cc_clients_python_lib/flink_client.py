@@ -170,14 +170,8 @@ class FlinkClient():
             int:    HTTP Status Code.
             str:    HTTP Error, if applicable.
         """
-        # The headers for the request.
-        headers = {
-            'content-type': "application/json-patch+json",
-            'Authorization': f"Basic {self.flink_api_key}:{self.flink_api_secret}"
-        }
-
         # Create an instance of the Statement model.
-        statement = Statement(name=(f"{statement_name}-{str(uuid.uuid4())}").replace("_", "-"),
+        statement = Statement(name=(f"{statement_name}").replace("_", "-"),
                               organization_id=self.organization_id,
                               environment_id=self.environment_id,
                               spec=StatementSpec(compute_pool_id=self.compute_pool_id,
@@ -187,7 +181,7 @@ class FlinkClient():
         # Send a PATCH request to pause the statement.
         response = requests.patch(url=f"{self.flink_sql_base_url}statements/{statement_name}",
                                   data=statement.model_dump_json(),
-                                  headers=headers)
+                                  auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
 
         try:
             # Raise HTTPError, if occurred.
@@ -195,7 +189,7 @@ class FlinkClient():
 
             return response.status_code, response.text
         except requests.exceptions.RequestException as e:
-            return response.status_code, f"Fail to pause the statement because {e}"
+            return response.status_code, f"Fail to pause the statement because {e}, and the response is {response.text}"
     
     def resume_statement(self, statement_name: str) -> Tuple[int, str]:
         """This function submits a RESTful API call to resume a Flink SQL statement.
@@ -207,14 +201,8 @@ class FlinkClient():
             int:    HTTP Status Code.
             str:    HTTP Error, if applicable.
         """
-        # The headers for the request.
-        headers = {
-            'content-type': "application/json-patch+json",
-            'Authorization': f"Basic {self.flink_api_key}:{self.flink_api_secret}"
-        }
-
         # Create an instance of the Statement model.
-        statement = Statement(name=(f"{statement_name}-{str(uuid.uuid4())}").replace("_", "-"),
+        statement = Statement(name=(f"{statement_name}").replace("_", "-"),
                               organization_id=self.organization_id,
                               environment_id=self.environment_id,
                               spec=StatementSpec(compute_pool_id=self.compute_pool_id,
@@ -224,7 +212,7 @@ class FlinkClient():
         # Send a PATCH request to pause the statement.
         response = requests.patch(url=f"{self.flink_sql_base_url}statements/{statement_name}",
                                   data=statement.model_dump_json(),
-                                  headers=headers)
+                                  auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
 
         try:
             # Raise HTTPError, if occurred.
@@ -232,7 +220,7 @@ class FlinkClient():
 
             return response.status_code, response.text
         except requests.exceptions.RequestException as e:
-            return response.status_code, f"Fail to resume the statement because {e}"
+            return response.status_code, f"Fail to resume the statement because {e}, and the response is {response.text}"
 
     def submit_statement(self, statement_name: str, sql_query: str, sql_query_properties: Dict) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to submit a Flink SQL statement.
@@ -259,8 +247,8 @@ class FlinkClient():
 
         # Send a POST request to submit a statement.
         response = requests.post(url=f"{self.flink_sql_base_url}statements",
-                                    data=statement.model_dump_json(),
-                                    auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
+                                 data=statement.model_dump_json(),
+                                 auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
 
         try:
             # Raise HTTPError, if occurred.

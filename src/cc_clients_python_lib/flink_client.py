@@ -170,6 +170,12 @@ class FlinkClient():
             int:    HTTP Status Code.
             str:    HTTP Error, if applicable.
         """
+        # The headers for the request.
+        headers = {
+            'content-type': "application/json-patch+json",
+            'Authorization': f"Basic {self.flink_api_key}:{self.flink_api_secret}"
+        }
+
         # Create an instance of the Statement model.
         statement = Statement(name=(f"{statement_name}-{str(uuid.uuid4())}").replace("_", "-"),
                               organization_id=self.organization_id,
@@ -181,7 +187,7 @@ class FlinkClient():
         # Send a PATCH request to pause the statement.
         response = requests.patch(url=f"{self.flink_sql_base_url}statements/{statement_name}",
                                   data=statement.model_dump_json(),
-                                  auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
+                                  headers=headers)
 
         try:
             # Raise HTTPError, if occurred.
@@ -201,6 +207,12 @@ class FlinkClient():
             int:    HTTP Status Code.
             str:    HTTP Error, if applicable.
         """
+        # The headers for the request.
+        headers = {
+            'content-type': "application/json-patch+json",
+            'Authorization': f"Basic {self.flink_api_key}:{self.flink_api_secret}"
+        }
+
         # Create an instance of the Statement model.
         statement = Statement(name=(f"{statement_name}-{str(uuid.uuid4())}").replace("_", "-"),
                               organization_id=self.organization_id,
@@ -212,7 +224,7 @@ class FlinkClient():
         # Send a PATCH request to pause the statement.
         response = requests.patch(url=f"{self.flink_sql_base_url}statements/{statement_name}",
                                   data=statement.model_dump_json(),
-                                  auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
+                                  headers=headers)
 
         try:
             # Raise HTTPError, if occurred.

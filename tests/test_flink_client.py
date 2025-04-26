@@ -166,3 +166,18 @@ def test_pause_statement():
     except AssertionError as e:
         logger.error(e)
         logger.error("Response: %s", response)
+
+
+def test_resume_statement():
+    """Test the resume_statement() function."""
+
+    # Instantiate the FlinkClient classs.
+    flink_client = FlinkClient(config)
+
+    http_status_code, response = flink_client.resume_statement(statement_name)
+ 
+    try:
+        assert http_status_code == HttpStatus.ACCEPTED, f"HTTP Status Code: {http_status_code}"
+    except AssertionError as e:
+        logger.error(e)
+        logger.error("Response: %s", response)

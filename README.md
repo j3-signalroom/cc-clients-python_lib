@@ -17,6 +17,7 @@ The Confluent Cloud Clients Python Library provides a set of clients for interac
 - [**2.0 Installation**](#20-installation)
 + [**3.0 Resources**](#30-resources)
     * [**3.1 API Documentation**](#31-api-documentation)
+    * [**3.2 Flink Resources**](#32-flink-resources)
 <!-- tocstop -->
 
 ## **1.0 Library Clients**
@@ -28,6 +29,8 @@ The **Flink Client** provides the following methods:
 - `get_compute_pool`
 - `get_compute_pool_list`
 - `get_statement_list`
+- `pause_statement`
+- `resume_statement`
 - `submit_statement`
 
 ### **1.2 Kafka Client**
@@ -64,3 +67,6 @@ uv add cc-clients-python-lib
 * [Kafka REST APIs for Confluent Cloud](https://docs.confluent.io/cloud/current/kafka-rest/kafka-rest-cc.html)
 * [Confluent Cloud APIs - Topic (v3)](https://docs.confluent.io/cloud/current/api.html#tag/Topic-(v3))
 * [Confluent Cloud Schema Registry REST API Usage](https://docs.confluent.io/cloud/current/sr/sr-rest-apis.html)
+
+### **3.2 Flink Resources**
+* [Update a statement](https://docs.confluent.io/cloud/current/flink/reference/flink-sql-cli.html#update-a-statement)

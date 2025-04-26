@@ -69,4 +69,5 @@ uv add cc-clients-python-lib
 * [Confluent Cloud Schema Registry REST API Usage](https://docs.confluent.io/cloud/current/sr/sr-rest-apis.html)
 
 ### **3.2 Flink Resources**
+* [CCAF State management](https://docs.confluent.io/cloud/current/flink/concepts/overview.html#state-management)
 * [Update a statement](https://docs.confluent.io/cloud/current/flink/reference/flink-sql-cli.html#update-a-statement)

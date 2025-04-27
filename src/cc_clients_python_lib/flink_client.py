@@ -162,7 +162,7 @@ class FlinkClient():
         return HttpStatus.ACCEPTED, ""
     
     def stop_statement(self, statement_name: str, stop: bool = True) -> Tuple[int, str]:
-        """This function submits a RESTful API call to pause a Flink SQL statement.
+        """This function submits a RESTful API call to stop or start Flink SQL statement.
 
         Arg(s):
             statement_name (str):  The Flink SQL statement name.

@@ -164,6 +164,9 @@ class FlinkClient():
     def stop_statement(self, statement_name: str, stop: bool = True) -> Tuple[int, str]:
         """This function submits a RESTful API call to stop or start the Flink SQL statement.
 
+        For more information, why this function is a bit complex, please refer to the
+        Issue [#166](https://github.com/j3-signalroom/cc-clients-python_lib/issues/166).
+
         Arg(s):
             statement_name (str):  The Flink SQL statement name.
             stop (bool):           (Optional) The stop flag. Default is True.
@@ -206,7 +209,9 @@ class FlinkClient():
                     # Turn the JSON response into a Statement model.
                     statement = Statement(**response.json())
 
-                    # Check if the resource version is the same.
+                    # Check if the resource version is the same.  If it is the same, the statement has successfully
+                    # been updated.  If it is not the same, this indicates that the statement has been updated since
+                    # the last GET request.  In this case, we need to retry the request.
                     if statement.metadata.resource_version == resource_version:
                         return response.status_code, response.text
                     else:

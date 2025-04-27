@@ -70,7 +70,6 @@ uv add cc-clients-python-lib
 
 ### **3.2 Flink Resources**
 * [CCAF State management](https://docs.confluent.io/cloud/current/flink/concepts/overview.html#state-management)
-* [Update a statement](https://docs.confluent.io/cloud/current/flink/reference/flink-sql-cli.html#update-a-statement)
 
 ### **3.3 Other Resources**
 * [How to programmatically pause and resume a Flink statement](.blog/how-to-programmatically-pause-and-resume-a-flink-statement.md)

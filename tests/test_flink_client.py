@@ -153,31 +153,18 @@ def test_get_compute_pool():
         logger.error("Error Message: %s, Response: %s", error_message, response)
 
 
-def test_pause_statement():
+def test_stop_statement():
     """Test the pause_statement() function."""
 
     # Instantiate the FlinkClient classs.
     flink_client = FlinkClient(config)
 
-    http_status_code, response = flink_client.pause_statement(statement_name)
+    http_status_code, response = flink_client.stop_statement(statement_name, False)
+
+    logger.info("HTTP Status Code: %d, Response: %s", http_status_code, response)
  
     try:
-        assert http_status_code == HttpStatus.ACCEPTED, f"HTTP Status Code: {http_status_code}"
-    except AssertionError as e:
-        logger.error(e)
-        logger.error("Response: %s", response)
-
-
-def test_resume_statement():
-    """Test the resume_statement() function."""
-
-    # Instantiate the FlinkClient classs.
-    flink_client = FlinkClient(config)
-
-    http_status_code, response = flink_client.resume_statement(statement_name)
- 
-    try:
-        assert http_status_code == HttpStatus.ACCEPTED, f"HTTP Status Code: {http_status_code}"
+        assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
     except AssertionError as e:
         logger.error(e)
         logger.error("Response: %s", response)

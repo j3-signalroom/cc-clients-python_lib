@@ -160,67 +160,38 @@ class FlinkClient():
 
         return HttpStatus.ACCEPTED, ""
     
-    def pause_statement(self, statement_name: str) -> Tuple[int, str]:
+    def stop_statement(self, statement_name: str, stop: bool = True) -> Tuple[int, str]:
         """This function submits a RESTful API call to pause a Flink SQL statement.
 
         Arg(s):
             statement_name (str):  The Flink SQL statement name.
+            stop (bool):           (Optional) The stop flag. Default is True.
 
         Returns:
             int:    HTTP Status Code.
             str:    HTTP Error, if applicable.
         """
-        # Create an instance of the Statement model.
-        statement = Statement(name=(f"{statement_name}").replace("_", "-"),
-                              organization_id=self.organization_id,
-                              environment_id=self.environment_id,
-                              spec=StatementSpec(compute_pool_id=self.compute_pool_id,
-                                                 principal=self.principal_id,
-                                                 stopped=True))
-        
-        # Send a PATCH request to pause the statement.
-        response = requests.patch(url=f"{self.flink_sql_base_url}statements/{statement_name}",
-                                  data=statement.model_dump_json(),
-                                  auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
+        # Send a GET request to
+        response = requests.get(url=f"{self.flink_sql_base_url}statements/{statement_name}",
+                                auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
 
         try:
             # Raise HTTPError, if occurred.
             response.raise_for_status()
+
+            # Turn the JSON response into a Statement model.
+            statement = Statement(**response.json())
+            resource_version = statement.metadata.resource_version
+            statement.spec.stopped = stop
+
+            # Send a PUT request to submit a statement.
+            response = requests.put(url=f"{self.flink_sql_base_url}statements/{statement_name}",
+                                    data=statement.model_dump_json(),
+                                    auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
 
             return response.status_code, response.text
         except requests.exceptions.RequestException as e:
             return response.status_code, f"Fail to pause the statement because {e}, and the response is {response.text}"
-    
-    def resume_statement(self, statement_name: str) -> Tuple[int, str]:
-        """This function submits a RESTful API call to resume a Flink SQL statement.
-
-        Arg(s):
-            statement_name (str):  The Flink SQL statement name.
-
-        Returns:
-            int:    HTTP Status Code.
-            str:    HTTP Error, if applicable.
-        """
-        # Create an instance of the Statement model.
-        statement = Statement(name=(f"{statement_name}").replace("_", "-"),
-                              organization_id=self.organization_id,
-                              environment_id=self.environment_id,
-                              spec=StatementSpec(compute_pool_id=self.compute_pool_id,
-                                                 principal=self.principal_id,
-                                                 stopped=False))
-        
-        # Send a PATCH request to pause the statement.
-        response = requests.patch(url=f"{self.flink_sql_base_url}statements/{statement_name}",
-                                  data=statement.model_dump_json(),
-                                  auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
-
-        try:
-            # Raise HTTPError, if occurred.
-            response.raise_for_status()
-
-            return response.status_code, response.text
-        except requests.exceptions.RequestException as e:
-            return response.status_code, f"Fail to resume the statement because {e}, and the response is {response.text}"
 
     def submit_statement(self, statement_name: str, sql_query: str, sql_query_properties: Dict) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to submit a Flink SQL statement.

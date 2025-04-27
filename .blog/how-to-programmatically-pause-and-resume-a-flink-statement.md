@@ -2,7 +2,7 @@
 Hello everyone!  In this blog post, I will show you how to programmatically pause and resume a CCAF (Confluent Cloud for Apache Flink) statement using the [Flink RESTful API](https://docs.confluent.io/cloud/current/flink/operate-and-deploy/flink-rest-api.html).  But first, let me back up a bit and explain why I needed to do this, perhaps you will find it useful too.
 
 ## Background
-I was working on both a customer project and an internal company project that required me to pause and resume a Flink statement. Both projects shared a similar requirement: to pause the Flink statement when the input topic(s) had no new records for an extended period (say 30 minutes) and to resume the statement when new records arrived. This approach would help reduce costs when continuously running Flink statements sit idle. Before tackling this problem, I needed to understand how to pause and resume a Flink statement programmatically. So, I started looking into the [Flink RESTful API](https://docs.confluent.io/cloud/current/flink/operate-and-deploy/flink-rest-api.html) and found it quite easy to do so, with a gotcha or two. I will explain the gotchas as I take you through the implementation of the initial solution to pause and resume a Flink statement.
+I was working on a customer and internal company projects that required me to pause and resume a Flink statement. Both projects shared a similar requirement: to pause the Flink statement when the input topic(s) had no new records for an extended period (say 30 minutes) and to resume the statement when new records arrived. This approach would help reduce costs when continuously running Flink statements sit idle. Before tackling this problem, I needed to understand how to programmatically pause and resume a Flink statement. So, I started looking into the [Flink RESTful API](https://docs.confluent.io/cloud/current/flink/operate-and-deploy/flink-rest-api.html) and found it relatively easy, with a gotcha or two. As I implement the initial solution to pause and resume a Flink statement, I will explain the gotchas.
 
 > **Note:** I also plan to use this "pause and resume" functionality to conduct bulk updates to a Flink statements: compute pool, and security principal.
 
@@ -172,13 +172,13 @@ The FlinkAPI does not support the `PATCH` method for updating Flink statement se
 
 **Resolution**
 
-To update a Flink statement set, use a `PUT` request instead of `PATCH`. The `PUT` request body must include the `resource_version`. This value changes each time the statement is updated. Therefore, you must first retrieve the current statement set using a `GET` request to obtain the latest `resource_version`. Include this value in your `PUT` request body. Be prepared to retry the `PUT` request if a `409` conflict error is returned, which indicates that the `resource_version` has changed since you last retrieved it. You may need to implement a retry mechanism with _optimistic locking_ to handle concurrent updates.
+To update a Flink statement set, use a `PUT` request instead of `PATCH`. The `PUT` request body must include the `resource_version`. This value changes each time the statement is updated. Therefore, you must first retrieve the current statement set using a `GET` request to obtain the latest `resource_version`. Include this value in your `PUT` request body. Be prepared to retry the `PUT` request if a `409` conflict error is returned, which indicates that the `resource_version` has changed since you last retrieved it. You may need to implement a _retry mechanism with optimistic locking_ to handle concurrent updates.
 
 ## The Solution
 
 ![denzel-washington-my-heart](images/denzel-washington-my-heart.gif)
 
-So, I took the advice from the article and implemented a retry mechanism with optimistic locking.  (The need to implement a retry mechanism with optimistic locking was the second gotcha, by the way.)  Here is the code for the `stop_statement()` method in the `FlinkClient` class:
+So, I took the advice from the article and implemented a _retry mechanism with optimistic locking_. (By the way, the need to implement a _retry mechanism with optimistic_ locking was the second gotcha.) Here is the code for the `stop_statement()` method in the `FlinkClient` class:
 
 ```python
     def stop_statement(self, statement_name: str, stop: bool = True) -> Tuple[int, str]:

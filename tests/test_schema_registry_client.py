@@ -45,7 +45,7 @@ def test_get_subject_compatibility_level():
     # Set the Kafka topic subject name.
     kafka_topic_subject = f"{kafka_topic_name}-value"
  
-    # Instantiate the SchemaRegistryClient classs.
+    # Instantiate the SchemaRegistryClient class.
     sr_client = SchemaRegistryClient(config)
 
     http_status_code, _, response = sr_client.get_topic_subject_compatibility_level(kafka_topic_subject)
@@ -64,7 +64,7 @@ def test_get_subject_compatibility_level():
 def test_delete_kafka_topic_key_schema_subject():
     """Test the delete_kafka_topic_key_schema_subject() function."""
 
-    # Instantiate the SchemaRegistryClient classs.
+    # Instantiate the SchemaRegistryClient class.
     sr_client = SchemaRegistryClient(config)
 
     http_status_code, _ = sr_client.delete_kafka_topic_key_schema_subject(kafka_topic_name)
@@ -78,7 +78,7 @@ def test_delete_kafka_topic_key_schema_subject():
 def test_delete_kafka_topic_value_schema_subject():
     """Test the delete_kafka_topic_value_schema_subject() function."""
 
-    # Instantiate the SchemaRegistryClient classs.
+    # Instantiate the SchemaRegistryClient class.
     sr_client = SchemaRegistryClient(config)
 
     http_status_code, _ = sr_client.delete_kafka_topic_value_schema_subject(kafka_topic_name)

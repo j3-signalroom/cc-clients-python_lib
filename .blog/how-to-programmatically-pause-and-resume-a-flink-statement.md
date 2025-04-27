@@ -1,19 +1,19 @@
 # How to programmatically pause and resume a Flink statement
 Hello everyone!  In this blog post, I will show you how to programmatically pause and resume a CCAF (Confluent Cloud for Apache Flink) statement using the [Flink RESTful API](https://docs.confluent.io/cloud/current/flink/operate-and-deploy/flink-rest-api.html).  But first, let me back up a bit and explain why I needed to do this. Perhaps you will find it useful too.
 
-## Background
+## The Background
 I was working on a customer and internal company projects that required me to pause and resume a Flink statement. Both projects shared a similar requirement: to pause the Flink statement when the input topic(s) had no new records for an extended period (say 30 minutes) and to resume the statement when new records arrived. This approach would help reduce costs when continuously running Flink statements sit idle. Before tackling this problem, I needed to understand how to programmatically pause and resume a Flink statement. So, I started looking into the [Flink RESTful API](https://docs.confluent.io/cloud/current/flink/operate-and-deploy/flink-rest-api.html) and found it relatively easy, with a gotcha or two. As I implement the initial solution to pause and resume a Flink statement, I will explain the gotchas.
 
-> **Note:** I also plan to use this "pause and resume" functionality to conduct bulk updates to a Flink statements: compute pool, and security principal.
+> **Note:** I also plan to use this "pause and resume" functionality to conduct bulk updates to Flink statements: compute pool, and security principal.
 
 ## The Implementation
-For some of you may be familiar with my [`cc-clients-python_lib` library](https://github.com/j3-signalroom/cc-clients-python_lib), which is a collection of Pythons functions that I use to interact with Confluent Cloud using their [RESTful APIs](https://docs.confluent.io/cloud/current/api.html).  So, I started the building of the `stop-statement` method in the `FlinkClient()` class in [`flink_client.py` module](https://github.com/j3-signalroom/cc-clients-python_lib/blob/main/src/cc_clients_python_lib/flink_client.py).  My first through was to submit a PATCH with a payload that would update some stop flag, and I would be done.  So, this is with I found in the document as of this writing:
+For some of you, you are familiar with my [`cc-clients-python_lib` library](https://github.com/j3-signalroom/cc-clients-python_lib), a collection of Python functions I use to interact with Confluent Cloud using their [RESTful APIs](https://docs.confluent.io/cloud/current/api.html). I began building the `stop-statement` method in the `FlinkClient()` class in the [`flink_client.py` module](https://github.com/j3-signalroom/cc-clients-python_lib/blob/main/src/cc_clients_python_lib/flink_client.py). My first thought was to submit a PATCH with a payload that would update some stop flag, and I would be done. So, this is what I found in the document as of this writing:
 
 ![flink-restful-api-patch-statement](images/flink-restful-api-patch-statement.png)
 
 The link to the page is [here](https://docs.confluent.io/cloud/current/api.html#tag/Statements-(sqlv1)/operation/updateSqlv1Statement).
 
-Alrighty then, I though I was almost done.  I took the sample `curl` below, adjusted it to my needs, and ran it:
+Alrighty then, I thought I was almost done.  I took the sample `curl` below, adjusted it to my needs, and ran it:
 
 ```bash
 curl --request PATCH \
@@ -148,9 +148,11 @@ So, it must be me; I must have done something wrong, right? Because the document
 Here is the article:
 
 **What can cause "Patch feature is currently disabled" Error when updating Flink Statement Sets via API**
-_last updated December 16, 2024_
+
+**_(last updated December 16, 2024)_**
 
 **Description**
+
 Users attempting to update a Flink statement set using the `PATCH` method via the FlinkAPI will encounter an error indicating that the method is unsupported.
 
 ```json
@@ -254,7 +256,7 @@ So, I took the advice from the article and implemented a _retry mechanism with o
                     time.sleep(retry_delay_in_seconds)
 ```
 
-> **Note:** The `Statement` model is a Pydantic model that I generated from the the [Confluent OpenAPI specification](https://docs.confluent.io/cloud/current/api.html#:~:text=OpenAPI%20specification%3A-,Download,-Introduction) to represent the Flink SQL statement.  You can find the code for the model in the [`src/cc_clients_python_lib/cc_openapi_v2_1/__init__.py`](https://github.com/j3-signalroom/cc-clients-python_lib/blob/main/src/cc_clients_python_lib/cc_openapi_v2_1/__init__.py).
+> **Note:** The `Statement` model is a Pydantic model I generated from the [Confluent OpenAPI specification](https://docs.confluent.io/cloud/current/api.html#:~:text=OpenAPI%20specification%3A-,Download,-Introduction) to represent the Flink SQL statement.  The code for the model is in the [`src/cc_clients_python_lib/cc_openapi_v2_1/__init__.py`](https://github.com/j3-signalroom/cc-clients-python_lib/blob/main/src/cc_clients_python_lib/cc_openapi_v2_1/__init__.py).
 
 
 ## The Test
@@ -264,7 +266,7 @@ To test the `stop_statement()` method, I created a test case in the [`tests/test
 def test_stop_statement():
     """Test the stop_statement() function."""
 
-    # Instantiate the FlinkClient classs.
+    # Instantiate the FlinkClient class.
     flink_client = FlinkClient(config)
 
     http_status_code, response = flink_client.stop_statement(statement_name, True)
@@ -276,12 +278,12 @@ def test_stop_statement():
         logger.error("Response: %s", response)
 ```
 
-> **Note:** The `config` variable is a dictionary that contains the configuration for the `FlinkClient` class.  The `statement_name` variable is the name of the Flink SQL statement that you want to stop or start.  All these variables are defined in the `.env` file.  (Refer to the [tests/test_flink_client.py/load_configurations](https://github.com/j3-signalroom/cc-clients-python_lib/blob/main/tests/test_flink_client.py) function for the environment variables that are required to run the test.)
+> **Note:**  The `config` variable is a dictionary containing the `FlinkClient` class's configuration. The `statement_name` variable is the name of the Flink SQL statement that you want to stop or start. All these variables are defined in the `.env` file. (Refer to the [tests/test_flink_client.py/load_configurations](https://github.com/j3-signalroom/cc-clients-python_lib/blob/main/tests/test_flink_client.py) function for the environment variables required to run the test.)
 
 ## In Action
 
-### Testing the Stopping a Flink SQL Statement
-To test the stopping a currently running Flink SQL statement, which you can see in the picture below taken from the CCAF Flink statements tab UI:
+### Testing the stopping of a Flink SQL Statement
+To test the stopping of a currently running Flink SQL statement, which you can see in the picture below, taken from the CCAF Flink statements tab UI:
 
 ![flink-statement-started](images/flink-statement-started.png)
 
@@ -295,17 +297,17 @@ From the UI, the Flink SQL statement will go into a `Pending` state, as shown be
 
 ![flink-statement-started](images/flink-statement-pending.png)
 
-Then after a few seconds, the Flink SQL statement will go into a `Stopped` state, as shown below:
+Then, after a few seconds, the Flink SQL statement will go into a `Stopped` state, as shown below:
 
 ![flink-statement-stopped](images/flink-statement-stopped.png)
 
-### Testing the Starting a Flink SQL Statement
-To test the starting a currently stopped Flink SQL statement, first modify the unit test by passing `False` instead of `True` as an argument in the `stop_statement` method:
+### Testing the starting of a Flink SQL Statement
+To test starting a currently stopped Flink SQL statement, first modify the unit test by passing `False` instead of `True` as an argument in the `stop_statement` method:
 ```python
 def test_stop_statement():
     """Test the stop_statement() function."""
 
-    # Instantiate the FlinkClient classs.
+    # Instantiate the FlinkClient class.
     flink_client = FlinkClient(config)
 
     http_status_code, response = flink_client.stop_statement(statement_name, False)
@@ -317,10 +319,12 @@ def test_stop_statement():
         logger.error("Response: %s", response)
 ```
 
-> **Note:** The `config` variable is a dictionary that contains the configuration for the `FlinkClient` class.  The `statement_name` variable is the name of the Flink SQL statement that you want to stop or start.  All these variables are defined in the `.env` file.  (Refer to the [tests/test_flink_client.py/load_configurations](https://github.com/j3-signalroom/cc-clients-python_lib/blob/main/tests/test_flink_client.py) function for the environment variables that are required to run the test.)
+> **Note:**  The `config` variable is a dictionary containing the `FlinkClient` class's configuration. The `statement_name` variable is the name of the Flink SQL statement that you want to stop or start. All these variables are defined in the `.env` file. (Refer to the [tests/test_flink_client.py/load_configurations](https://github.com/j3-signalroom/cc-clients-python_lib/blob/main/tests/test_flink_client.py) function for the environment variables required to run the test.)
 
-To test the starting a currently stopped Flink SQL statement, which you can see in the picture below taken from the CCAF Flink statements tab UI:
+To test starting a currently stopped Flink SQL statement, which you can see in the picture below, taken from the CCAF Flink statements tab UI:
+
 ![flink-statement-stopped](images/flink-statement-stopped.png)
+
 Execute the following command in the terminal:
 ```bash
 pytest -s tests/test_flink_client.py::test_stop_statement
@@ -328,8 +332,8 @@ pytest -s tests/test_flink_client.py::test_stop_statement
 From the UI, the Flink SQL statement will go into a `Pending` state, as shown below:
 ![flink-statement-pending](images/flink-statement-pending.png)
 
-Then after a few seconds, the Flink SQL statement will go into a `Running` state, as shown below:
+Then, after a few seconds, the Flink SQL statement will go into a `Running` state, as shown below:
 ![flink-statement-started](images/flink-statement-started.png)
 
 ## Conclusion
-In this blog post, I showed you how to programmatically pause and resume a Flink SQL statement using the Flink RESTful API.  I also explained the gotchas that I encountered along the way and how I solved them.  I hope you found this blog post useful and that it will help you in your own projects. 
+In this blog post, I demonstrated how to programmatically pause and resume a Flink SQL statement using the Flink RESTful API. I also discussed the challenges I faced along the way and how I overcame them. I hope you found this blog post helpful and that it will help you in your own projects.

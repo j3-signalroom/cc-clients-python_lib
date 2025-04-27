@@ -56,7 +56,7 @@ def load_configurations():
 def test_delete_statement():
     """Test the delete_statement() function."""
 
-    # Instantiate the FlinkClient classs.
+    # Instantiate the FlinkClient class.
     flink_client = FlinkClient(config)
 
     http_status_code, response = flink_client.delete_statement(statement_name)
@@ -71,7 +71,7 @@ def test_delete_statement():
 def test_delete_statements_by_phase():
     """Test the delete_statements_by_phase() function."""
 
-    # Instantiate the FlinkClient classs.
+    # Instantiate the FlinkClient class.
     flink_client = FlinkClient(config)
 
     http_status_code, error_message = flink_client.delete_statements_by_phase(StatementPhase.COMPLETED)
@@ -86,7 +86,7 @@ def test_delete_statements_by_phase():
 def test_get_statement_list():
     """Test the get_statement_list() function."""
 
-    # Instantiate the FlinkClient classs.
+    # Instantiate the FlinkClient class.
     flink_client = FlinkClient(config)
 
     http_status_code, _, response = flink_client.get_statement_list()
@@ -104,7 +104,7 @@ def test_get_statement_list():
 def test_submit_statement():
     """Test the submit_statement() function."""
 
-    # Instantiate the FlinkClient classs.
+    # Instantiate the FlinkClient class.
     flink_client = FlinkClient(config)
 
     http_status_code, error_message, response = flink_client.submit_statement("drop-statement",
@@ -122,7 +122,7 @@ def test_submit_statement():
 def test_get_compute_pool_list():
     """Test the get_compute_pool() function."""
 
-    # Instantiate the FlinkClient classs.
+    # Instantiate the FlinkClient class.
     flink_client = FlinkClient(config)
 
     http_status_code, error_message, response = flink_client.get_compute_pool_list()
@@ -140,7 +140,7 @@ def test_get_compute_pool_list():
 def test_get_compute_pool():
     """Test the get_compute_pool() function."""
 
-    # Instantiate the FlinkClient classs.
+    # Instantiate the FlinkClient class.
     flink_client = FlinkClient(config)
 
     http_status_code, error_message, response = flink_client.get_compute_pool()
@@ -156,7 +156,7 @@ def test_get_compute_pool():
 def test_stop_statement():
     """Test the stop_statement() function."""
 
-    # Instantiate the FlinkClient classs.
+    # Instantiate the FlinkClient class.
     flink_client = FlinkClient(config)
 
     http_status_code, response = flink_client.stop_statement(statement_name, True)

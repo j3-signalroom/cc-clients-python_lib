@@ -45,7 +45,7 @@ def load_configurations():
 def test_delete_kafka_topic():
     """Test the delete_kafka_topic() function."""
 
-    # Instantiate the KafkaClient classs.
+    # Instantiate the KafkaClient class.
     kafka_client = KafkaClient(config)
 
     http_status_code, error_message = kafka_client.delete_kafka_topic(kafka_topic_name)
@@ -60,7 +60,7 @@ def test_delete_kafka_topic():
 def test_kafka_topic_exist():
     """Test the kafka_topic_exist() function."""
 
-    # Instantiate the KafkaClient classs.
+    # Instantiate the KafkaClient class.
     kafka_client = KafkaClient(config)
 
     http_status_code, error_message, exist = kafka_client.kafka_topic_exist(kafka_topic_name)

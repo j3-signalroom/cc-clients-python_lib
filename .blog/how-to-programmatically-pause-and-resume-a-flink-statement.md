@@ -274,7 +274,7 @@ def test_stop_statement():
         logger.error("Response: %s", response)
 ```
 
-> **Note:** The `config` variable is a dictionary that contains the configuration for the `FlinkClient` class.  The `statement_name` variable is the name of the Flink SQL statement that you want to stop or start.  All these variables are defined in the `.env` file.
+> **Note:** The `config` variable is a dictionary that contains the configuration for the `FlinkClient` class.  The `statement_name` variable is the name of the Flink SQL statement that you want to stop or start.  All these variables are defined in the `.env` file.  (Refer to the [tests/test_flink_client.py/load_configurations](https://github.com/j3-signalroom/cc-clients-python_lib/blob/main/tests/test_flink_client.py) function for the environment variables that are required to run the test.)
 
 ## In Action
 
@@ -298,7 +298,7 @@ Then after a few seconds, the Flink SQL statement will go into a `Stopped` state
 ![flink-statement-stopped](images/flink-statement-stopped.png)
 
 ### Testing the Starting a Flink SQL Statement
-To test the starting a currently stopped Flink SQL statement, first modify the unit test by passing `False` instead of `True` as an argument in the `stop_statement` method, and then run the test again:
+To test the starting a currently stopped Flink SQL statement, first modify the unit test by passing `False` instead of `True` as an argument in the `stop_statement` method:
 ```python
 def test_stop_statement():
     """Test the stop_statement() function."""
@@ -314,6 +314,9 @@ def test_stop_statement():
         logger.error(e)
         logger.error("Response: %s", response)
 ```
+
+> **Note:** The `config` variable is a dictionary that contains the configuration for the `FlinkClient` class.  The `statement_name` variable is the name of the Flink SQL statement that you want to stop or start.  All these variables are defined in the `.env` file.  (Refer to the [tests/test_flink_client.py/load_configurations](https://github.com/j3-signalroom/cc-clients-python_lib/blob/main/tests/test_flink_client.py) function for the environment variables that are required to run the test.)
+
 To test the starting a currently stopped Flink SQL statement, which you can see in the picture below taken from the CCAF Flink statements tab UI:
 ![flink-statement-stopped](images/flink-statement-stopped.png)
 Execute the following command in the terminal:

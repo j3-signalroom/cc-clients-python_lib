@@ -18,6 +18,7 @@ The Confluent Cloud Clients Python Library provides a set of clients for interac
 + [**3.0 Resources**](#30-resources)
     * [**3.1 API Documentation**](#31-api-documentation)
     * [**3.2 Flink Resources**](#32-flink-resources)
+    * [**3.3 Other Resources**](#33-other-resources)
 <!-- tocstop -->
 
 ## **1.0 Library Clients**
@@ -70,3 +71,6 @@ uv add cc-clients-python-lib
 ### **3.2 Flink Resources**
 * [CCAF State management](https://docs.confluent.io/cloud/current/flink/concepts/overview.html#state-management)
 * [Update a statement](https://docs.confluent.io/cloud/current/flink/reference/flink-sql-cli.html#update-a-statement)
+
+### **3.3 Other Resources**
+* [How to programmatically pause and resume a Flink statement](.blog/how-to-programmatically-pause-and-resume-a-flink-statement.md)

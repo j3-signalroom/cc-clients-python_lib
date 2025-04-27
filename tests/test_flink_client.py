@@ -154,7 +154,7 @@ def test_get_compute_pool():
 
 
 def test_stop_statement():
-    """Test the pause_statement() function."""
+    """Test the stop_statement() function."""
 
     # Instantiate the FlinkClient classs.
     flink_client = FlinkClient(config)

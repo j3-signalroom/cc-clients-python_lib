@@ -305,8 +305,7 @@ class FlinkClient():
                 return response.status_code, f"Fail to retrieve the computer pool because {e}", response.json() if response.content else {}
             
         return response.status_code, response.text, compute_pools
-        
-
+    
     def compute_pool(self) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to get the Flink Compute Pool.
 

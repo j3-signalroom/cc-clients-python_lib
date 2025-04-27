@@ -29,8 +29,7 @@ The **Flink Client** provides the following methods:
 - `get_compute_pool`
 - `get_compute_pool_list`
 - `get_statement_list`
-- `pause_statement`
-- `resume_statement`
+- `stop_statement`
 - `submit_statement`
 
 ### **1.2 Kafka Client**

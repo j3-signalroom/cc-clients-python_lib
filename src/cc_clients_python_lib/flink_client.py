@@ -1,4 +1,5 @@
 from enum import StrEnum
+import time
 from typing import Tuple, Dict
 import requests
 import uuid
@@ -70,7 +71,7 @@ class FlinkClient():
         self.flink_sql_base_url = f"https://flink.{self.cloud_region}.{self.cloud_provider}.{'private.' if private_network else ''}confluent.cloud/sql/v1/organizations/{self.organization_id}/environments/{self.environment_id}/"
         self.flink_compute_pool_base_url = "https://api.confluent.cloud/fcpm/v2/compute-pools"
 
-    def get_statement_list(self, page_size: int = DEFAULT_PAGE_SIZE) -> Tuple[int, str, Dict]:
+    def statement_list(self, page_size: int = DEFAULT_PAGE_SIZE) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to get the Flink SQL statement list.
 
         Arg(s):
@@ -145,7 +146,7 @@ class FlinkClient():
             str:    HTTP Error, if applicable.
         """
         # Get the statement list.
-        http_status_code, error_message, response = self.get_statement_list()
+        http_status_code, error_message, response = self.statement_list()
 
         if http_status_code != HttpStatus.OK:
             return http_status_code, error_message
@@ -171,27 +172,61 @@ class FlinkClient():
             int:    HTTP Status Code.
             str:    HTTP Error, if applicable.
         """
-        # Send a GET request to
-        response = requests.get(url=f"{self.flink_sql_base_url}statements/{statement_name}",
-                                auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
+        retry = 0
+        max_retries = 9
+        retry_delay_in_seconds = 5
 
-        try:
-            # Raise HTTPError, if occurred.
-            response.raise_for_status()
-
-            # Turn the JSON response into a Statement model.
-            statement = Statement(**response.json())
-            resource_version = statement.metadata.resource_version
-            statement.spec.stopped = stop
-
-            # Send a PUT request to submit a statement.
-            response = requests.put(url=f"{self.flink_sql_base_url}statements/{statement_name}",
-                                    data=statement.model_dump_json(),
+        while retry < max_retries:
+            # Send a GET request to get the statement.
+            response = requests.get(url=f"{self.flink_sql_base_url}statements/{statement_name}",
                                     auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
 
-            return response.status_code, response.text
-        except requests.exceptions.RequestException as e:
-            return response.status_code, f"Fail to pause the statement because {e}, and the response is {response.text}"
+            try:
+                # Raise HTTPError, if occurred.
+                response.raise_for_status()
+
+                # Turn the JSON response into a Statement model.
+                statement = Statement(**response.json())
+
+                # Get the statement resource version.
+                resource_version = statement.metadata.resource_version
+
+                # Set the stop flag.
+                statement.spec.stopped = stop
+
+                # Send a PUT request to update the status of the statement.
+                response = requests.put(url=f"{self.flink_sql_base_url}statements/{statement_name}",
+                                        data=statement.model_dump_json(),
+                                        auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
+                
+                try:
+                    # Raise HTTPError, if occurred.
+                    response.raise_for_status()
+
+                    # Turn the JSON response into a Statement model.
+                    statement = Statement(**response.json())
+
+                    # Check if the resource version is the same.
+                    if statement.metadata.resource_version == resource_version:
+                        return response.status_code, response.text
+                    else:
+                        retry += 1
+                        if retry == max_retries:
+                            return response.status_code, f"Max retries exceeded.  Fail to update the statement because of a resource version mismatch.  Expected resource version #{resource_version}, but got resource version #{statement.metadata.resource_version}."
+                        else:
+                            time.sleep(retry_delay_in_seconds)
+                except requests.exceptions.RequestException as e:
+                    retry += 1
+                    if retry == max_retries:
+                        return response.status_code, f"Max retries exceeded.  Fail to update the statement because {e}, and the response is {response.text}"
+                    else:
+                        time.sleep(retry_delay_in_seconds)
+            except requests.exceptions.RequestException as e:
+                retry += 1
+                if retry == max_retries:
+                    return response.status_code, f"Max retries exceeded.  Fail to retrieve the statement because {e}, and the response is {response.text}"
+                else:
+                    time.sleep(retry_delay_in_seconds)
 
     def submit_statement(self, statement_name: str, sql_query: str, sql_query_properties: Dict) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to submit a Flink SQL statement.
@@ -229,7 +264,7 @@ class FlinkClient():
         except requests.exceptions.RequestException as e:
             return response.status_code, f"Fail to submit a statement because {e}", response.json() if response.content else {}
         
-    def get_compute_pool_list(self, page_size: int = DEFAULT_PAGE_SIZE) -> Tuple[int, str, Dict]:
+    def compute_pool_list(self, page_size: int = DEFAULT_PAGE_SIZE) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to get the Flink Compute Pool List.
 
         Arg(s):
@@ -272,14 +307,14 @@ class FlinkClient():
         return response.status_code, response.text, compute_pools
         
 
-    def get_compute_pool(self) -> Tuple[int, str, Dict]:
+    def compute_pool(self) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to get the Flink Compute Pool.
 
         Returns:
             int:    HTTP Status Code.
             str:    HTTP Error, if applicable.
         """
-        http_status_code, error_message, response = self.get_compute_pool_list()
+        http_status_code, error_message, response = self.compute_pool_list()
 
         if http_status_code != HttpStatus.OK:
             return http_status_code, error_message, response

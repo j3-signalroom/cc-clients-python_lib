@@ -159,9 +159,7 @@ def test_stop_statement():
     # Instantiate the FlinkClient classs.
     flink_client = FlinkClient(config)
 
-    http_status_code, response = flink_client.stop_statement(statement_name, False)
-
-    logger.info("HTTP Status Code: %d, Response: %s", http_status_code, response)
+    http_status_code, response = flink_client.stop_statement(statement_name, True)
  
     try:
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"

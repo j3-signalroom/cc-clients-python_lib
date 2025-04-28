@@ -54,6 +54,7 @@ def load_configurations():
     catalog_name = os.getenv("FLINK_CATALOG_NAME")
     database_name = os.getenv("FLINK_DATABASE_NAME")
 
+    # Set the Flink SQL security principal ID.
     global principal_id
     principal_id = os.getenv("PRINCIPAL_ID")
 

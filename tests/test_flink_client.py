@@ -20,6 +20,7 @@ logger.setLevel(logging.INFO)
 
 # Initialize the global variables.
 config = {}
+principal_id = ""
 statement_name = ""
 catalog_name = ""
 database_name = ""
@@ -52,6 +53,9 @@ def load_configurations():
     global database_name
     catalog_name = os.getenv("FLINK_CATALOG_NAME")
     database_name = os.getenv("FLINK_DATABASE_NAME")
+
+    global principal_id
+    principal_id = os.getenv("PRINCIPAL_ID")
 
 
 def test_delete_statement():
@@ -175,7 +179,7 @@ def test_update_statement():
     # Instantiate the FlinkClient class.
     flink_client = FlinkClient(config)
 
-    http_status_code, response = flink_client.update_statement(statement_name, False, new_security_principal_id="sa-1zn3x6")
+    http_status_code, response = flink_client.update_statement(statement_name, False, new_security_principal_id=principal_id)
  
     try:
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"

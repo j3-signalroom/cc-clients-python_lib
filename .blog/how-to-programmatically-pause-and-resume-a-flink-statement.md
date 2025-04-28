@@ -197,6 +197,22 @@ So, I took the advice from the article and implemented a _retry mechanism with o
             int:    HTTP Status Code.
             str:    HTTP Error, if applicable.
         """
+        return self.__update_statement(statement_name=statement_name, stop=stop)
+    
+    def __update_statement(self, statement_name: str, stop: bool, new_compute_pool_id: str = None, new_security_principal_id: str = None) -> Tuple[int, str]:
+        """This private function submits a RESTful API call to update the mutable attributes of a 
+        Flink SQL statement.
+
+        Arg(s):
+            statement_name (str):             The current Flink SQL statement name.
+            stop (bool):                      The stop flag.
+            new_compute_pool_id (str):        (Optional) The new compute pool ID.
+            new_security_principal_id (str):  (Optional) The new security principal ID.
+
+        Returns:
+            int:    HTTP Status Code.
+            str:    HTTP Error, if applicable.
+        """
         retry = 0
         max_retries = 9
         retry_delay_in_seconds = 5
@@ -216,8 +232,12 @@ So, I took the advice from the article and implemented a _retry mechanism with o
                 # Get the statement resource version.
                 resource_version = statement.metadata.resource_version
 
-                # Set the stop flag.
+                # Set the stop flag, compute pool ID, and security principal ID.
                 statement.spec.stopped = stop
+                if new_compute_pool_id is not None:
+                    statement.spec.compute_pool_id = new_compute_pool_id
+                if new_security_principal_id is not None:
+                    statement.spec.principal = new_security_principal_id
 
                 # Send a PUT request to update the status of the statement.
                 response = requests.put(url=f"{self.flink_sql_base_url}statements/{statement_name}",

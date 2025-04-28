@@ -2,6 +2,7 @@ import logging
 from dotenv import load_dotenv
 import os
 import pytest
+
 from cc_clients_python_lib.flink_client import FlinkClient, FLINK_CONFIG, StatementPhase
 from cc_clients_python_lib.http_status import HttpStatus
 
@@ -163,6 +164,22 @@ def test_stop_statement():
  
     try:
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
+    except AssertionError as e:
+        logger.error(e)
+        logger.error("Response: %s", response)
+
+
+def test_update_statement():
+    """Test the update_statement() function."""
+
+    # Instantiate the FlinkClient class.
+    flink_client = FlinkClient(config)
+
+    http_status_code, response = flink_client.update_statement(statement_name, False, new_security_principal_id="sa-1zn3x6")
+ 
+    try:
+        assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
+        logger.info("Response: %s", response)
     except AssertionError as e:
         logger.error(e)
         logger.error("Response: %s", response)

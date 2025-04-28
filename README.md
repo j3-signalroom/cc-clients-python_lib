@@ -32,6 +32,7 @@ The **Flink Client** provides the following methods:
 - `get_statement_list`
 - `stop_statement`
 - `submit_statement`
+- `update_statement`
 
 ### **1.2 Kafka Client**
 The **Kafka Client** provides the following methods:

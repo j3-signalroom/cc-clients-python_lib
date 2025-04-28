@@ -257,13 +257,13 @@ class FlinkClient():
 
             return HttpStatus.NOT_FOUND, f"Fail to find the compute pool with ID {self.compute_pool_id}", response
 
-    def update_statement(self, statement_name: str, new_statement_name: str = None, stop: bool = False, new_compute_pool_id: str = None, new_security_principal_id: str = None) -> Tuple[int, str]:
+    def update_statement(self, statement_name: str, stop: bool, new_compute_pool_id: str = None, new_security_principal_id: str = None) -> Tuple[int, str]:
         """This function submits a RESTful API call to first stop the statement, and
         then update the mutable attributes of a Flink SQL statement.
 
         Arg(s):
             statement_name (str):           The current Flink SQL statement name.
-            new_statement_name (str):       (Optional) The new Flink SQL statement name.
+            stop (bool):                    The stop flag.
             new_compute_pool_id (str):      (Optional) The new compute pool ID.
             new_security_principal_id (str):(Optional) The new security principal ID.
 
@@ -275,7 +275,8 @@ class FlinkClient():
         if http_status_code != HttpStatus.OK:
             return http_status_code, error_message
         else:
-            return self.__update_statement(statement_name=statement_name, stop=stop, new_statement_name=new_statement_name, new_compute_pool_id=new_compute_pool_id, new_security_principal_id=new_security_principal_id)
+            http_status_code, error_message = self.__update_statement(statement_name=statement_name, stop=stop, new_compute_pool_id=new_compute_pool_id, new_security_principal_id=new_security_principal_id)
+            return http_status_code, error_message
 
     def stop_statement(self, statement_name: str, stop: bool = True) -> Tuple[int, str]:
         """This function submits a RESTful API call to stop or start the Flink SQL statement.
@@ -293,14 +294,13 @@ class FlinkClient():
         """
         return self.__update_statement(statement_name=statement_name, stop=stop)
     
-    def __update_statement(self, statement_name: str, stop: bool, new_statement_name: str = None, new_compute_pool_id: str = None, new_security_principal_id: str = None) -> Tuple[int, str]:
+    def __update_statement(self, statement_name: str, stop: bool, new_compute_pool_id: str = None, new_security_principal_id: str = None) -> Tuple[int, str]:
         """This private function submits a RESTful API call to update the mutable attributes of a 
         Flink SQL statement.
 
         Arg(s):
             statement_name (str):             The current Flink SQL statement name.
             stop (bool):                      The stop flag.
-            new_statement_name (str):         (Optional) The new Flink SQL statement name.
             new_compute_pool_id (str):        (Optional) The new compute pool ID.
             new_security_principal_id (str):  (Optional) The new security principal ID.
 
@@ -327,10 +327,8 @@ class FlinkClient():
                 # Get the statement resource version.
                 resource_version = statement.metadata.resource_version
 
-                # Set the stop flag, new statement name, compute pool ID, and security principal ID.
+                # Set the stop flag, compute pool ID, and security principal ID.
                 statement.spec.stopped = stop
-                if new_statement_name is not None:
-                    statement.name = new_statement_name
                 if new_compute_pool_id is not None:
                     statement.spec.compute_pool_id = new_compute_pool_id
                 if new_security_principal_id is not None:

@@ -161,78 +161,6 @@ class FlinkClient():
 
         return HttpStatus.ACCEPTED, ""
     
-    def stop_statement(self, statement_name: str, stop: bool = True) -> Tuple[int, str]:
-        """This function submits a RESTful API call to stop or start the Flink SQL statement.
-
-        For more information, why this function is a bit complex, please refer to the
-        Issue [#166](https://github.com/j3-signalroom/cc-clients-python_lib/issues/166).
-
-        Arg(s):
-            statement_name (str):  The Flink SQL statement name.
-            stop (bool):           (Optional) The stop flag. Default is True.
-
-        Returns:
-            int:    HTTP Status Code.
-            str:    HTTP Error, if applicable.
-        """
-        retry = 0
-        max_retries = 9
-        retry_delay_in_seconds = 5
-
-        while retry < max_retries:
-            # Send a GET request to get the statement.
-            response = requests.get(url=f"{self.flink_sql_base_url}statements/{statement_name}",
-                                    auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
-
-            try:
-                # Raise HTTPError, if occurred.
-                response.raise_for_status()
-
-                # Turn the JSON response into a Statement model.
-                statement = Statement(**response.json())
-
-                # Get the statement resource version.
-                resource_version = statement.metadata.resource_version
-
-                # Set the stop flag.
-                statement.spec.stopped = stop
-
-                # Send a PUT request to update the status of the statement.
-                response = requests.put(url=f"{self.flink_sql_base_url}statements/{statement_name}",
-                                        data=statement.model_dump_json(),
-                                        auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
-                
-                try:
-                    # Raise HTTPError, if occurred.
-                    response.raise_for_status()
-
-                    # Turn the JSON response into a Statement model.
-                    statement = Statement(**response.json())
-
-                    # Check if the resource version is the same.  If it is the same, the statement has successfully
-                    # been updated.  If it is not the same, this indicates that the statement has been updated since
-                    # the last GET request.  In this case, we need to retry the request.
-                    if statement.metadata.resource_version == resource_version:
-                        return response.status_code, response.text
-                    else:
-                        retry += 1
-                        if retry == max_retries:
-                            return response.status_code, f"Max retries exceeded.  Fail to update the statement because of a resource version mismatch.  Expected resource version #{resource_version}, but got resource version #{statement.metadata.resource_version}."
-                        else:
-                            time.sleep(retry_delay_in_seconds)
-                except requests.exceptions.RequestException as e:
-                    retry += 1
-                    if retry == max_retries:
-                        return response.status_code, f"Max retries exceeded.  Fail to update the statement because {e}, and the response is {response.text}"
-                    else:
-                        time.sleep(retry_delay_in_seconds)
-            except requests.exceptions.RequestException as e:
-                retry += 1
-                if retry == max_retries:
-                    return response.status_code, f"Max retries exceeded.  Fail to retrieve the statement because {e}, and the response is {response.text}"
-                else:
-                    time.sleep(retry_delay_in_seconds)
-
     def submit_statement(self, statement_name: str, sql_query: str, sql_query_properties: Dict) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to submit a Flink SQL statement.
 
@@ -328,3 +256,118 @@ class FlinkClient():
                     return HttpStatus.OK, "", compute_pool
 
             return HttpStatus.NOT_FOUND, f"Fail to find the compute pool with ID {self.compute_pool_id}", response
+
+    def update_statement(self, statement_name: str, new_statement_name: str = None, stop: bool = False, new_compute_pool_id: str = None, new_security_principal_id: str = None) -> Tuple[int, str]:
+        """This function submits a RESTful API call to first stop the statement, and
+        then update the mutable attributes of a Flink SQL statement.
+
+        Arg(s):
+            statement_name (str):           The current Flink SQL statement name.
+            new_statement_name (str):       (Optional) The new Flink SQL statement name.
+            new_compute_pool_id (str):      (Optional) The new compute pool ID.
+            new_security_principal_id (str):(Optional) The new security principal ID.
+
+        Returns:
+            int:    HTTP Status Code.
+            str:    HTTP Error, if applicable.
+        """
+        http_status_code, error_message = self.__update_statement(statement_name=statement_name, stop=True)
+        if http_status_code != HttpStatus.OK:
+            return http_status_code, error_message
+        else:
+            return self.__update_statement(statement_name=statement_name, stop=stop, new_statement_name=new_statement_name, new_compute_pool_id=new_compute_pool_id, new_security_principal_id=new_security_principal_id)
+
+    def stop_statement(self, statement_name: str, stop: bool = True) -> Tuple[int, str]:
+        """This function submits a RESTful API call to stop or start the Flink SQL statement.
+
+        For more information, why this function is a bit complex, please refer to the
+        Issue [#166](https://github.com/j3-signalroom/cc-clients-python_lib/issues/166).
+
+        Arg(s):
+            statement_name (str):  The Flink SQL statement name.
+            stop (bool):           (Optional) The stop flag. Default is True.
+
+        Returns:
+            int:    HTTP Status Code.
+            str:    HTTP Error, if applicable.
+        """
+        return self.__update_statement(statement_name=statement_name, stop=stop)
+    
+    def __update_statement(self, statement_name: str, stop: bool, new_statement_name: str = None, new_compute_pool_id: str = None, new_security_principal_id: str = None) -> Tuple[int, str]:
+        """This private function submits a RESTful API call to update the mutable attributes of a 
+        Flink SQL statement.
+
+        Arg(s):
+            statement_name (str):             The current Flink SQL statement name.
+            stop (bool):                      The stop flag.
+            new_statement_name (str):         (Optional) The new Flink SQL statement name.
+            new_compute_pool_id (str):        (Optional) The new compute pool ID.
+            new_security_principal_id (str):  (Optional) The new security principal ID.
+
+        Returns:
+            int:    HTTP Status Code.
+            str:    HTTP Error, if applicable.
+        """
+        retry = 0
+        max_retries = 9
+        retry_delay_in_seconds = 5
+
+        while retry < max_retries:
+            # Send a GET request to get the statement.
+            response = requests.get(url=f"{self.flink_sql_base_url}statements/{statement_name}",
+                                    auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
+
+            try:
+                # Raise HTTPError, if occurred.
+                response.raise_for_status()
+
+                # Turn the JSON response into a Statement model.
+                statement = Statement(**response.json())
+
+                # Get the statement resource version.
+                resource_version = statement.metadata.resource_version
+
+                # Set the stop flag, new statement name, compute pool ID, and security principal ID.
+                statement.spec.stopped = stop
+                if new_statement_name is not None:
+                    statement.name = new_statement_name
+                if new_compute_pool_id is not None:
+                    statement.spec.compute_pool_id = new_compute_pool_id
+                if new_security_principal_id is not None:
+                    statement.spec.principal = new_security_principal_id
+
+                # Send a PUT request to update the status of the statement.
+                response = requests.put(url=f"{self.flink_sql_base_url}statements/{statement_name}",
+                                        data=statement.model_dump_json(),
+                                        auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
+                
+                try:
+                    # Raise HTTPError, if occurred.
+                    response.raise_for_status()
+
+                    # Turn the JSON response into a Statement model.
+                    statement = Statement(**response.json())
+
+                    # Check if the resource version is the same.  If it is the same, the statement has successfully
+                    # been updated.  If it is not the same, this indicates that the statement has been updated since
+                    # the last GET request.  In this case, we need to retry the request.
+                    if statement.metadata.resource_version == resource_version:
+                        return response.status_code, response.text
+                    else:
+                        retry += 1
+                        if retry == max_retries:
+                            return response.status_code, f"Max retries exceeded.  Fail to update the statement because of a resource version mismatch.  Expected resource version #{resource_version}, but got resource version #{statement.metadata.resource_version}."
+                        else:
+                            time.sleep(retry_delay_in_seconds)
+                except requests.exceptions.RequestException as e:
+                    retry += 1
+                    if retry == max_retries:
+                        return response.status_code, f"Max retries exceeded.  Fail to update the statement because {e}, and the response is {response.text}"
+                    else:
+                        time.sleep(retry_delay_in_seconds)
+            except requests.exceptions.RequestException as e:
+                retry += 1
+                if retry == max_retries:
+                    return response.status_code, f"Max retries exceeded.  Fail to retrieve the statement because {e}, and the response is {response.text}"
+                else:
+                    time.sleep(retry_delay_in_seconds)

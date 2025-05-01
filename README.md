@@ -31,6 +31,7 @@ The **Flink Client** provides the following methods:
 - `get_compute_pool_list`
 - `get_statement_list`
 - `stop_statement`
+    > _**Note:**  Confluent Cloud for Apache Flink enforces a 30-day retention for statements in terminal states._
 - `submit_statement`
 - `update_statement`
 

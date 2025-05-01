@@ -284,8 +284,8 @@ class FlinkClient():
         For more information, why this function is a bit complex, please refer to the
         Issue [#166](https://github.com/j3-signalroom/cc-clients-python_lib/issues/166).
 
-        Note: Confluent Cloud for Apache Flink enforces a 30-day retention for statements in
-        terminal states. 
+        Note: "Confluent Cloud for Apache Flink enforces a 30-day retention for statements in
+        terminal states." 
 
         Arg(s):
             statement_name (str):  The Flink SQL statement name.

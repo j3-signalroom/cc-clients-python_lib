@@ -356,4 +356,8 @@ Then, after a few seconds, the Flink SQL statement will go into a `Running` stat
 ![flink-statement-started](images/flink-statement-started.png)
 
 ## Conclusion
-In this blog post, I demonstrated how to programmatically pause and resume a Flink SQL statement using the Flink RESTful API. I also discussed the challenges I faced along the way and how I overcame them. I hope you found this blog post helpful and that it will help you in your own projects.
+In this blog post, I demonstrated how to programmatically pause and resume a Flink SQL statement using the Flink RESTful API. I also discussed the challenges I faced along the way and how I overcame them.
+
+> _**Note:** Confluent Cloud for Apache Flink enforces a 30-day retention for statements in terminal states._
+
+I hope you found this blog post helpful and that it will help you in your projects.

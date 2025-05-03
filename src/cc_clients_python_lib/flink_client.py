@@ -71,7 +71,7 @@ class FlinkClient():
         self.flink_sql_base_url = f"https://flink.{self.cloud_region}.{self.cloud_provider}.{'private.' if private_network else ''}confluent.cloud/sql/v1/organizations/{self.organization_id}/environments/{self.environment_id}/"
         self.flink_compute_pool_base_url = "https://api.confluent.cloud/fcpm/v2/compute-pools"
 
-    def statement_list(self, page_size: int = DEFAULT_PAGE_SIZE) -> Tuple[int, str, Dict]:
+    def get_statement_list(self, page_size: int = DEFAULT_PAGE_SIZE) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to get the Flink SQL statement list.
 
         Arg(s):
@@ -257,7 +257,7 @@ class FlinkClient():
 
             return HttpStatus.NOT_FOUND, f"Fail to find the compute pool with ID {self.compute_pool_id}", response
 
-    def update_all_statements(self, page_size: int = DEFAULT_PAGE_SIZE, stop: bool = True, new_compute_pool_id: str = None, new_security_principal_id: str = None) -> Tuple[int, str]:
+    def update_all_statements(self, stop: bool = True, new_compute_pool_id: str = None, new_security_principal_id: str = None) -> Tuple[int, str]:
         """This function submits a RESTful API call to update all Flink SQL statements.
         
         Arg(s):
@@ -271,17 +271,18 @@ class FlinkClient():
             str:    HTTP Error, if applicable.
         """
         # Get the statement list.
-        http_status_code, error_message, response = self.statement_list(page_size=page_size)
+        http_status_code, error_message, response = self.get_statement_list()
 
         if http_status_code != HttpStatus.OK:
             return http_status_code, error_message
 
         # Update all statements.
         for statement in response:
-            http_status_code, error_message = self.update_statement(statement.get("name"), stop=stop, new_compute_pool_id=new_compute_pool_id, new_security_principal_id=new_security_principal_id)
+            if statement.get("status").get("phase") == StatementPhase.STOPPED or statement.get("status").get("phase") == StatementPhase.RUNNING:
+                http_status_code, error_message = self.update_statement(statement.get("name"), stop=stop, new_compute_pool_id=new_compute_pool_id, new_security_principal_id=new_security_principal_id)
 
-            if http_status_code != HttpStatus.ACCEPTED:
-                return http_status_code, error_message
+                if http_status_code != HttpStatus.ACCEPTED:
+                    return http_status_code, error_message
 
         return HttpStatus.ACCEPTED, ""
 

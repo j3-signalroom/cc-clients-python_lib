@@ -55,11 +55,17 @@ The **Schema Registry Client** provides the following methods:
 - `set_topic_subject_compatibility_level`
 
 ## **2.0 Unit Tests**
-The library includes unit tests for each client. The tests are located in the `tests` directory.  To use them, you must clone the repo locally and install the required dependencies:
+The library includes unit tests for each client. The tests are located in the `tests` directory.  To use them, you must clone the repo locally:
 
 ```bash
 git clone https://github.com/j3-signalroom/cc-clients-python_lib.git
 ```
+
+ Since this project was built using [**`uv`**](https://docs.astral.sh/uv/), please install it, and then run the following command to install all the project dependencies:
+
+```bash
+ uv sync
+ ```
 
 Then within the `tests` directory, create the `.env` file and add the following environment variables, filling them with your Confluent Cloud credentials and other required values:
 
@@ -90,12 +96,19 @@ CONFLUENT_CLOUD_API_SECRET=<CONFLUENT_CLOUD_API_SECRET>
 ```
 
 ### **2.1 Flink Client**
-To run the tests, use the following command:
+To run a specific test, use one of the following commands:
 
 Unit Test|Command
 -|-
 Get list of the all the Statements|`pytest -s tests/test_flink_client.py::test_get_statement_list`
 Update all the Statements|`pytest -s tests/test_flink_client.py::test_update_all_statements`
+
+Otherwise, to run all the tests, use the following command:
+```bash
+pytest -s tests/test_flink_client.py
+```
+
+> **Note:** _The tests are designed to be run in a specific order.  If you run them out of order, you may encounter errors.  The tests are also designed to be run against a Confluent Cloud environment.  If you run them against a local environment, you may encounter errors._
 
 ## **3.0 Installation**
 Install the Confluent Cloud Clients Python Library using **`pip`**:

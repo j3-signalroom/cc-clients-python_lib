@@ -94,8 +94,8 @@ To run the tests, use the following command:
 
 Unit Test|Command
 -|-
-Test Get list of the all the Statements|`pytest -s tests/test_flink_client.py::test_get_statement_list`
-Test Update all Statements|`pytest -s tests/test_flink_client.py::test_update_all_statements`
+Get list of the all the Statements|`pytest -s tests/test_flink_client.py::test_get_statement_list`
+Update all the Statements|`pytest -s tests/test_flink_client.py::test_update_all_statements`
 
 ## **3.0 Installation**
 Install the Confluent Cloud Clients Python Library using **`pip`**:

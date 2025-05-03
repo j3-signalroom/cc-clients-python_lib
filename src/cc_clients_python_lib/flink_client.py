@@ -276,9 +276,9 @@ class FlinkClient():
         if http_status_code != HttpStatus.OK:
             return http_status_code, error_message
 
-        # Update all statements.
+        # Update all background statements.
         for statement in response:
-            if statement.get("status").get("phase") == StatementPhase.STOPPED or statement.get("status").get("phase") == StatementPhase.RUNNING:
+            if statement.get("status").get("traits").get("sql_kind") == "INSERT_INTO":
                 http_status_code, error_message = self.update_statement(statement.get("name"), stop=stop, new_compute_pool_id=new_compute_pool_id, new_security_principal_id=new_security_principal_id)
 
                 if http_status_code != HttpStatus.ACCEPTED:

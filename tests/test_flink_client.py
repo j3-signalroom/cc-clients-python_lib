@@ -101,7 +101,7 @@ def test_get_statement_list():
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
 
         for item in response:
-            logger.info("%s, %s, %s, %s, %s", item.get("spec").get("properties").get("sql.current-catalog"), item.get("spec").get("properties").get("sql.current-database"), item.get("spec").get("statement"), item.get("status").get("phase"), item.get("name"))
+            logger.info("sql.current-catalog: %s\n sql.current-database: %s\n statement: %s phase: %s\n name: %s\n sql_kind: %s", item.get("spec").get("properties").get("sql.current-catalog"), item.get("spec").get("properties").get("sql.current-database"), item.get("spec").get("statement"), item.get("status").get("phase"), item.get("name"), item.get("status").get("traits").get("sql_kind"))
     except AssertionError as e:
         logger.error(e)
         logger.error("Response: %s", response)

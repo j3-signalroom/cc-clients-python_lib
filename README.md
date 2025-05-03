@@ -14,11 +14,13 @@ The Confluent Cloud Clients Python Library provides a set of clients for interac
     * [**1.1 Flink Client**](#11-flink-client)
     * [**1.2 Kafka Client**](#12-kafka-client)
     * [**1.3 Schema Registry Client**](#13-schema-registry-client)
-- [**2.0 Installation**](#20-installation)
-+ [**3.0 Resources**](#30-resources)
-    * [**3.1 API Documentation**](#31-api-documentation)
-    * [**3.2 Flink Resources**](#32-flink-resources)
-    * [**3.3 Other Resources**](#33-other-resources)
+- [**2.0 Unit Tests**](#20-unit-tests)
+    * [**2.1 Flink Client**](#21-flink-client)
+- [**3.0 Installation**](#30-installation)
++ [**4.0 Resources**](#40-resources)
+    * [**4.1 API Documentation**](#41-api-documentation)
+    * [**4.2 Flink Resources**](#42-flink-resources)
+    * [**4.3 Other Resources**](#43-other-resources)
 <!-- tocstop -->
 
 ## **1.0 Library Clients**
@@ -52,7 +54,50 @@ The **Schema Registry Client** provides the following methods:
 - `register_topic_subject_schema`
 - `set_topic_subject_compatibility_level`
 
-## **2.0 Installation**
+## **2.0 Unit Tests**
+The library includes unit tests for each client. The tests are located in the `tests` directory.  To use them, you must clone the repo locally and install the required dependencies:
+
+```bash
+git clone https://github.com/j3-signalroom/cc-clients-python_lib.git
+```
+
+Then within the `tests` directory, create the `.env` file and add the following environment variables, filling them with your Confluent Cloud credentials and other required values:
+
+```bash
+SCHEMA_REGISTRY_URL=<SCHEMA_REGISTRY_URL>
+SCHEMA_REGISTRY_API_KEY=<SCHEMA_REGISTRY_API_KEY>
+SCHEMA_REGISTRY_API_SECRET=<SCHEMA_REGISTRY_API_SECRET>
+KAFKA_TOPIC_NAME=<KAFKA_TOPIC_NAME>
+FLINK_API_KEY=<FLINK_API_KEY>
+FLINK_API_SECRET=<FLINK_API_SECRET>
+ORGANIZATION_ID=<ORGANIZATION_ID>
+ENVIRONMENT_ID=<ENVIRONMENT_ID>
+CLOUD_PROVIDER=<CLOUD_PROVIDER>
+CLOUD_REGION=<CLOUD_REGION>
+COMPUTE_POOL_ID=<COMPUTE_POOL_ID>
+PRINCIPAL_ID=<PRINCIPAL_ID>
+FLINK_STATEMENT_NAME=<FLINK_STATEMENT_NAME>
+FLINK_CATALOG_NAME=<FLINK_CATALOG_NAME>
+FLINK_DATABASE_NAME=<FLINK_DATABASE_NAME>
+BOOTSTRAP_SERVER_ID=<BOOTSTRAP_SERVER_ID>
+BOOTSTRAP_SERVER_CLOUD_PROVIDER=<BOOTSTRAP_SERVER_CLOUD_PROVIDER>
+BOOTSTRAP_SERVER_CLOUD_REGION=<BOOTSTRAP_SERVER_CLOUD_REGION>
+KAFKA_CLUSTER_ID=<BOOTSTRAP_SERVER_ID>
+KAFKA_API_KEY=<BOOTSTRAP_SERVER_ID>
+KAFKA_API_SECRET=<BOOTSTRAP_SERVER_ID>
+CONFLUENT_CLOUD_API_KEY=<CONFLUENT_CLOUD_API_KEY>
+CONFLUENT_CLOUD_API_SECRET=<CONFLUENT_CLOUD_API_SECRET>
+```
+
+### **2.1 Flink Client**
+To run the tests, use the following command:
+
+Unit Test|Command
+-|-
+Test Get list of the all the Statements|`pytest -s tests/test_flink_client.py::test_get_statement_list`
+Test Update all Statements|`pytest -s tests/test_flink_client.py::test_update_all_statements`
+
+## **3.0 Installation**
 Install the Confluent Cloud Clients Python Library using **`pip`**:
 ```bash
 pip install cc-clients-python-lib
@@ -63,16 +108,16 @@ Or, using [**`uv`**](https://docs.astral.sh/uv/):
 uv add cc-clients-python-lib
 ```
 
-## **3.0 Resources**
+## **4.0 Resources**
 
-### **3.1 API Documentation**
+### **4.1 API Documentation**
 * [Flink SQL REST API for Confluent Cloud for Apache Flink](https://docs.confluent.io/cloud/current/flink/operate-and-deploy/flink-rest-api.html)
 * [Kafka REST APIs for Confluent Cloud](https://docs.confluent.io/cloud/current/kafka-rest/kafka-rest-cc.html)
 * [Confluent Cloud APIs - Topic (v3)](https://docs.confluent.io/cloud/current/api.html#tag/Topic-(v3))
 * [Confluent Cloud Schema Registry REST API Usage](https://docs.confluent.io/cloud/current/sr/sr-rest-apis.html)
 
-### **3.2 Flink Resources**
+### **4.2 Flink Resources**
 * [CCAF State management](https://docs.confluent.io/cloud/current/flink/concepts/overview.html#state-management)
 
-### **3.3 Other Resources**
+### **4.3 Other Resources**
 * [How to programmatically pause and resume a Flink statement](.blog/how-to-programmatically-pause-and-resume-a-flink-statement.md)

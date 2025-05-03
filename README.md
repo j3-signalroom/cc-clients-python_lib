@@ -34,6 +34,7 @@ The **Flink Client** provides the following methods:
     > _**Note:**  "Confluent Cloud for Apache Flink enforces a **30-day** retention for statements in terminal states."_
 - `submit_statement`
 - `update_statement`
+- `update_all_statements`
 
 ### **1.2 Kafka Client**
 The **Kafka Client** provides the following methods:

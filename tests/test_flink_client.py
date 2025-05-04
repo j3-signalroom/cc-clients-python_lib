@@ -68,7 +68,7 @@ def test_delete_statement():
     http_status_code, response = flink_client.delete_statement(statement_name)
  
     try:
-        assert http_status_code == HttpStatus.ACCEPTED, f"HTTP Status Code: {http_status_code}"
+        assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
     except AssertionError as e:
         logger.error(e)
         logger.error("Response: %s", response)
@@ -83,7 +83,7 @@ def test_delete_statements_by_phase():
     http_status_code, error_message = flink_client.delete_statements_by_phase(StatementPhase.COMPLETED)
 
     try:
-        assert http_status_code == HttpStatus.ACCEPTED, f"HTTP Status Code: {http_status_code}"
+        assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
     except AssertionError as e:
         logger.error(e)
         logger.error("Error Message: %s", error_message)

@@ -38,8 +38,9 @@ DEFAULT_PAGE_SIZE = 10
 QUERY_PARAMETER_PAGE_SIZE = "page_size"
 QUERY_PARAMETER_PAGE_TOKEN = "page_token"
 
-# The Statement Phase List.
+
 class StatementPhase(StrEnum):
+    """This class defines the Flink SQL statement phases."""
     COMPLETED = "COMPLETED"
     DEGRADED = "DEGRADED"
     DELETED = "DELETED"
@@ -48,6 +49,11 @@ class StatementPhase(StrEnum):
     RUNNING = "RUNNING"
     STOPPED = "STOPPED"
     STOPPING = "STOPPING"
+
+
+class StatementType(StrEnum):
+    """This class defines the Flink SQL statement types."""
+    KAFKA_SINK = "INSERT_INTO"
 
 
 class FlinkClient():
@@ -257,8 +263,8 @@ class FlinkClient():
 
             return HttpStatus.NOT_FOUND, f"Fail to find the compute pool with ID {self.compute_pool_id}", response
 
-    def update_all_statements(self, stop: bool = True, new_compute_pool_id: str = None, new_security_principal_id: str = None) -> Tuple[int, str]:
-        """This function submits a RESTful API call to update all Flink SQL statements.
+    def update_all_sink_statements(self, stop: bool = True, new_compute_pool_id: str = None, new_security_principal_id: str = None) -> Tuple[int, str]:
+        """This function submits a RESTful API call to update all Sink Flink SQL statements.
         
         Arg(s):
             page_size (int):                 (Optional) The page size.
@@ -277,9 +283,12 @@ class FlinkClient():
             return http_status_code, error_message
 
         # Update all background statements.
-        for statement in response:
-            if statement.get("status").get("traits").get("sql_kind") == "INSERT_INTO":
-                http_status_code, error_message = self.update_statement(statement.get("name"), stop=stop, new_compute_pool_id=new_compute_pool_id, new_security_principal_id=new_security_principal_id)
+        for response_item in response:
+            # Turn the JSON response into a Statement model.
+            statement = Statement(**response_item)
+
+            if statement.status.traits.sql_kind == StatementType.KAFKA_SINK:
+                http_status_code, error_message = self.update_statement(statement.name, stop=stop, new_compute_pool_id=new_compute_pool_id, new_security_principal_id=new_security_principal_id)
 
                 if http_status_code != HttpStatus.ACCEPTED:
                     return http_status_code, error_message

@@ -190,13 +190,13 @@ def test_update_statement():
         logger.error("Response: %s", response)
 
 
-def test_update_all_statements():
-    """Test the update_all_statements() function."""
+def test_update_all_sink_statements():
+    """Test the update_all_sink_statements() function."""
 
     # Instantiate the FlinkClient class.
     flink_client = FlinkClient(config)
 
-    http_status_code, response = flink_client.update_all_statements(True, new_security_principal_id=principal_id)
+    http_status_code, response = flink_client.update_all_sink_statements(False, new_security_principal_id=principal_id)
  
     try:
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"

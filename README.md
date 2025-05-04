@@ -100,7 +100,14 @@ To run a specific test, use one of the following commands:
 
 Unit Test|Command
 -|-
+Delete a Flink Statement|`pytest -s tests/test_flink_client.py::test_delete_statement`
+Delete all Flink Statements by Phase|`pytest -s tests/test_flink_client.py::test_delete_statements_by_phase`
 Get list of the all the Statements|`pytest -s tests/test_flink_client.py::test_get_statement_list`
+Submit a Flink Statement|`pytest -s tests/test_flink_client.py::test_submit_statement`
+Get Compute Pool List|`pytest -s tests/test_flink_client.py::test_get_compute_pool_list`
+Get Compute Pool|`pytest -s tests/test_flink_client.py::test_get_compute_pool`
+Stop a Flink Statement|`pytest -s tests/test_flink_client.py::test_stop_statement`
+Update a Flink Statement|`pytest -s tests/test_flink_client.py::test_update_statement`
 Update all the Sink Statements|`pytest -s tests/test_flink_client.py::test_update_all_sink_statements`
 
 Otherwise, to run all the tests, use the following command:

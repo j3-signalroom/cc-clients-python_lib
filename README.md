@@ -36,7 +36,7 @@ The **Flink Client** provides the following methods:
     > _**Note:**  "Confluent Cloud for Apache Flink enforces a **30-day** retention for statements in terminal states."_
 - `submit_statement`
 - `update_statement`
-- `update_all_statements`
+- `update_all_sink_statements`
 
 ### **1.2 Kafka Client**
 The **Kafka Client** provides the following methods:
@@ -101,7 +101,7 @@ To run a specific test, use one of the following commands:
 Unit Test|Command
 -|-
 Get list of the all the Statements|`pytest -s tests/test_flink_client.py::test_get_statement_list`
-Update all the Statements|`pytest -s tests/test_flink_client.py::test_update_all_statements`
+Update all the Sink Statements|`pytest -s tests/test_flink_client.py::test_update_all_sink_statements`
 
 Otherwise, to run all the tests, use the following command:
 ```bash

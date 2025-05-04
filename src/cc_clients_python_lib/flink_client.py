@@ -152,15 +152,18 @@ class FlinkClient():
             str:    HTTP Error, if applicable.
         """
         # Get the statement list.
-        http_status_code, error_message, response = self.statement_list()
+        http_status_code, error_message, response = self.get_statement_list()
 
         if http_status_code != HttpStatus.OK:
             return http_status_code, error_message
 
         # Delete the statements by phase.
-        for statement in response:
-            if StatementPhase(statement.get("status").get("phase")) == statement_phase:
-                http_status_code, error_message = self.delete_statement(statement.get("name"))
+        for item in response:
+            # Turn the JSON response into a Statement model.
+            statement = Statement(**item)
+
+            if StatementPhase(statement.status.phase) == statement_phase:
+                http_status_code, error_message = self.delete_statement(statement.name)
 
                 if http_status_code != HttpStatus.ACCEPTED:
                     return http_status_code, error_message
@@ -283,9 +286,9 @@ class FlinkClient():
             return http_status_code, error_message
 
         # Update all background statements.
-        for response_item in response:
+        for item in response:
             # Turn the JSON response into a Statement model.
-            statement = Statement(**response_item)
+            statement = Statement(**item)
 
             if statement.status.traits.sql_kind == StatementType.KAFKA_SINK:
                 http_status_code, error_message = self.update_statement(statement.name, stop=stop, new_compute_pool_id=new_compute_pool_id, new_security_principal_id=new_security_principal_id)

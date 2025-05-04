@@ -137,9 +137,43 @@ class FlinkClient():
             # Raise HTTPError, if occurred.
             response.raise_for_status()
 
-            return response.status_code, response.text
+            retry = 0
+            max_retries = 3
+            retry_delay_in_seconds = 5
+
+            while retry < max_retries:
+                # Send a GET request to get the statement.
+                response = requests.get(url=f"{self.flink_sql_base_url}statements/{statement_name}",
+                                        auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
+
+                try:
+                    # Raise HTTPError, if occurred.
+                    response.raise_for_status()
+
+                    # Turn the JSON response into a Statement model.
+                    statement = Statement(**response.json())
+
+                    if StatementPhase(statement.status.phase) == StatementPhase.COMPLETED:
+                        return HttpStatus.OK, response.text
+                    else:
+                        retry += 1
+                        if retry == max_retries:
+                            return HttpStatus.ACCEPTED, f"Max retries exceeded.  Deleting the statement is stil in the {statement.status.phase} phase."
+                        else:
+                            time.sleep(retry_delay_in_seconds) 
+                except requests.exceptions.RequestException as e:
+                    retry += 1
+                    if retry == max_retries:
+                        return response.status_code, f"Max retries exceeded.  Fail to retrieve the statement because {e}, and the response is {response.text}.  But not sure if the statement is deleted or not."
+                    elif response.status_code == HttpStatus.NOT_FOUND:
+                        return HttpStatus.OK, response.text
+                    else:
+                        time.sleep(retry_delay_in_seconds)
         except requests.exceptions.RequestException as e:
-            return response.status_code, f"Fail to delete the statement because {e}"
+            if response.status_code == HttpStatus.NOT_FOUND:
+                return HttpStatus.OK, f"Statement {statement_name} is already deleted."
+            else:
+                return response.status_code, f"Fail to delete the statement because {e} and the response returned was {response.text}"
     
     def delete_statements_by_phase(self, statement_phase: StatementPhase) -> Tuple[int, str]:
         """This function deletes all Flink SQL statements by phase.
@@ -165,10 +199,10 @@ class FlinkClient():
             if StatementPhase(statement.status.phase) == statement_phase:
                 http_status_code, error_message = self.delete_statement(statement.name)
 
-                if http_status_code != HttpStatus.ACCEPTED:
+                if http_status_code != HttpStatus.OK:
                     return http_status_code, error_message
 
-        return HttpStatus.ACCEPTED, ""
+        return HttpStatus.OK, ""
     
     def submit_statement(self, statement_name: str, sql_query: str, sql_query_properties: Dict) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to submit a Flink SQL statement.

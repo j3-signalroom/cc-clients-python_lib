@@ -53,7 +53,7 @@ class KafkaClient():
 
             return response.status_code, response.json()
         except requests.exceptions.RequestException as e:
-            return response.status_code, f"Fail to delete the Kafka topic because {e}"
+            return response.status_code, f"Fail to delete the Kafka topic because {e} and the response returned was {response.text}"
         
     def kafka_topic_exist(self, kafka_topic_name: str) -> Tuple[int, str, bool]:
         """This function submits a RESTful API call to get a Kafka topic to see if it exist or not.
@@ -78,5 +78,5 @@ class KafkaClient():
 
             return response.status_code, response.json(), True
         except requests.exceptions.RequestException as e:
-            return response.status_code, f"Fail to determine the Kafka topic exist because {e}", False
+            return response.status_code, f"Fail to determine if the Kafka topic exist because {e} and the response returned was {response.text}", False
     

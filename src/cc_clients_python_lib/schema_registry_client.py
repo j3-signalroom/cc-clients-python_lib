@@ -271,13 +271,13 @@ class SchemaRegistryClient():
 
                     retry += 1
                     if retry == max_retries:
-                        return get_response.status_code, f"Max retries exceeded.  Fail to check if the subject '{kafka_topic_name}-key' exist because the response is {get_response.text}.  But not sure if the Sbject Schema Key is deleted or not."
+                        return get_response.status_code, f"Max retries exceeded.  Fail to check if the subject '{kafka_topic_name}-key' exist because the response is {get_response.text}.  But not sure if the Subject Schema Key is deleted or not."
                     else:
                         time.sleep(retry_delay_in_seconds)
                 except requests.exceptions.RequestException as e:
                     retry += 1
                     if retry == max_retries:
-                        return get_response.status_code, f"Max retries exceeded.  Fail to check if the Kafka Topic exist because {e}, and the response is {get_response.text}.  But not sure if the Sbject Schema Key is deleted or not."
+                        return get_response.status_code, f"Max retries exceeded.  Fail to check if the subject '{kafka_topic_name}-key' exist because {e}, and the response is {get_response.text}.  But not sure if the Subject Schema Key is deleted or not."
                     elif get_response.status_code == HttpStatus.NOT_FOUND:
                         return HttpStatus.OK, delete_response.text
                     else:
@@ -312,7 +312,31 @@ class SchemaRegistryClient():
             # Raise HTTPError, if occurred.
             delete_response.raise_for_status()
 
-            return delete_response.status_code, delete_response.text
+            retry = 0
+            max_retries = 3
+            retry_delay_in_seconds = 5
+
+            while retry < max_retries:
+                # Send a GET request to get the subject's latest schema.
+                get_response = requests.get(url=f"{self.schema_registry_url}/subjects/{kafka_topic_name}-value/versions/latest", auth=HTTPBasicAuth(self.api_key, self.api_secret))
+        
+                try:
+                    # Raise HTTPError, if occurred.
+                    get_response.raise_for_status()
+
+                    retry += 1
+                    if retry == max_retries:
+                        return get_response.status_code, f"Max retries exceeded.  Fail to check if the subject '{kafka_topic_name}-value' exist because the response is {get_response.text}.  But not sure if the Subject Schema Value is deleted or not."
+                    else:
+                        time.sleep(retry_delay_in_seconds)
+                except requests.exceptions.RequestException as e:
+                    retry += 1
+                    if retry == max_retries:
+                        return get_response.status_code, f"Max retries exceeded.  Fail to check if the subject '{kafka_topic_name}-value' exist because {e}, and the response is {get_response.text}.  But not sure if the Subject Schema Value is deleted or not."
+                    elif get_response.status_code == HttpStatus.NOT_FOUND:
+                        return HttpStatus.OK, delete_response.text
+                    else:
+                        time.sleep(retry_delay_in_seconds)
         except requests.exceptions.RequestException as e:
             return delete_response.status_code, f"Delete topic value schema subject hard-delete failed because {e} and the response returned was {delete_response.text}"
 

@@ -120,7 +120,8 @@ class FlinkClient():
         return response.status_code, response.text, statements
         
     def delete_statement(self, statement_name: str) -> Tuple[int, str]:
-        """This function submits a RESTful API call to delete a Flink SQL statement.
+        """This function submits a RESTful API call to delete a Flink SQL statement, and blocks until
+        the statement moves to a COMPLETED phase.
 
         Arg(s):
             statement_name (str):  The Flink SQL statement name.

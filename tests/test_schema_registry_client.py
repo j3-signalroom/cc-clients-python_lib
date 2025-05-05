@@ -48,10 +48,10 @@ def test_get_subject_compatibility_level():
     # Instantiate the SchemaRegistryClient class.
     sr_client = SchemaRegistryClient(config)
 
-    http_status_code, _, response = sr_client.get_topic_subject_compatibility_level(kafka_topic_subject)
+    http_status_code, error_message, response = sr_client.get_topic_subject_compatibility_level(kafka_topic_subject)
  
     try:
-        assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
+        assert http_status_code == HttpStatus.OK, error_message
     except AssertionError as e:
         logger.error(e)
 
@@ -67,12 +67,13 @@ def test_delete_kafka_topic_key_schema_subject():
     # Instantiate the SchemaRegistryClient class.
     sr_client = SchemaRegistryClient(config)
 
-    http_status_code, _ = sr_client.delete_kafka_topic_key_schema_subject(kafka_topic_name)
+    http_status_code, error_message = sr_client.delete_kafka_topic_key_schema_subject(kafka_topic_name)
  
     try:
-        assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
+        assert http_status_code == HttpStatus.OK, error_message
     except AssertionError as e:
         logger.error(e)
+        logger.error("Error Message: %s", error_message)
 
 
 def test_delete_kafka_topic_value_schema_subject():
@@ -81,9 +82,10 @@ def test_delete_kafka_topic_value_schema_subject():
     # Instantiate the SchemaRegistryClient class.
     sr_client = SchemaRegistryClient(config)
 
-    http_status_code, _ = sr_client.delete_kafka_topic_value_schema_subject(kafka_topic_name)
+    http_status_code, error_message = sr_client.delete_kafka_topic_value_schema_subject(kafka_topic_name)
  
     try:
-        assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
+        assert http_status_code == HttpStatus.OK, error_message
     except AssertionError as e:
         logger.error(e)
+        logger.error("Error Message: %s", error_message)

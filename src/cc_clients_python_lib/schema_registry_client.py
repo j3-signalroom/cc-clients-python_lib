@@ -1,3 +1,4 @@
+import time
 from typing import Tuple
 import requests
 from requests.auth import HTTPBasicAuth
@@ -56,8 +57,7 @@ class SchemaRegistryClient():
             dict:   The subject's latest schema.  Otherwise, an empty dict is returned.
         """
         # Send a GET request to get the subject's latest schema.
-        response = requests.get(url=f"{self.schema_registry_url}/subjects/{subject_name}/versions/latest", 
-                                auth=HTTPBasicAuth(self.api_key, self.api_secret))
+        response = requests.get(url=f"{self.schema_registry_url}/subjects/{subject_name}/versions/latest", auth=HTTPBasicAuth(self.api_key, self.api_secret))
  
         try:
             # Raise HTTPError, if occurred.
@@ -138,8 +138,8 @@ class SchemaRegistryClient():
         """This function submits a RESTful API call to set the topic subject compatibility level.
  
         Arg(s):
-            schema_registry_confg (dict):                   The Schema Registry Cluster configuration.
-            subject_name (str):                             The Kafka topic subject name.
+            schema_registry_confg (dict):               The Schema Registry Cluster configuration.
+            subject_name (str):                         The Kafka topic subject name.
             compatibility_level (CompatibilityLevel):   The compatibility setting.
  
         Returns:
@@ -177,10 +177,7 @@ class SchemaRegistryClient():
  
         try:
             # Send a GET the Topic Subject compatibility setting level.
-            response = requests.get(
-                endpoint,
-                auth=HTTPBasicAuth(self.api_key, self.api_secret)
-            )
+            response = requests.get(endpoint, auth=HTTPBasicAuth(self.api_key, self.api_secret))
  
             # Raise HTTPError, if occurred.
             response.raise_for_status()
@@ -202,8 +199,7 @@ class SchemaRegistryClient():
             compatibility_level:  The Topic Subject compatibility level.
         """
         # Send a GET the Topic Subject compatibility setting level.
-        response = requests.get(url=f"{self.schema_registry_url}/config",
-                                auth=HTTPBasicAuth(self.api_key, self.api_secret))
+        response = requests.get(url=f"{self.schema_registry_url}/config", auth=HTTPBasicAuth(self.api_key, self.api_secret))
 
         try:
             # Raise HTTPError, if occurred.
@@ -242,35 +238,52 @@ class SchemaRegistryClient():
             kafka_topic_name (str):  The Kafka topic name of the key schema subject.
  
         Returns:
-            int:                  HTTP Status Code.
-            str:                  HTTP Error, if applicable.
+            int: HTTP Status Code.
+            str: HTTP Error, if applicable.
         """
         # Send a DELETE to perform a soft-delete of all version of the schema.
-        response = requests.delete(url=f"{self.schema_registry_url}/subjects/{kafka_topic_name}-key",
-                                   auth=HTTPBasicAuth(self.api_key, self.api_secret))
+        delete_response = requests.delete(url=f"{self.schema_registry_url}/subjects/{kafka_topic_name}-key", auth=HTTPBasicAuth(self.api_key, self.api_secret))
  
         try:
             # Raise HTTPError, if occurred.
-            response.raise_for_status()
+            delete_response.raise_for_status()
         except requests.exceptions.RequestException as e:
-            return response.status_code, f"Delete topic schema subject soft-delete failed because {e}"
-        
-        # The Confluent Schema Registry endpoint to delete the topic schema subject hard-delete of all versions registered.
-        endpoint = f"{self.schema_registry_url}/subjects/{kafka_topic_name}-key?permanent=true"
+            return delete_response.status_code, f"Delete topic schema subject soft-delete failed because {e} and the response returned was {delete_response.text}"
  
         try:
             # Send a DELETE to perform a hard-delete of all version of the schema.
-            response = requests.delete(
-                endpoint,
-                auth=HTTPBasicAuth(self.api_key, self.api_secret)
-            )
+            delete_response = requests.delete(f"{self.schema_registry_url}/subjects/{kafka_topic_name}-key?permanent=true", auth=HTTPBasicAuth(self.api_key, self.api_secret))
  
             # Raise HTTPError, if occurred.
-            response.raise_for_status()
+            delete_response.raise_for_status()
 
-            return response.status_code, response.text
+            retry = 0
+            max_retries = 3
+            retry_delay_in_seconds = 5
+
+            while retry < max_retries:
+                # Send a GET request to get the subject's latest schema.
+                get_response = requests.get(url=f"{self.schema_registry_url}/subjects/{kafka_topic_name}-key/versions/latest", auth=HTTPBasicAuth(self.api_key, self.api_secret))
+        
+                try:
+                    # Raise HTTPError, if occurred.
+                    get_response.raise_for_status()
+
+                    retry += 1
+                    if retry == max_retries:
+                        return get_response.status_code, f"Max retries exceeded.  Fail to check if the subject '{kafka_topic_name}-key' exist because the response is {get_response.text}.  But not sure if the Sbject Schema Key is deleted or not."
+                    else:
+                        time.sleep(retry_delay_in_seconds)
+                except requests.exceptions.RequestException as e:
+                    retry += 1
+                    if retry == max_retries:
+                        return get_response.status_code, f"Max retries exceeded.  Fail to check if the Kafka Topic exist because {e}, and the response is {get_response.text}.  But not sure if the Sbject Schema Key is deleted or not."
+                    elif get_response.status_code == HttpStatus.NOT_FOUND:
+                        return HttpStatus.OK, delete_response.text
+                    else:
+                        time.sleep(retry_delay_in_seconds)
         except requests.exceptions.RequestException as e:
-            return response.status_code, f"Delete topic key schema subject hard-delete failed because {e}"
+            return delete_response.status_code, f"Delete topic key schema subject hard-delete failed because {e} and the response returned was {delete_response.text}"
         
     def delete_kafka_topic_value_schema_subject(self, kafka_topic_name) -> Tuple[int, str]:
         """This function submits a RESTful API call to delete the topic value schema subject.
@@ -279,30 +292,28 @@ class SchemaRegistryClient():
             kafka_topic_name (str):  The Kafka topic name of the value schema subject.
  
         Returns:
-            int:                  HTTP Status Code.
-            str:                  HTTP Error, if applicable.
+            int: HTTP Status Code.
+            str: HTTP Error, if applicable.
         """
         # Send a DELETE to perform a soft-delete of all version of the schema.
-        response = requests.delete(url=f"{self.schema_registry_url}/subjects/{kafka_topic_name}-value",
-                                   auth=HTTPBasicAuth(self.api_key, self.api_secret))
+        delete_response = requests.delete(url=f"{self.schema_registry_url}/subjects/{kafka_topic_name}-value", auth=HTTPBasicAuth(self.api_key, self.api_secret))
  
         try:
             # Raise HTTPError, if occurred.
-            response.raise_for_status()
+            delete_response.raise_for_status()
         except requests.exceptions.RequestException as e:
-            return response.status_code, f"Delete topic schema subject soft-delete failed because {e}"
+            return delete_response.status_code, f"Delete topic schema subject soft-delete failed because {e} and the response returned was {delete_response.text}"
         
         # The Confluent Schema Registry endpoint to delete the topic schema subject hard-delete of all versions registered.
         # Send a DELETE to perform a hard-delete of all version of the schema.
-        response = requests.delete(url=f"{self.schema_registry_url}/subjects/{kafka_topic_name}-value?permanent=true",
-                                   auth=HTTPBasicAuth(self.api_key, self.api_secret))
+        delete_response = requests.delete(url=f"{self.schema_registry_url}/subjects/{kafka_topic_name}-value?permanent=true", auth=HTTPBasicAuth(self.api_key, self.api_secret))
  
         try:
             # Raise HTTPError, if occurred.
-            response.raise_for_status()
+            delete_response.raise_for_status()
 
-            return response.status_code, response.text
+            return delete_response.status_code, delete_response.text
         except requests.exceptions.RequestException as e:
-            return response.status_code, f"Delete topic value schema subject hard-delete failed because {e}"
+            return delete_response.status_code, f"Delete topic value schema subject hard-delete failed because {e} and the response returned was {delete_response.text}"
 
  

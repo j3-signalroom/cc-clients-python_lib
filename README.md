@@ -16,6 +16,7 @@ The Confluent Cloud Clients Python Library provides a set of clients for interac
     * [**1.3 Schema Registry Client**](#13-schema-registry-client)
 - [**2.0 Unit Tests**](#20-unit-tests)
     * [**2.1 Flink Client**](#21-flink-client)
+    * [**2.2 Kafka Client**](#22-kafka-client)
 - [**3.0 Installation**](#30-installation)
 + [**4.0 Resources**](#40-resources)
     * [**4.1 API Documentation**](#41-api-documentation)
@@ -116,6 +117,22 @@ pytest -s tests/test_flink_client.py
 ```
 
 > **Note:** _The tests are designed to be run in a specific order.  If you run them out of order, you may encounter errors.  The tests are also designed to be run against a Confluent Cloud environment.  If you run them against a local environment, you may encounter errors._
+
+### **2.2 Kafka Client**
+To run a specific test, use one of the following commands:
+
+Unit Test|Command
+-|-
+Delete a Kafka Topic|`pytest -s tests/test_kafka_client.py::test_delete_kafka_topic`
+Checks if a Kafka Topic Exist|`pytest -s tests/test_kafkaclient.py::test_kafka_topic_exist`
+
+Otherwise, to run all the tests, use the following command:
+```bash
+pytest -s tests/test_kafka_client.py
+```
+
+> **Note:** _The tests are designed to be run in a specific order.  If you run them out of order, you may encounter errors.  The tests are also designed to be run against a Confluent Cloud environment.  If you run them against a local environment, you may encounter errors._
+
 
 ## **3.0 Installation**
 Install the Confluent Cloud Clients Python Library using **`pip`**:

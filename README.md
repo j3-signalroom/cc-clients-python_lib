@@ -87,6 +87,7 @@ PRINCIPAL_ID=
 FLINK_STATEMENT_NAME=
 FLINK_CATALOG_NAME=
 FLINK_DATABASE_NAME=
+FLINK_TABLE_NAME=
 BOOTSTRAP_SERVER_ID=
 BOOTSTRAP_SERVER_CLOUD_PROVIDER=
 BOOTSTRAP_SERVER_CLOUD_REGION=
@@ -111,6 +112,7 @@ Get Compute Pool|`pytest -s tests/test_flink_client.py::test_get_compute_pool`
 Stop a Flink Statement|`pytest -s tests/test_flink_client.py::test_stop_statement`
 Update a Flink Statement|`pytest -s tests/test_flink_client.py::test_update_statement`
 Update all the Sink Statements|`pytest -s tests/test_flink_client.py::test_update_all_sink_statements`
+Drop a Flink Table along with any associated statements, including the backing Kafka Topic and Schemas|`pytest -s tests/test_flink_client.py::test_drop_table`
 
 Otherwise, to run all the tests, use the following command:
 ```bash

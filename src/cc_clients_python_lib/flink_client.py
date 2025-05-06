@@ -3,10 +3,13 @@ import time
 from typing import Tuple, Dict
 import requests
 import uuid
+import re
 from requests.auth import HTTPBasicAuth
 
 from cc_clients_python_lib.http_status import HttpStatus
 from cc_clients_python_lib.cc_openapi_v2_1.sql.v1 import Statement, StatementSpec
+from cc_clients_python_lib.kafka_client import KafkaClient
+from cc_clients_python_lib.schema_registry_client import SchemaRegistryClient
 
 
 __copyright__  = "Copyright (c) 2025 Jeffrey Jonathan Jennings"
@@ -29,6 +32,19 @@ FLINK_CONFIG = {
     "principal_id": "principal_id",
     "confluent_cloud_api_key": "confluent_cloud_api_key",
     "confluent_cloud_api_secret": "confluent_cloud_api_secret"
+}
+
+# Constants for the drop stages.
+# These are used to track the progress of the drop table operation.
+# The keys are the stage names and the values are the stage descriptions.
+# The stage names are used in the drop_stages dictionary to track the progress of the operation.
+# The stage descriptions are used in the log messages to provide more information about the operation.
+DROP_STAGES = {
+    "statement_drop": "statement_drop",
+    "kafka_key_schema_subject_drop": "kafka_key_schema_subject_drop",
+    "kafka_value_schema_subject_drop": "kafka_value_schema_subject_drop",
+    "kafka_topic_drop": "kafka_topic_drop",
+    "table_drop": "table_drop"
 }
 
 # Default values.
@@ -57,12 +73,14 @@ class StatementType(StrEnum):
 
 
 class FlinkClient():
-    def __init__(self, flink_config: dict, private_network: bool = False):
+    def __init__(self, flink_config: dict, private_network: bool = False, kafka_config: dict = None, sr_config: dict = None):
         """This class initializes the Flink Client.
 
         Arg(s):            
-            flink_config (dict):        The Flink configuration.
-            private_network (bool):     (Optional) The private network flag.
+            flink_config (dict):       The Flink configuration.
+            private_network (bool):    (Optional) The private network flag.
+            kafka_config (dict):       (Optional) The Kafka configuration.
+            sr_config (dict):          (Optional) The Schema Registry configuration.
         """
         self.organization_id = flink_config[FLINK_CONFIG["organization_id"]]
         self.environment_id = flink_config[FLINK_CONFIG["environment_id"]]
@@ -76,6 +94,8 @@ class FlinkClient():
         self.confluent_cloud_api_secret = str(flink_config[FLINK_CONFIG["confluent_cloud_api_secret"]])
         self.flink_sql_base_url = f"https://flink.{self.cloud_region}.{self.cloud_provider}.{'private.' if private_network else ''}confluent.cloud/sql/v1/organizations/{self.organization_id}/environments/{self.environment_id}/"
         self.flink_compute_pool_base_url = "https://api.confluent.cloud/fcpm/v2/compute-pools"
+        self.kafka_client = KafkaClient(kafka_config)
+        self.sr_client = SchemaRegistryClient(sr_config)
 
     def get_statement_list(self, page_size: int = DEFAULT_PAGE_SIZE) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to get the Flink SQL statement list.
@@ -448,3 +468,184 @@ class FlinkClient():
                     return response.status_code, f"Max retries exceeded.  Fail to retrieve the statement because {e}, and the response is {response.text}"
                 else:
                     time.sleep(retry_delay_in_seconds)
+
+    def drop_table(self, catalog_name: str, database_name: str, table_name: str) -> Tuple[bool, str, Dict]:
+        """Drop a table and its dependencies (i.e., all associated Flink statements, Kafka Topic, and Schemas).
+        This method will drop the table and its dependencies, including the Kafka topic and any statements that
+        reference the table.  It will also delete any statements that are in a failed state associated with the
+        table.
+        
+        Args:
+            catalog_name (str): The catalog name.
+            database_name (str): The database name.
+            table_name (str): The table name.
+            
+        Returns:
+            bool:   The success status.
+            str:    The error message.
+            dict:   The response.
+        """
+        # Regular expression search pattern to find the table name within a DROP, INSERT,
+        # or SELECT statement.
+        search_pattern = r'(?:drop|from|insert)\s+([-.`\w+\s]+?)\s*(?=\;|\)|\(|values)'
+
+        # Initialize the variables.
+        drop_stages = {}
+        
+        # Retrieve a list of all the statements in a Flink region.
+        http_status_code, error_message, response = self.flink_client.get_statement_list()
+        if http_status_code != HttpStatus.OK:
+            return False, error_message, {}
+        
+        # Iterate through the list of statements.
+        number_of_deleted_statements = 0
+        for item in response:
+            # Turn the JSON response into a Statement model.
+            statement = Statement(**item)
+
+            query = statement.spec.statement.lower()
+
+            # Find the table name in the query.
+            candidate_find = re.search(search_pattern, query)
+
+            # If the table name is found in the query of a statement, then statement is deleted.
+            if candidate_find:
+                if StatementPhase(statement.status.phase) == StatementPhase.FAILED:
+                    # If the statement has failed, then statement is deleted.
+                    if statement.spec.properties["sql.current-catalog"] == catalog_name and table_name in candidate_find.group(1):
+                        http_status_code, error_message = self.flink_client.delete_statement(statement.name)
+                        if http_status_code != HttpStatus.OK:
+                            return False, error_message, {}
+                        else:
+                            number_of_deleted_statements += 1
+                else:
+                    # If the statement is not in a failed state, then statement is deleted.
+                    if statement.spec.properties["sql.current-catalog"] == catalog_name and statement.spec.properties["sql.current-database"] == database_name and table_name in candidate_find.group(1):
+                        http_status_code, error_message = self.flink_client.delete_statement(statement.name)
+                        if http_status_code != HttpStatus.OK:
+                            return False, error_message, {}
+                        else:
+                            number_of_deleted_statements += 1
+
+        # Log the drop action taken on the statement.
+        drop_stages[DROP_STAGES["statement_drop"]] = f"{number_of_deleted_statements} statement{'s' if number_of_deleted_statements > 0 else ''} deleted."
+
+        # Drop the table.
+        http_status_code, error_message, exist = self.kafka_client.kafka_topic_exist(table_name.replace("`", ""))
+        if http_status_code != HttpStatus.OK or http_status_code != HttpStatus.NOT_FOUND:
+            drop_stages[DROP_STAGES["kafka_topic_drop"]] = f"Unable to confirm if the Kafka topic exist.  Got {http_status_code} with {error_message}."
+            return False, error_message, drop_stages
+        
+        if exist:
+            # Initialize the retry mechanism variables.
+            retry = 0
+            max_retries = 3
+            retry_delay_in_seconds = 15
+
+            while retry <= max_retries:
+                # Submits a DROP TABLE statement, which removes a table definition from Apache Flink® and, depending
+                # on the table type, will also delete associated resources like the Kafka topic and schemas in Schema 
+                # Registry.
+                http_status_code, error_message, response = self.flink_client.submit_statement(f"drop-{table_name}-{str(uuid.uuid4())}",
+                                                                                               f"DROP TABLE {table_name};",
+                                                                                               {"sql.current-catalog": catalog_name, "sql.current-database": database_name})
+                if http_status_code != HttpStatus.CREATED:
+                    drop_stages[DROP_STAGES["table_drop"]] = f"Unable to DROP TABLE.  Got {http_status_code} with {error_message}."
+                    return False, error_message, drop_stages
+                elif http_status_code == HttpStatus.CREATED:
+                    #
+                    time.sleep(1)
+                    topic_check_retry = 0
+
+                    while topic_check_retry <= max_retries:
+                        http_status_code, error_message, exist = self.kafka_client.kafka_topic_exist(table_name.replace("`", ""))
+                        if http_status_code != HttpStatus.OK or http_status_code != HttpStatus.NOT_FOUND:
+                            return False, error_message, drop_stages
+                        
+                        if not exist:
+                            drop_stages[DROP_STAGES["kafka_topic_drop"]] = "Kafka topic dropped."
+                            drop_stages[DROP_STAGES["table_drop"]] = "Table dropped."
+                            break
+                        else:
+                            # If the topic still exists, then wait for a retry delay and check again.
+                            if topic_check_retry == max_retries:
+                                # If the maximum number of retries is reached, then delete the Kafka topic.
+                                # This is a last resort to ensure that the topic is deleted.
+                                http_status_code, error_message = self.kafka_client.delete_kafka_topic(table_name.replace("`", ""))
+
+                                if http_status_code != HttpStatus.OK or http_status_code != HttpStatus.NOT_FOUND:
+                                    drop_stages[DROP_STAGES["kafka_topic_drop"]] = "Kafka topic dropped."
+                                    drop_stages[DROP_STAGES["table_drop"]] = "Table dropped."
+                                    break
+                                else:
+                                    drop_stages[DROP_STAGES["kafka_topic_drop"]] = "Kafka topic drop failed."
+                                    drop_stages[DROP_STAGES["table_drop"]] = "Table drop failed."
+                                    return False, "Fail to Drop the Kafka Topic.", drop_stages
+                            else:
+                                time.sleep(retry_delay_in_seconds)
+                                topic_check_retry += 1
+
+                        #
+                        schema_check_retry = 0
+                        while schema_check_retry <= max_retries:
+                            # Check if the key schema subject exists.
+                            http_status_code, error_message, exist = self.sr_client.get_topic_subject_latest_schema(f"{table_name.replace('`', '')}-key")
+                            if http_status_code != HttpStatus.OK or http_status_code != HttpStatus.NOT_FOUND:
+                                return False, error_message, drop_stages
+                            
+                            if not exist:
+                                drop_stages[DROP_STAGES["kafka_key_schema_subject_drop"]] = "Kafka key schema subject does not exist."
+                                break
+                            else:
+                                #
+                                if schema_check_retry == max_retries:
+                                    # If the key schema subject exists, then delete it.
+                                    http_status_code, error_message = self.sr_client.delete_kafka_topic_key_schema_subject(f"{table_name.replace('`', '')}")
+                                    if http_status_code != HttpStatus.OK or http_status_code != HttpStatus.NOT_FOUND:
+                                        drop_stages[DROP_STAGES["kafka_key_schema_subject_drop"]] = "Kafka key schema subject dropped."
+                                        break
+                                    else:
+                                        drop_stages[DROP_STAGES["kafka_key_schema_subject_drop"]] = "Kafka key schema subject drop failed."
+                                        return False, "Fail to Drop the Kafka Key Schema Subject.", drop_stages
+                                else:
+                                    time.sleep(retry_delay_in_seconds)
+                                    topic_check_retry += 1
+                        
+                        #
+                        schema_check_retry = 0
+                        while schema_check_retry <= max_retries:
+                            # Check if the value schema subject exists.
+                            http_status_code, error_message, exist = self.sr_client.get_topic_subject_latest_schema(f"{table_name.replace('`', '')}-value")
+                            if http_status_code != HttpStatus.OK or http_status_code != HttpStatus.NOT_FOUND:
+                                return False, error_message, drop_stages
+                            
+                            if not exist:
+                                drop_stages[DROP_STAGES["kafka_value_schema_subject_drop"]] = "Kafka value schema subject does not exist."
+                                return True, "", drop_stages
+                            else:
+                                #
+                                if schema_check_retry == max_retries:
+                                    # If the value schema subject exists, then delete it.
+                                    http_status_code, error_message = self.sr_client.delete_kafka_topic_value_schema_subject(f"{table_name.replace('`', '')}")
+                                    if http_status_code != HttpStatus.OK or http_status_code != HttpStatus.NOT_FOUND:
+                                        drop_stages[DROP_STAGES["kafka_value_schema_subject_drop"]] = "Kafka value schema subject dropped."
+                                        return True, "", drop_stages
+                                    else:
+                                        drop_stages[DROP_STAGES["kafka_value_schema_subject_drop"]] = "Kafka value schema subject drop failed."
+                                        return False, "Fail to Drop the Kafka Value Schema Subject.", drop_stages
+                                else:
+                                    time.sleep(retry_delay_in_seconds)
+                                    topic_check_retry += 1
+                else: 
+                    time.sleep(retry_delay_in_seconds)
+                    retry += 1
+
+            # If the maximum number of retries is reached, then return an error.
+            drop_stages[DROP_STAGES["kafka_topic_drop"]] = "Kafka topic drop failed."
+            drop_stages[DROP_STAGES["table_drop"]] = "Table drop failed."
+            return False, "Maximum number of retries reached.", drop_stages
+        else:
+            drop_stages[DROP_STAGES["kafka_topic_drop"]] = "Kafka topic does not exist."
+            drop_stages[DROP_STAGES["table_drop"]] = "No action was taken since backing Kafka topic does not exist."
+            return True, "", drop_stages
+    

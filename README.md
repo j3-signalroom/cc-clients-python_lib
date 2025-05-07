@@ -32,6 +32,8 @@ The Confluent Cloud Clients Python Library provides a set of clients for interac
 The **Flink Client** provides the following methods:
 - `delete_statement`
 - `delete_statements_by_phase`
+- `drop_table`
+    > _**Note:**  "The `drop_table` method will drop the table and all associated statements, including the backing Kafka Topic and Schemas."_
 - `get_compute_pool`
 - `get_compute_pool_list`
 - `get_statement_list`

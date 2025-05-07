@@ -73,14 +73,14 @@ class StatementType(StrEnum):
 
 
 class FlinkClient():
-    def __init__(self, flink_config: dict, private_network: bool = False, kafka_config: dict = None, sr_config: dict = None):
+    def __init__(self, flink_config: dict, private_network_base_url :str = None, kafka_config: dict = None, sr_config: dict = None):
         """This class initializes the Flink Client.
 
         Arg(s):            
-            flink_config (dict):       The Flink configuration.
-            private_network (bool):    (Optional) The private network flag.
-            kafka_config (dict):       (Optional) The Kafka configuration.
-            sr_config (dict):          (Optional) The Schema Registry configuration.
+            flink_config (dict):               The Flink configuration.
+            private_network_base_url (str):    (Optional) The private network base URL.
+            kafka_config (dict):               (Optional) The Kafka configuration.
+            sr_config (dict):                  (Optional) The Schema Registry configuration.
         """
         self.organization_id = flink_config[FLINK_CONFIG["organization_id"]]
         self.environment_id = flink_config[FLINK_CONFIG["environment_id"]]
@@ -92,7 +92,10 @@ class FlinkClient():
         self.principal_id = flink_config[FLINK_CONFIG["principal_id"]]
         self.confluent_cloud_api_key = str(flink_config[FLINK_CONFIG["confluent_cloud_api_key"]])
         self.confluent_cloud_api_secret = str(flink_config[FLINK_CONFIG["confluent_cloud_api_secret"]])
-        self.flink_sql_base_url = f"https://flink.{self.cloud_region}.{self.cloud_provider}.{'private.' if private_network else ''}confluent.cloud/sql/v1/organizations/{self.organization_id}/environments/{self.environment_id}/"
+        if private_network_base_url is not None:
+            self.flink_sql_base_url = f"https://{private_network_base_url}/sql/v1/organizations/{self.organization_id}/environments/{self.environment_id}/"
+        else:
+            self.flink_sql_base_url = f"https://flink.{self.cloud_region}.{self.cloud_provider}.confluent.cloud/sql/v1/organizations/{self.organization_id}/environments/{self.environment_id}/"
         self.flink_compute_pool_base_url = "https://api.confluent.cloud/fcpm/v2/compute-pools"
         self.kafka_client = KafkaClient(kafka_config)
         self.sr_client = SchemaRegistryClient(sr_config)

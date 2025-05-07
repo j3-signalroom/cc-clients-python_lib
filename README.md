@@ -177,6 +177,8 @@ uv add cc-clients-python-lib
 
 ### **4.3 Flink Resources**
 * [CCAF State management](https://docs.confluent.io/cloud/current/flink/concepts/overview.html#state-management)
+* [Monitor and Manage Flink SQL Statements in Confluent Cloud for Apache Flink](https://docs.confluent.io/cloud/current/flink/operate-and-deploy/monitor-statements.html#)
+* [DROP TABLE Statement in Confluent Cloud for Apache Flink](https://docs.confluent.io/cloud/current/flink/reference/statements/drop-table.html#drop-table-statement-in-af-long)
 
 ### **4.4 Other Resources**
 * [How to programmatically pause and resume a Flink statement](.blog/how-to-programmatically-pause-and-resume-a-flink-statement.md)

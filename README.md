@@ -20,9 +20,10 @@ The Confluent Cloud Clients Python Library provides a set of clients for interac
     * [**2.3 Schema Registry Client**](#23-schema-registry-client)
 - [**3.0 Installation**](#30-installation)
 + [**4.0 Resources**](#40-resources)
-    * [**4.1 API Documentation**](#41-api-documentation)
-    * [**4.2 Flink Resources**](#42-flink-resources)
-    * [**4.3 Other Resources**](#43-other-resources)
+    * [**4.1 Architecture Design Records (ADRs)**](#41-architecture-design-records-adrs)
+    * [**4.2 API Documentation**](#42-api-documentation)
+    * [**4.3 Flink Resources**](#43-flink-resources)
+    * [**4.4 Other Resources**](#44-other-resources)
 <!-- tocstop -->
 
 ## **1.0 Library Clients**
@@ -165,14 +166,17 @@ uv add cc-clients-python-lib
 
 ## **4.0 Resources**
 
-### **4.1 API Documentation**
+### **4.1 Architecture Design Records (ADRs)**
+* [001 Architectural Design Record (ADR):  Drop Table Plus](https://github.com/j3-signalroom/cc-clients-python_lib/blob/main/.blog/adr_001.md)
+
+### **4.2 API Documentation**
 * [Flink SQL REST API for Confluent Cloud for Apache Flink](https://docs.confluent.io/cloud/current/flink/operate-and-deploy/flink-rest-api.html)
 * [Kafka REST APIs for Confluent Cloud](https://docs.confluent.io/cloud/current/kafka-rest/kafka-rest-cc.html)
 * [Confluent Cloud APIs - Topic (v3)](https://docs.confluent.io/cloud/current/api.html#tag/Topic-(v3))
 * [Confluent Cloud Schema Registry REST API Usage](https://docs.confluent.io/cloud/current/sr/sr-rest-apis.html)
 
-### **4.2 Flink Resources**
+### **4.3 Flink Resources**
 * [CCAF State management](https://docs.confluent.io/cloud/current/flink/concepts/overview.html#state-management)
 
-### **4.3 Other Resources**
+### **4.4 Other Resources**
 * [How to programmatically pause and resume a Flink statement](.blog/how-to-programmatically-pause-and-resume-a-flink-statement.md)

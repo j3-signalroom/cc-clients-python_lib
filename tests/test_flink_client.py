@@ -28,7 +28,6 @@ principal_id = ""
 statement_name = ""
 catalog_name = ""
 database_name = ""
-statement_name = ""
 
 
 @pytest.fixture(autouse=True)
@@ -48,6 +47,9 @@ def load_configurations():
     flink_config[FLINK_CONFIG["principal_id"]] = os.getenv("PRINCIPAL_ID")
     flink_config[FLINK_CONFIG["confluent_cloud_api_key"]] = os.getenv("CONFLUENT_CLOUD_API_KEY")
     flink_config[FLINK_CONFIG["confluent_cloud_api_secret"]] = os.getenv("CONFLUENT_CLOUD_API_SECRET")
+
+    global principal_id
+    principal_id = os.getenv("PRINCIPAL_ID")
 
     # Set the Kafka Cluster configuration.
     global kafka_config

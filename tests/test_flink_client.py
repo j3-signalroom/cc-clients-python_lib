@@ -226,7 +226,7 @@ def test_update_all_sink_statements():
 def test_drop_table():
     """Test the drop_table method."""
     # Instantiate the FlinkClient class.
-    flink_client = FlinkClient(flink_config, kafka_config, sr_config)
+    flink_client = FlinkClient(flink_config, kafka_config=kafka_config, sr_config=sr_config)
 
     # Drop the table.
     succeed, error_message, drop_stages = flink_client.drop_table(catalog_name, database_name, table_name)

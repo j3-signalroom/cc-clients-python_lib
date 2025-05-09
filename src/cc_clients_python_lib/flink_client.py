@@ -496,7 +496,7 @@ class FlinkClient():
         drop_stages = {}
         
         # Retrieve a list of all the statements in a Flink region.
-        http_status_code, error_message, response = self.flink_client.get_statement_list()
+        http_status_code, error_message, response = self.get_statement_list()
         if http_status_code != HttpStatus.OK:
             return False, error_message, {}
         
@@ -516,7 +516,7 @@ class FlinkClient():
                 if StatementPhase(statement.status.phase) == StatementPhase.FAILED:
                     # If the statement has failed, then statement is deleted.
                     if statement.spec.properties["sql.current-catalog"] == catalog_name and table_name in candidate_find.group(1):
-                        http_status_code, error_message = self.flink_client.delete_statement(statement.name)
+                        http_status_code, error_message = self.delete_statement(statement.name)
                         if http_status_code != HttpStatus.OK:
                             return False, error_message, {}
                         else:
@@ -524,7 +524,7 @@ class FlinkClient():
                 else:
                     # If the statement is not in a failed state, then statement is deleted.
                     if statement.spec.properties["sql.current-catalog"] == catalog_name and statement.spec.properties["sql.current-database"] == database_name and table_name in candidate_find.group(1):
-                        http_status_code, error_message = self.flink_client.delete_statement(statement.name)
+                        http_status_code, error_message = self.delete_statement(statement.name)
                         if http_status_code != HttpStatus.OK:
                             return False, error_message, {}
                         else:
@@ -535,7 +535,7 @@ class FlinkClient():
 
         # Drop the table.
         http_status_code, error_message, exist = self.kafka_client.kafka_topic_exist(table_name.replace("`", ""))
-        if http_status_code != HttpStatus.OK or http_status_code != HttpStatus.NOT_FOUND:
+        if http_status_code != HttpStatus.OK and http_status_code != HttpStatus.NOT_FOUND:
             drop_stages[DROP_STAGES["kafka_topic_drop"]] = f"Unable to confirm if the Kafka topic exist.  Got {http_status_code} with {error_message}."
             return False, error_message, drop_stages
         
@@ -549,26 +549,31 @@ class FlinkClient():
                 # Submits a DROP TABLE statement, which removes a table definition from Apache Flink® and, depending
                 # on the table type, will also delete associated resources like the Kafka topic and schemas in Schema 
                 # Registry.
-                http_status_code, error_message, response = self.flink_client.submit_statement(f"drop-{table_name}-{str(uuid.uuid4())}",
-                                                                                               f"DROP TABLE {table_name};",
-                                                                                               {"sql.current-catalog": catalog_name, "sql.current-database": database_name})
-                if http_status_code != HttpStatus.CREATED:
-                    drop_stages[DROP_STAGES["table_drop"]] = f"Unable to DROP TABLE.  Got {http_status_code} with {error_message}."
-                    return False, error_message, drop_stages
-                elif http_status_code == HttpStatus.CREATED:
+                http_status_code, error_message, response = self.submit_statement(f"drop-{table_name}-{str(uuid.uuid4())}",
+                                                                                  f"DROP TABLE {table_name};",
+                                                                                  {"sql.current-catalog": catalog_name, "sql.current-database": database_name})
+
+                if http_status_code >= HttpStatus.OK and http_status_code <= HttpStatus.NO_CONTENT:
                     #
                     time.sleep(1)
                     topic_check_retry = 0
 
                     while topic_check_retry <= max_retries:
                         http_status_code, error_message, exist = self.kafka_client.kafka_topic_exist(table_name.replace("`", ""))
-                        if http_status_code != HttpStatus.OK or http_status_code != HttpStatus.NOT_FOUND:
+                        if http_status_code != HttpStatus.OK and http_status_code != HttpStatus.NOT_FOUND:
                             return False, error_message, drop_stages
                         
                         if not exist:
                             drop_stages[DROP_STAGES["kafka_topic_drop"]] = "Kafka topic dropped."
                             drop_stages[DROP_STAGES["table_drop"]] = "Table dropped."
-                            break
+                            
+                            succeed, stage = self.__delete_subject_schema(f"{table_name.replace('`', '')}-key")
+                            drop_stages[DROP_STAGES["kafka_key_schema_subject_drop"]] = stage
+
+                            succeed, stage = self.__delete_subject_schema(f"{table_name.replace('`', '')}-value")
+                            drop_stages[DROP_STAGES["kafka_value_schema_subject_drop"]] = stage
+
+                            return succeed, error_message, drop_stages
                         else:
                             # If the topic still exists, then wait for a retry delay and check again.
                             if topic_check_retry == max_retries:
@@ -576,10 +581,17 @@ class FlinkClient():
                                 # This is a last resort to ensure that the topic is deleted.
                                 http_status_code, error_message = self.kafka_client.delete_kafka_topic(table_name.replace("`", ""))
 
-                                if http_status_code != HttpStatus.OK or http_status_code != HttpStatus.NOT_FOUND:
+                                if http_status_code != HttpStatus.OK and http_status_code != HttpStatus.NOT_FOUND:
                                     drop_stages[DROP_STAGES["kafka_topic_drop"]] = "Kafka topic dropped."
                                     drop_stages[DROP_STAGES["table_drop"]] = "Table dropped."
-                                    break
+
+                                    succeed, stage = self.__delete_subject_schema(f"{table_name.replace('`', '')}-key")
+                                    drop_stages[DROP_STAGES["kafka_key_schema_subject_drop"]] = stage
+
+                                    succeed, stage = self.__delete_subject_schema(f"{table_name.replace('`', '')}-value")
+                                    drop_stages[DROP_STAGES["kafka_value_schema_subject_drop"]] = stage
+
+                                    return succeed, error_message, drop_stages
                                 else:
                                     drop_stages[DROP_STAGES["kafka_topic_drop"]] = "Kafka topic drop failed."
                                     drop_stages[DROP_STAGES["table_drop"]] = "Table drop failed."
@@ -587,58 +599,6 @@ class FlinkClient():
                             else:
                                 time.sleep(retry_delay_in_seconds)
                                 topic_check_retry += 1
-
-                        #
-                        schema_check_retry = 0
-                        while schema_check_retry <= max_retries:
-                            # Check if the key schema subject exists.
-                            http_status_code, error_message, exist = self.sr_client.get_topic_subject_latest_schema(f"{table_name.replace('`', '')}-key")
-                            if http_status_code != HttpStatus.OK or http_status_code != HttpStatus.NOT_FOUND:
-                                return False, error_message, drop_stages
-                            
-                            if not exist:
-                                drop_stages[DROP_STAGES["kafka_key_schema_subject_drop"]] = "Kafka key schema subject does not exist."
-                                break
-                            else:
-                                #
-                                if schema_check_retry == max_retries:
-                                    # If the key schema subject exists, then delete it.
-                                    http_status_code, error_message = self.sr_client.delete_kafka_topic_key_schema_subject(f"{table_name.replace('`', '')}")
-                                    if http_status_code != HttpStatus.OK or http_status_code != HttpStatus.NOT_FOUND:
-                                        drop_stages[DROP_STAGES["kafka_key_schema_subject_drop"]] = "Kafka key schema subject dropped."
-                                        break
-                                    else:
-                                        drop_stages[DROP_STAGES["kafka_key_schema_subject_drop"]] = "Kafka key schema subject drop failed."
-                                        return False, "Fail to Drop the Kafka Key Schema Subject.", drop_stages
-                                else:
-                                    time.sleep(retry_delay_in_seconds)
-                                    topic_check_retry += 1
-                        
-                        #
-                        schema_check_retry = 0
-                        while schema_check_retry <= max_retries:
-                            # Check if the value schema subject exists.
-                            http_status_code, error_message, exist = self.sr_client.get_topic_subject_latest_schema(f"{table_name.replace('`', '')}-value")
-                            if http_status_code != HttpStatus.OK or http_status_code != HttpStatus.NOT_FOUND:
-                                return False, error_message, drop_stages
-                            
-                            if not exist:
-                                drop_stages[DROP_STAGES["kafka_value_schema_subject_drop"]] = "Kafka value schema subject does not exist."
-                                return True, "", drop_stages
-                            else:
-                                #
-                                if schema_check_retry == max_retries:
-                                    # If the value schema subject exists, then delete it.
-                                    http_status_code, error_message = self.sr_client.delete_kafka_topic_value_schema_subject(f"{table_name.replace('`', '')}")
-                                    if http_status_code != HttpStatus.OK or http_status_code != HttpStatus.NOT_FOUND:
-                                        drop_stages[DROP_STAGES["kafka_value_schema_subject_drop"]] = "Kafka value schema subject dropped."
-                                        return True, "", drop_stages
-                                    else:
-                                        drop_stages[DROP_STAGES["kafka_value_schema_subject_drop"]] = "Kafka value schema subject drop failed."
-                                        return False, "Fail to Drop the Kafka Value Schema Subject.", drop_stages
-                                else:
-                                    time.sleep(retry_delay_in_seconds)
-                                    topic_check_retry += 1
                 else: 
                     time.sleep(retry_delay_in_seconds)
                     retry += 1
@@ -652,3 +612,40 @@ class FlinkClient():
             drop_stages[DROP_STAGES["table_drop"]] = "No action was taken since backing Kafka topic does not exist."
             return True, "", drop_stages
     
+    def __delete_subject_schema(self, subject_name: str) -> Tuple[bool, str]:
+        """This private function deletes the subject schema.
+        
+        Arg(s):
+            subject_name (str): The subject name.
+            
+        Returns:
+            bool:   The success status.
+            str:    The message.
+        """
+        # Initialize the retry mechanism variables.
+        schema_check_retry = 0
+        max_retries = 3
+        retry_delay_in_seconds = 15
+        while schema_check_retry <= max_retries:
+            # Check if the value schema subject exists.
+            http_status_code, _, _ = self.sr_client.get_topic_subject_latest_schema(subject_name)
+            if http_status_code == HttpStatus.OK:
+                http_status_code, _ = self.sr_client.delete_kafka_topic_value_schema_subject(subject_name)
+                if http_status_code != HttpStatus.OK and http_status_code != HttpStatus.NOT_FOUND:
+                    return True, f"Kafka {subject_name} was dropped."
+                else:
+                    return False, "Fail to drop {subject_name}.", f"Kafka {subject_name} drop failed."
+            elif http_status_code == HttpStatus.NOT_FOUND:
+                return True, f"Kafka {subject_name} does not exist."
+            else:
+                #
+                if schema_check_retry == max_retries:
+                    # If the value schema subject exists, then delete it.
+                    http_status_code, error_message = self.sr_client.delete_kafka_topic_value_schema_subject(subject_name)
+                    if http_status_code != HttpStatus.OK and http_status_code != HttpStatus.NOT_FOUND:
+                        return True, f"Kafka {subject_name} was dropped."
+                    else:
+                        return False, f"Kafka {subject_name} drop failed."
+                else:
+                    time.sleep(retry_delay_in_seconds)
+                    schema_check_retry += 1

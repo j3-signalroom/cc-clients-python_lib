@@ -395,9 +395,6 @@ class FlinkClient():
     def stop_statement(self, statement_name: str, stop: bool = True) -> Tuple[int, str]:
         """This function submits a RESTful API call to stop or start the Flink SQL statement.
 
-        For more information, why this function is a bit complex, please refer to the
-        Issue [#166](https://github.com/j3-signalroom/cc-clients-python_lib/issues/166).
-
         Note: "Confluent Cloud for Apache Flink enforces a 30-day retention for statements in
         terminal states." 
 
@@ -410,7 +407,11 @@ class FlinkClient():
             str:    HTTP Error, if applicable.
         """
         patch_request = []
-        patch_request.append(json.loads(JsonPatchRequestAddReplace(path="/spec/stopped", value=stop, op=Op.replace).model_dump_json()))
+        patch_request.append(json.loads(
+            JsonPatchRequestAddReplace(
+                path="/spec/stopped", 
+                value=stop, 
+                op=Op.replace).model_dump_json()))
 
         # Send a PATCH request to update the status of the statement.
         response = requests.patch(url=f"{self.flink_sql_base_url}statements/{statement_name}",
@@ -422,7 +423,7 @@ class FlinkClient():
             response.raise_for_status()
             return response.status_code, response.text
         except Exception as e:
-            return response.status_code, f"Fail to update the statement because {e}, and the response is {response.text}"
+            return response.status_code, f"Failed to {"stop" if stop else "resume"} the statement because {e}, and the response is {response.text}"
     
     def drop_table(self, catalog_name: str, database_name: str, table_name: str) -> Tuple[bool, str, Dict]:
         """Drop a table and its dependencies (i.e., all associated Flink statements, Kafka Topic, and Schemas).

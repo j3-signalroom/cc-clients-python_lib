@@ -1,4 +1,5 @@
 from enum import StrEnum
+import json
 import time
 from typing import Tuple, Dict
 import requests
@@ -6,6 +7,7 @@ import uuid
 import re
 from requests.auth import HTTPBasicAuth
 
+from cc_clients_python_lib.cc_openapi_v2_1 import JsonPatchRequestAddReplace, Op
 from cc_clients_python_lib.http_status import HttpStatus
 from cc_clients_python_lib.cc_openapi_v2_1.sql.v1 import Statement, StatementSpec
 from cc_clients_python_lib.kafka_client import KafkaClient
@@ -92,13 +94,22 @@ class FlinkClient():
         self.principal_id = flink_config[FLINK_CONFIG["principal_id"]]
         self.confluent_cloud_api_key = str(flink_config[FLINK_CONFIG["confluent_cloud_api_key"]])
         self.confluent_cloud_api_secret = str(flink_config[FLINK_CONFIG["confluent_cloud_api_secret"]])
+
+        # Set the base URL for the Flink SQL API.
+        # If the private network base URL is provided, use it. Otherwise, use the default base URL.
         if private_network_base_url is not None:
             self.flink_sql_base_url = f"https://{private_network_base_url}/sql/v1/organizations/{self.organization_id}/environments/{self.environment_id}/"
         else:
             self.flink_sql_base_url = f"https://flink.{self.cloud_region}.{self.cloud_provider}.confluent.cloud/sql/v1/organizations/{self.organization_id}/environments/{self.environment_id}/"
         self.flink_compute_pool_base_url = "https://api.confluent.cloud/fcpm/v2/compute-pools"
-        self.kafka_client = KafkaClient(kafka_config)
-        self.sr_client = SchemaRegistryClient(sr_config)
+
+        # If the kafka_config is supplied, instantiate the Kafka Client.
+        if kafka_config is not None:
+            self.kafka_client = KafkaClient(kafka_config)
+
+        # If the sr_config is supplied, instantiate the Schema Registry Client.
+        if sr_config is not None:
+            self.sr_client = SchemaRegistryClient(sr_config)
 
     def get_statement_list(self, page_size: int = DEFAULT_PAGE_SIZE) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to get the Flink SQL statement list.
@@ -370,11 +381,15 @@ class FlinkClient():
             int:    HTTP Status Code.
             str:    HTTP Error, if applicable.
         """
-        http_status_code, error_message = self.__update_statement(statement_name=statement_name, stop=True)
+        http_status_code, error_message = self.stop_statement(statement_name=statement_name)
         if http_status_code != HttpStatus.OK:
             return http_status_code, error_message
         else:
-            http_status_code, error_message = self.__update_statement(statement_name=statement_name, stop=stop, new_compute_pool_id=new_compute_pool_id, new_security_principal_id=new_security_principal_id)
+            http_status_code, error_message = self.__update_statement(statement_name=statement_name, new_compute_pool_id=new_compute_pool_id, new_security_principal_id=new_security_principal_id)
+
+            if http_status_code == HttpStatus.OK and not stop:
+                http_status_code, error_message = self.stop_statement(statement_name=statement_name, stop=False)
+
             return http_status_code, error_message
 
     def stop_statement(self, statement_name: str, stop: bool = True) -> Tuple[int, str]:
@@ -394,7 +409,20 @@ class FlinkClient():
             int:    HTTP Status Code.
             str:    HTTP Error, if applicable.
         """
-        return self.__update_statement(statement_name=statement_name, stop=stop)
+        patch_request = []
+        patch_request.append(json.loads(JsonPatchRequestAddReplace(path="/spec/stopped", value=stop, op=Op.replace).model_dump_json()))
+
+        # Send a PATCH request to update the status of the statement.
+        response = requests.patch(url=f"{self.flink_sql_base_url}statements/{statement_name}",
+                                  data=json.dumps(patch_request),
+                                  auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
+        
+        try:
+            # Raise HTTPError, if occurred.
+            response.raise_for_status()
+            return response.status_code, response.text
+        except Exception as e:
+            return response.status_code, f"Fail to update the statement because {e}, and the response is {response.text}"
     
     def drop_table(self, catalog_name: str, database_name: str, table_name: str) -> Tuple[bool, str, Dict]:
         """Drop a table and its dependencies (i.e., all associated Flink statements, Kafka Topic, and Schemas).
@@ -536,13 +564,12 @@ class FlinkClient():
             drop_stages[DROP_STAGES["table_drop"]] = "No action was taken since backing Kafka topic does not exist."
             return True, "", drop_stages
     
-    def __update_statement(self, statement_name: str, stop: bool, new_compute_pool_id: str = None, new_security_principal_id: str = None) -> Tuple[int, str]:
+    def __update_statement(self, statement_name: str, new_compute_pool_id: str = None, new_security_principal_id: str = None) -> Tuple[int, str]:
         """This private function submits a RESTful API call to update the mutable attributes of a 
         Flink SQL statement.
 
         Arg(s):
             statement_name (str):             The current Flink SQL statement name.
-            stop (bool):                      The stop flag.
             new_compute_pool_id (str):        (Optional) The new compute pool ID.
             new_security_principal_id (str):  (Optional) The new security principal ID.
 
@@ -570,41 +597,52 @@ class FlinkClient():
                 resource_version = statement.metadata.resource_version
 
                 # Set the stop flag, compute pool ID, and security principal ID.
-                statement.spec.stopped = stop
-                if new_compute_pool_id is not None:
-                    statement.spec.compute_pool_id = new_compute_pool_id
-                if new_security_principal_id is not None:
-                    statement.spec.principal = new_security_principal_id
+                if statement.spec.stopped:
+                    if new_compute_pool_id is not None:
+                        statement.spec.compute_pool_id = new_compute_pool_id
+                    if new_security_principal_id is not None:
+                        statement.spec.principal = new_security_principal_id
 
-                # Send a PUT request to update the status of the statement.
-                response = requests.put(url=f"{self.flink_sql_base_url}statements/{statement_name}",
-                                        data=statement.model_dump_json(),
-                                        auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
-                
-                try:
-                    # Raise HTTPError, if occurred.
-                    response.raise_for_status()
+                    # Send a PUT request to update the status of the statement.
+                    response = requests.put(url=f"{self.flink_sql_base_url}statements/{statement_name}",
+                                            data=statement.model_dump_json(),
+                                            auth=HTTPBasicAuth(self.flink_api_key, self.flink_api_secret))
+                    
+                    try:
+                        # Raise HTTPError, if occurred.
+                        response.raise_for_status()
 
-                    # Turn the JSON response into a Statement model.
-                    statement = Statement(**response.json())
+                        # Turn the JSON response into a Statement model.
+                        statement = Statement(**response.json())
 
-                    # Check if the resource version is the same.  If it is the same, the statement has successfully
-                    # been updated.  If it is not the same, this indicates that the statement has been updated since
-                    # the last GET request.  In this case, we need to retry the request.
-                    if statement.metadata.resource_version == resource_version:
-                        return response.status_code, response.text
+                        # Check if the resource version is the same.  If it is the same, the statement has successfully
+                        # been updated.  If it is not the same, this indicates that the statement has been updated since
+                        # the last GET request.  In this case, we need to retry the request.
+                        if statement.metadata.resource_version == resource_version:
+                            return response.status_code, response.text
+                        else:
+                            retry += 1
+                            if retry == max_retries:
+                                return response.status_code, f"Max retries exceeded.  Fail to update the statement because of a resource version mismatch.  Expected resource version #{resource_version}, but got resource version #{statement.metadata.resource_version}."
+                            else:
+                                time.sleep(retry_delay_in_seconds)
+                    except requests.exceptions.RequestException as e:
+                        retry += 1
+                        if retry == max_retries:
+                            return response.status_code, f"Max retries exceeded.  Fail to update the statement because {e}, and the response is {response.text}"
+                        else:
+                            time.sleep(retry_delay_in_seconds)
+                else:
+                    # If the statement is not stopped, then we need to stop it first.
+                    http_status_code, error_message = self.stop_statement(statement_name=statement_name)
+                    if http_status_code != HttpStatus.OK:
+                        return http_status_code, error_message
                     else:
                         retry += 1
                         if retry == max_retries:
-                            return response.status_code, f"Max retries exceeded.  Fail to update the statement because of a resource version mismatch.  Expected resource version #{resource_version}, but got resource version #{statement.metadata.resource_version}."
+                            return response.status_code, "Max retries exceeded.  Fail to update the statement because the statement is not stopped."
                         else:
                             time.sleep(retry_delay_in_seconds)
-                except requests.exceptions.RequestException as e:
-                    retry += 1
-                    if retry == max_retries:
-                        return response.status_code, f"Max retries exceeded.  Fail to update the statement because {e}, and the response is {response.text}"
-                    else:
-                        time.sleep(retry_delay_in_seconds)
             except requests.exceptions.RequestException as e:
                 retry += 1
                 if retry == max_retries:

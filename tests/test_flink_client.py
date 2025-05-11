@@ -76,6 +76,9 @@ def load_configurations():
     global table_name
     table_name = os.getenv("FLINK_TABLE_NAME")
 
+    # Set the Flink SQL statement name.
+    global statement_name
+    statement_name = os.getenv("FLINK_STATEMENT_NAME")
 
 def test_delete_statement():
     """Test the delete_statement() function."""
@@ -183,7 +186,7 @@ def test_stop_statement():
     # Instantiate the FlinkClient class.
     flink_client = FlinkClient(flink_config)
 
-    http_status_code, response = flink_client.stop_statement(statement_name, True)
+    http_status_code, response = flink_client.stop_statement(statement_name)
  
     try:
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"

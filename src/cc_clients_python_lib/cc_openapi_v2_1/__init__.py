@@ -1553,6 +1553,7 @@ class JsonPatchRequestAddReplace(BaseModel):
     model_config = ConfigDict(
         extra='forbid',
         populate_by_name=True,
+        use_enum_values=True
     )
     path: str = Field(..., description='A JSON Pointer path.')
     value: Any = Field(..., description='The value to add, replace or test.')

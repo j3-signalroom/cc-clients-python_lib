@@ -184,3 +184,4 @@ uv add cc-clients-python-lib
 
 ### **4.4 Other Resources**
 * [How to programmatically pause and resume a Flink statement](.blog/how-to-programmatically-pause-and-resume-a-flink-statement.md)
+* [How to programmatically pause and resume a Flink statement REDUX](.blog/how-to-programmatically-pause-and-resume-a-flink-statement-redux.md)

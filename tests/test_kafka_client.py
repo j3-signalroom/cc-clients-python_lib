@@ -2,6 +2,7 @@ import logging
 from dotenv import load_dotenv
 import os
 import pytest
+
 from cc_clients_python_lib.kafka_client import KafkaClient, KAFKA_CONFIG
 from cc_clients_python_lib.http_status import HttpStatus
  

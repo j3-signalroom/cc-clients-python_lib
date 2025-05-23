@@ -58,3 +58,20 @@ def test_get_tableflow_topic():
         assert http_status_code == HttpStatus.OK, error_message
     except AssertionError as e:
         logger.error(e)
+
+
+def test_get_tableflow_topic_table_path():
+    """Test the get_tableflow_topic_table_path() function."""
+
+    # Instantiate the TableflowClient class.
+    tableflow_client = TableflowClient(tableflow_config)
+
+    http_status_code, error_message, table_path = tableflow_client.get_tableflow_topic_table_path(kafka_topic_name, environment_id, kafka_cluster_id)
+
+    try:
+        logger.info(f"table_path: {table_path}")
+        logger.info(f"HTTP Status Code: {http_status_code}")
+
+        assert http_status_code == HttpStatus.OK, error_message
+    except AssertionError as e:
+        logger.error(e)

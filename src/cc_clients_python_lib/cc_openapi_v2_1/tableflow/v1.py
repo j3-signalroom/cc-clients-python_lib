@@ -10,8 +10,8 @@ from typing import Any, Dict, List, Literal, Optional, Union
 from pydantic import BaseModel, ConfigDict, Field, constr
 
 from .. import EnvScopedObjectReference, GlobalObjectReference
-from ..ListMeta import ListMeta
-from ..ObjectMeta import ObjectMeta
+from .. import ListMeta
+from .. import ObjectMeta
 
 
 class ApiVersion(Enum):

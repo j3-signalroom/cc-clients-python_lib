@@ -2,8 +2,6 @@ from typing import Tuple
 import requests
 from requests.auth import HTTPBasicAuth
 
-from cc_clients_python_lib.cc_openapi_v2_1.tableflow.v1 import TableflowTopic
-
 
 __copyright__  = "Copyright (c) 2025 Jeffrey Jonathan Jennings"
 __license__    = "MIT"
@@ -58,8 +56,13 @@ class TableflowClient():
         if http_status_code != 200:
             return http_status_code, error_message, response
         
-        # Turn the JSON response into a TableflowTopic model.
-        tableflow_topic = TableflowTopic(**response)
-
-        return http_status_code, error_message, tableflow_topic.table_path
+        # Parse the response to get the table path.
+        if response.get("spec") is None:
+            return 400, "Invalid response. 'spec' key not found in the response.", ""
+        if response.get("spec").get("storage") is None:
+            return 400, "Invalid response. 'storage' key not found in the response.", ""
+        if response.get("spec").get("storage").get("table_path") is None:
+            return 400, "Invalid response. 'table_path' key not found in the response.", ""
+        else:
+            return http_status_code, error_message, response.get("spec").get("storage").get("table_path")
     

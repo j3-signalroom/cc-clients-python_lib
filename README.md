@@ -172,6 +172,7 @@ To run a specific test, use one of the following commands:
 Unit Test|Command
 -|-
 Get the Tableflow Topic|`pytest -s tests/test_tableflow_client.py::test_get_tableflow_topic`
+Get the Tableflow Topic Table Path|`pytest -s tests/test_tableflow_client.py::test_get_tableflow_topic_table_path`
 
 ## **3.0 Installation**
 Install the Confluent Cloud Clients Python Library using **`pip`**:

@@ -2,6 +2,8 @@ from typing import Tuple
 import requests
 from requests.auth import HTTPBasicAuth
 
+from cc_clients_python_lib.cc_openapi_v2_1.tableflow.v1 import TableflowTopic
+
 
 __copyright__  = "Copyright (c) 2025 Jeffrey Jonathan Jennings"
 __license__    = "MIT"
@@ -49,3 +51,15 @@ class TableflowClient():
             return response.status_code, response.text, response.json()
         except requests.exceptions.RequestException as e:
             return response.status_code, f"Error retrieving Tableflow enabled topic '{topic_name}': {e}",  response.json() if response.content else {}
+        
+    def get_tableflow_topic_table_path(self, topic_name: str, environment_id: str, kafka_cluster_id: str) -> Tuple[int, str, str]:
+        http_status_code, error_message, response =  self.get_tableflow_topic(topic_name, environment_id, kafka_cluster_id)
+
+        if http_status_code != 200:
+            return http_status_code, error_message, response
+        
+        # Turn the JSON response into a TableflowTopic model.
+        tableflow_topic = TableflowTopic(**response)
+
+        return http_status_code, error_message, tableflow_topic.table_path
+    

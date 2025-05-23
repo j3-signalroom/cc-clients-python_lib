@@ -180,6 +180,7 @@ class ByobAwsSpec(BaseModel):
     bucket_region: Optional[str] = Field(
         None, description='Bucket region', examples=['us-east-1']
     )
+    table_path: str = Field(..., description='Table path', examples=['table_path'])
     provider_integration_id: str = Field(
         ..., description='The provider integration id', examples=['cspi-stgce89r7']
     )

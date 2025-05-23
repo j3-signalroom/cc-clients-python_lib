@@ -66,6 +66,7 @@ The **Schema Registry Client** provides the following methods:
 ### **1.4 Tableflow Client**
 The **Tableflow Client** provides the following methods:
 - `get_tableflow_topic`
+- `get_tableflow_topic_table_path`
 
 ## **2.0 Unit Tests**
 The library includes unit tests for each client. The tests are located in the `tests` directory.  To use them, you must clone the repo locally:

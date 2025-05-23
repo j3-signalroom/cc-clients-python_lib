@@ -174,6 +174,13 @@ Unit Test|Command
 Get the Tableflow Topic|`pytest -s tests/test_tableflow_client.py::test_get_tableflow_topic`
 Get the Tableflow Topic Table Path|`pytest -s tests/test_tableflow_client.py::test_get_tableflow_topic_table_path`
 
+Otherwise, to run all the tests, use the following command:
+```bash
+pytest -s tests/test_tableflow_client.py
+```
+
+> **Note:** _The tests are designed to be run in a specific order.  If you run them out of order, you may encounter errors.  The tests are also designed to be run against a Confluent Cloud environment.  If you run them against a local environment, you may encounter errors._
+
 ## **3.0 Installation**
 Install the Confluent Cloud Clients Python Library using **`pip`**:
 ```bash

@@ -46,7 +46,7 @@ def load_configurations():
 def test_get_tableflow_topic():
     """Test the get_tableflow_topic() function."""
 
-    # Instantiate the SchemaRegistryClient class.
+    # Instantiate the TableflowClient class.
     tableflow_client = TableflowClient(tableflow_config)
 
     http_status_code, error_message, response = tableflow_client.get_tableflow_topic(kafka_topic_name, environment_id, kafka_cluster_id)

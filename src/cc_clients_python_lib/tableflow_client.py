@@ -25,6 +25,21 @@ class TableflowClient():
         self.tableflow_base_url = "https://api.confluent.cloud/tableflow/v1"
 
     def get_tableflow_topic(self, topic_name: str, environment_id: str, kafka_cluster_id: str) -> Tuple[int, str, dict]:
+        """Get the Tableflow enabled topic.
+
+        Args:
+            topic_name(str):       The name of the topic.
+            environment_id(str):   The environment ID.
+            kafka_cluster_id(str): The Kafka cluster ID.
+            
+        Returns:
+            Tuple[int, str, dict]: A tuple containing the HTTP status code, error message, and response data.
+        """
+        # Validate the input parameters.
+        if not topic_name or not environment_id or not kafka_cluster_id:
+            return 400, "Invalid input parameters. Please provide a valid topic name, environment ID, and Kafka cluster ID.", {}
+        
+        # Submit the GET method to get the Tableflow enabled topic.
         response = requests.get(url=f"{self.tableflow_base_url}/tableflow-topics/{topic_name}?environment={environment_id}&spec.kafka_cluster={kafka_cluster_id}", auth=HTTPBasicAuth(self.tableflow_api_key, self.tableflow_api_secret))
  
         try:

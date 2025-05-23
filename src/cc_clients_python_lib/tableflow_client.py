@@ -1,0 +1,36 @@
+from typing import Tuple
+import requests
+from requests.auth import HTTPBasicAuth
+
+
+__copyright__  = "Copyright (c) 2025 Jeffrey Jonathan Jennings"
+__license__    = "MIT"
+__credits__    = ["Jeffrey Jonathan Jennings (J3)"]
+__maintainer__ = "Jeffrey Jonathan Jennings (J3)"
+__email__      = "j3@thej3.com"
+__status__     = "dev"
+
+
+# Tableflow Config Keys.
+TABLEFLOW_CONFIG = {
+    "tableflow_api_key": "tableflow_api_key",
+    "tableflow_api_secret": "tableflow_api_secret"
+}
+
+
+class TableflowClient():
+    def __init__(self, tableflow_config: dict):
+        self.tableflow_api_key = str(tableflow_config[TABLEFLOW_CONFIG["tableflow_api_key"]])
+        self.tableflow_api_secret = str(tableflow_config[TABLEFLOW_CONFIG["tableflow_api_secret"]])
+        self.tableflow_base_url = "https://api.confluent.cloud/tableflow/v1"
+
+    def get_tableflow_topic(self, topic_name: str, environment_id: str, kafka_cluster_id: str) -> Tuple[int, str, dict]:
+        response = requests.get(url=f"{self.tableflow_base_url}/tableflow-topics/{topic_name}?environment={environment_id}&spec.kafka_cluster={kafka_cluster_id}", auth=HTTPBasicAuth(self.tableflow_api_key, self.tableflow_api_secret))
+ 
+        try:
+            # Raise HTTPError, if occurred.
+            response.raise_for_status()
+ 
+            return response.status_code, response.text, response.json()
+        except requests.exceptions.RequestException as e:
+            return response.status_code, f"Error retrieving Tableflow enabled topic '{topic_name}': {e}",  response.json() if response.content else {}

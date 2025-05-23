@@ -4,6 +4,7 @@ The Confluent Cloud Clients Python Library provides a set of clients for interac
 + **Flink**
 + **Kafka**
 + **Schema Registry**
++ **Tableflow**
 
 > **Note:** _This library is in active development and is subject to change.  It covers only the methods I have needed so far.  If you need a method that is not covered, please feel free to open an issue or submit a pull request._
 
@@ -14,6 +15,7 @@ The Confluent Cloud Clients Python Library provides a set of clients for interac
     * [**1.1 Flink Client**](#11-flink-client)
     * [**1.2 Kafka Client**](#12-kafka-client)
     * [**1.3 Schema Registry Client**](#13-schema-registry-client)
+    * [**1.4 Tableflow Client**](#14-tableflow-client)
 - [**2.0 Unit Tests**](#20-unit-tests)
     * [**2.1 Flink Client**](#21-flink-client)
     * [**2.2 Kafka Client**](#22-kafka-client)
@@ -24,7 +26,8 @@ The Confluent Cloud Clients Python Library provides a set of clients for interac
     * [**4.1 Architecture Design Records (ADRs)**](#41-architecture-design-records-adrs)
     * [**4.2 API Documentation**](#42-api-documentation)
     * [**4.3 Flink Resources**](#43-flink-resources)
-    * [**4.4 Other Resources**](#44-other-resources)
+    * [**4.4 Tableflow Resources**](#44-tableflow-resources)
+    * [**4.5 Other Resources**](#45-other-resources)
 <!-- tocstop -->
 
 ## **1.0 Library Clients**
@@ -59,6 +62,10 @@ The **Schema Registry Client** provides the following methods:
 - `get_topic_subject_latest_schema`
 - `register_topic_subject_schema`
 - `set_topic_subject_compatibility_level`
+
+### **1.4 Tableflow Client**
+The **Tableflow Client** provides the following methods:
+- `get_tableflow_topic`
 
 ## **2.0 Unit Tests**
 The library includes unit tests for each client. The tests are located in the `tests` directory.  To use them, you must clone the repo locally:
@@ -192,6 +199,9 @@ uv add cc-clients-python-lib
 * [Monitor and Manage Flink SQL Statements in Confluent Cloud for Apache Flink](https://docs.confluent.io/cloud/current/flink/operate-and-deploy/monitor-statements.html#)
 * [DROP TABLE Statement in Confluent Cloud for Apache Flink](https://docs.confluent.io/cloud/current/flink/reference/statements/drop-table.html#drop-table-statement-in-af-long)
 
-### **4.4 Other Resources**
+### **4.4 Tableflow Resources**
+* [Tableflow Topics (tableflow/v1)](https://docs.confluent.io/cloud/current/api.html#tag/Tableflow-Topics-(tableflowv1))
+
+### **4.5 Other Resources**
 * [How to programmatically pause and resume a Flink statement](.blog/how-to-programmatically-pause-and-resume-a-flink-statement.md)
 * [How to programmatically pause and resume a Flink statement REDUX](.blog/how-to-programmatically-pause-and-resume-a-flink-statement-redux.md)

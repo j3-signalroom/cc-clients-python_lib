@@ -18,6 +18,7 @@ The Confluent Cloud Clients Python Library provides a set of clients for interac
     * [**2.1 Flink Client**](#21-flink-client)
     * [**2.2 Kafka Client**](#22-kafka-client)
     * [**2.3 Schema Registry Client**](#23-schema-registry-client)
+    * [**2.4 Tableflow Client**](#24-tableflow-client)
 - [**3.0 Installation**](#30-installation)
 + [**4.0 Resources**](#40-resources)
     * [**4.1 Architecture Design Records (ADRs)**](#41-architecture-design-records-adrs)
@@ -99,6 +100,8 @@ KAFKA_API_KEY=
 KAFKA_API_SECRET=
 CONFLUENT_CLOUD_API_KEY=
 CONFLUENT_CLOUD_API_SECRET=
+TABLEFLOW_API_KEY=
+TABLEFLOW_API_SECRET=
 ```
 
 ### **2.1 Flink Client**
@@ -154,6 +157,13 @@ pytest -s tests/test_schema_registry_client.py
 ```
 
 > **Note:** _The tests are designed to be run in a specific order.  If you run them out of order, you may encounter errors.  The tests are also designed to be run against a Confluent Cloud environment.  If you run them against a local environment, you may encounter errors._
+
+### **2.4 Tableflow Client**
+To run a specific test, use one of the following commands:
+
+Unit Test|Command
+-|-
+Get the Tableflow Topic|`pytest -s tests/test_tableflow_client.py::test_get_tableflow_topic`
 
 ## **3.0 Installation**
 Install the Confluent Cloud Clients Python Library using **`pip`**:

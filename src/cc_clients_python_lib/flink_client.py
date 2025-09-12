@@ -423,7 +423,7 @@ class FlinkClient():
             response.raise_for_status()
             return response.status_code, response.text
         except Exception as e:
-            return response.status_code, f"Failed to {"stop" if stop else "resume"} the statement because {e}, and the response is {response.text}"
+            return response.status_code, f'Failed to {"stop" if stop else "resume"} the statement because {e}, and the response is {response.text}'
     
     def drop_table(self, catalog_name: str, database_name: str, table_name: str) -> Tuple[bool, str, Dict]:
         """Drop a table and its dependencies (i.e., all associated Flink statements, Kafka Topic, and Schemas).

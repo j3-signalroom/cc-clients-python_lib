@@ -74,8 +74,11 @@ The **Tableflow Client** provides the following methods:
 
 ### **1.5 Metrics Client**
 The **Metrics Client** provides the following methods:
-- `get_topic_total_bytes`
-- `get_topic_total_records`
+- `get_topic_total`
+    > _**Note:**  "The `get_topic_total` method can be used to get the total bytes or total records for a Kafka Topic.  It requires an additional parameter to specify the metric type."_
+    - Metric Types:
+        - `RECEIVED_BYTES`
+        - `RECEIVED_RECORDS`
 
 ## **2.0 Unit Tests**
 The library includes unit tests for each client. The tests are located in the `tests` directory.  To use them, you must clone the repo locally:

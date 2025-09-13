@@ -1,6 +1,6 @@
 [project]
 name = "cc-clients-python_lib"
-version = "0.20.00.000"
+version = "0.21.00.000"
 description = "Confluent Cloud Clients Python Library"
 readme = "README.md"
 requires-python = ">=3.11.9"

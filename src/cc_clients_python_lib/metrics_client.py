@@ -73,8 +73,7 @@ class MetricsClient():
                 ],
                 "intervals": [
                     f"{query_start_iso}/{query_end_iso}"
-                ],
-                "limit": 1000
+                ]
             }
             print("Query Data:", query_data)
             
@@ -153,8 +152,7 @@ class MetricsClient():
                 ],
                 "intervals": [
                     f"{query_start_iso}/{query_end_iso}"
-                ],
-                "limit": 1000
+                ]
             }
             print("Query Data:", query_data)
             

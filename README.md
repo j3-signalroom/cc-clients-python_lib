@@ -5,6 +5,7 @@ The Confluent Cloud Clients Python Library provides a set of clients for interac
 + **Kafka**
 + **Schema Registry**
 + **Tableflow**
++ **Metrics**
 
 > **Note:** _This library is in active development and is subject to change.  It covers only the methods I have needed so far.  If you need a method that is not covered, please feel free to open an issue or submit a pull request._
 
@@ -16,18 +17,21 @@ The Confluent Cloud Clients Python Library provides a set of clients for interac
     * [**1.2 Kafka Client**](#12-kafka-client)
     * [**1.3 Schema Registry Client**](#13-schema-registry-client)
     * [**1.4 Tableflow Client**](#14-tableflow-client)
+    * [**1.5 Metrics Client**](#15-metrics-client)
 - [**2.0 Unit Tests**](#20-unit-tests)
     * [**2.1 Flink Client**](#21-flink-client)
     * [**2.2 Kafka Client**](#22-kafka-client)
     * [**2.3 Schema Registry Client**](#23-schema-registry-client)
     * [**2.4 Tableflow Client**](#24-tableflow-client)
+    * [**2.5 Metrics Client**](#25-metrics-client)
 - [**3.0 Installation**](#30-installation)
 + [**4.0 Resources**](#40-resources)
     * [**4.1 Architecture Design Records (ADRs)**](#41-architecture-design-records-adrs)
     * [**4.2 API Documentation**](#42-api-documentation)
     * [**4.3 Flink Resources**](#43-flink-resources)
     * [**4.4 Tableflow Resources**](#44-tableflow-resources)
-    * [**4.5 Other Resources**](#45-other-resources)
+    * [**4.5 Metrics Resources**](#45-metrics-resources)
+    * [**4.6 Other Resources**](#46-other-resources)
 <!-- tocstop -->
 
 ## **1.0 Library Clients**
@@ -68,49 +72,59 @@ The **Tableflow Client** provides the following methods:
 - `get_tableflow_topic`
 - `get_tableflow_topic_table_path`
 
+### **1.5 Metrics Client**
+The **Metrics Client** provides the following methods:
+- `get_topic_total_bytes`
+- `get_topic_total_records`
+
 ## **2.0 Unit Tests**
 The library includes unit tests for each client. The tests are located in the `tests` directory.  To use them, you must clone the repo locally:
 
-```bash
+```shell
 git clone https://github.com/j3-signalroom/cc-clients-python_lib.git
 ```
 
  Since this project was built using [**`uv`**](https://docs.astral.sh/uv/), please install it, and then run the following command to install all the project dependencies:
 
-```bash
+```shell
  uv sync
  ```
 
 Then within the `tests` directory, create the `.env` file and add the following environment variables, filling them with your Confluent Cloud credentials and other required values:
 
-```bash
-SCHEMA_REGISTRY_URL=
-SCHEMA_REGISTRY_API_KEY=
-SCHEMA_REGISTRY_API_SECRET=
-KAFKA_TOPIC_NAME=
-FLINK_API_KEY=
-FLINK_API_SECRET=
-ORGANIZATION_ID=
-ENVIRONMENT_ID=
+```ini
+BOOTSTRAP_SERVER_CLOUD_PROVIDER=
+BOOTSTRAP_SERVER_CLOUD_REGION=
+BOOTSTRAP_SERVER_ID=
 CLOUD_PROVIDER=
 CLOUD_REGION=
 COMPUTE_POOL_ID=
-PRINCIPAL_ID=
-FLINK_STATEMENT_NAME=
-FLINK_CATALOG_NAME=
-FLINK_DATABASE_NAME=
-FLINK_TABLE_NAME=
-BOOTSTRAP_SERVER_ID=
-BOOTSTRAP_SERVER_CLOUD_PROVIDER=
-BOOTSTRAP_SERVER_CLOUD_REGION=
-KAFKA_CLUSTER_ID=
-KAFKA_API_KEY=
-KAFKA_API_SECRET=
 CONFLUENT_CLOUD_API_KEY=
 CONFLUENT_CLOUD_API_SECRET=
+ENVIRONMENT_ID=
+FLINK_API_KEY=
+FLINK_API_SECRET=
+FLINK_CATALOG_NAME=
+FLINK_DATABASE_NAME=
+FLINK_STATEMENT_NAME=
+FLINK_TABLE_NAME=
+FLINK_URL=
+KAFKA_API_KEY=
+KAFKA_API_SECRET=
+KAFKA_CLUSTER_ID=
+KAFKA_TOPIC_NAME=
+ORGANIZATION_ID=
+PRINCIPAL_ID=
+QUERY_START_TIME=
+QUERY_END_TIME=
+SCHEMA_REGISTRY_API_KEY=
+SCHEMA_REGISTRY_API_SECRET=
+SCHEMA_REGISTRY_URL=
 TABLEFLOW_API_KEY=
 TABLEFLOW_API_SECRET=
 ```
+
+> **Note:** _The `QUERY_START_TIME` and `QUERY_END_TIME` environment variables should be in the format `YYYY-MM-DDTHH:MM:SS`, for example, `2025-09-01T00:00:00`._
 
 ### **2.1 Flink Client**
 To run a specific test, use one of the following commands:
@@ -129,7 +143,7 @@ Update all the Sink Statements|`pytest -s tests/test_flink_client.py::test_updat
 Drop a Flink Table along with any associated statements, including the backing Kafka Topic and Schemas|`pytest -s tests/test_flink_client.py::test_drop_table`
 
 Otherwise, to run all the tests, use the following command:
-```bash
+```shell
 pytest -s tests/test_flink_client.py
 ```
 
@@ -144,7 +158,7 @@ Delete a Kafka Topic|`pytest -s tests/test_kafka_client.py::test_delete_kafka_to
 Checks if a Kafka Topic Exist|`pytest -s tests/test_kafkaclient.py::test_kafka_topic_exist`
 
 Otherwise, to run all the tests, use the following command:
-```bash
+```shell
 pytest -s tests/test_kafka_client.py
 ```
 
@@ -160,7 +174,7 @@ Delete the Kafka Topic Key Schema Subject|`pytest -s tests/test_schema_registry_
 Delete the Kafka Topic Value Schema Subject|`pytest -s tests/test_schema_registry_client.py::test_delete_kafka_topic_value_schema_subject`
 
 Otherwise, to run all the tests, use the following command:
-```bash
+```shell
 pytest -s tests/test_schema_registry_client.py
 ```
 
@@ -175,20 +189,35 @@ Get the Tableflow Topic|`pytest -s tests/test_tableflow_client.py::test_get_tabl
 Get the Tableflow Topic Table Path|`pytest -s tests/test_tableflow_client.py::test_get_tableflow_topic_table_path`
 
 Otherwise, to run all the tests, use the following command:
-```bash
+```shell
 pytest -s tests/test_tableflow_client.py
+```
+
+> **Note:** _The tests are designed to be run in a specific order.  If you run them out of order, you may encounter errors.  The tests are also designed to be run against a Confluent Cloud environment.  If you run them against a local environment, you may encounter errors._
+
+### **2.5 Metrics Client**
+To run a specific test, use one of the following commands:
+
+Unit Test|Command
+-|-
+Get the Topic Total Bytes|`pytest -s tests/test_metrics_client.py::test_get_topic_total_bytes`
+Get the Topic Total Records|`pytest -s tests/test_metrics_client.py::test_get_topic_total_records`
+
+Otherwise, to run all the tests, use the following command:
+```shell
+pytest -s tests/test_metrics_client.py
 ```
 
 > **Note:** _The tests are designed to be run in a specific order.  If you run them out of order, you may encounter errors.  The tests are also designed to be run against a Confluent Cloud environment.  If you run them against a local environment, you may encounter errors._
 
 ## **3.0 Installation**
 Install the Confluent Cloud Clients Python Library using **`pip`**:
-```bash
+```shell
 pip install cc-clients-python-lib
 ```
 
 Or, using [**`uv`**](https://docs.astral.sh/uv/):
-```bash
+```shell
 uv add cc-clients-python-lib
 ```
 
@@ -211,6 +240,13 @@ uv add cc-clients-python-lib
 ### **4.4 Tableflow Resources**
 * [Tableflow Topics (tableflow/v1)](https://docs.confluent.io/cloud/current/api.html#tag/Tableflow-Topics-(tableflowv1))
 
-### **4.5 Other Resources**
+### **4.4 Tableflow Resources**
+* [Tableflow Topics (tableflow/v1)](https://docs.confluent.io/cloud/current/api.html#tag/Tableflow-Topics-(tableflowv1))
+
+### **4.5 Metrics Resources**
+* [Confluent Cloud Metrics API](https://api.telemetry.confluent.cloud/docs)
+* [Confluent Cloud Metrics API Version 2 Reference](https://api.telemetry.confluent.cloud/docs#tag/Version-2)
+
+### **4.6 Other Resources**
 * [How to programmatically pause and resume a Flink statement](.blog/how-to-programmatically-pause-and-resume-a-flink-statement.md)
 * [How to programmatically pause and resume a Flink statement REDUX](.blog/how-to-programmatically-pause-and-resume-a-flink-statement-redux.md)

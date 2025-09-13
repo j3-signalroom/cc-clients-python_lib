@@ -5,7 +5,7 @@ import pytest
 from datetime import datetime
 
 from cc_clients_python_lib.http_status import HttpStatus
-from cc_clients_python_lib.metrics_client import MetricsClient, METRICS_CONFIG
+from cc_clients_python_lib.metrics_client import MetricsClient, METRICS_CONFIG, KafkaMetric
 
 
 __copyright__  = "Copyright (c) 2025 Jeffrey Jonathan Jennings"
@@ -51,12 +51,12 @@ def load_configurations():
 
 
 def test_get_topic_total_bytes():
-    """Test the get_topic_total_bytes() function."""
+    """Test the get_topic_total() function for getting the total bytes."""
 
     # Instantiate the MetricsClient class.
     metrics_client = MetricsClient(metrics_config)
 
-    http_status_code, error_message, query_result = metrics_client.get_topic_total_bytes(kafka_cluster_id, kafka_topic_name, query_start_time, query_end_time)
+    http_status_code, error_message, query_result = metrics_client.get_topic_total(KafkaMetric.RECEIVED_BYTES, kafka_cluster_id, kafka_topic_name, query_start_time, query_end_time)
  
     try:
         logger.info("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, query_result)
@@ -67,12 +67,12 @@ def test_get_topic_total_bytes():
     
 
 def test_get_topic_total_records():
-    """Test the get_topic_total_records() function."""
+    """Test the get_topic_total() function for getting the total records."""
 
     # Instantiate the MetricsClient class.
     metrics_client = MetricsClient(metrics_config)
 
-    http_status_code, error_message, query_result = metrics_client.get_topic_total_records(kafka_cluster_id, kafka_topic_name, query_start_time, query_end_time)
+    http_status_code, error_message, query_result = metrics_client.get_topic_total(KafkaMetric.RECEIVED_RECORDS, kafka_cluster_id, kafka_topic_name, query_start_time, query_end_time)
  
     try:
         logger.info("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, query_result)

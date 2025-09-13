@@ -134,20 +134,20 @@ To run a specific test, use one of the following commands:
 
 Unit Test|Command
 -|-
-Delete a Flink Statement|`pytest -s tests/test_flink_client.py::test_delete_statement`
-Delete all Flink Statements by Phase|`pytest -s tests/test_flink_client.py::test_delete_statements_by_phase`
-Get list of the all the Statements|`pytest -s tests/test_flink_client.py::test_get_statement_list`
-Submit a Flink Statement|`pytest -s tests/test_flink_client.py::test_submit_statement`
-Get Compute Pool List|`pytest -s tests/test_flink_client.py::test_get_compute_pool_list`
-Get Compute Pool|`pytest -s tests/test_flink_client.py::test_get_compute_pool`
-Stop a Flink Statement|`pytest -s tests/test_flink_client.py::test_stop_statement`
-Update a Flink Statement|`pytest -s tests/test_flink_client.py::test_update_statement`
-Update all the Sink Statements|`pytest -s tests/test_flink_client.py::test_update_all_sink_statements`
-Drop a Flink Table along with any associated statements, including the backing Kafka Topic and Schemas|`pytest -s tests/test_flink_client.py::test_drop_table`
+Delete a Flink Statement|`uv run pytest -s tests/test_flink_client.py::test_delete_statement`
+Delete all Flink Statements by Phase|`uv run pytest -s tests/test_flink_client.py::test_delete_statements_by_phase`
+Get list of the all the Statements|`uv run pytest -s tests/test_flink_client.py::test_get_statement_list`
+Submit a Flink Statement|`uv run pytest -s tests/test_flink_client.py::test_submit_statement`
+Get Compute Pool List|`uv run pytest -s tests/test_flink_client.py::test_get_compute_pool_list`
+Get Compute Pool|`uv run pytest -s tests/test_flink_client.py::test_get_compute_pool`
+Stop a Flink Statement|`uv run pytest -s tests/test_flink_client.py::test_stop_statement`
+Update a Flink Statement|`uv run pytest -s tests/test_flink_client.py::test_update_statement`
+Update all the Sink Statements|`uv run pytest -s tests/test_flink_client.py::test_update_all_sink_statements`
+Drop a Flink Table along with any associated statements, including the backing Kafka Topic and Schemas|`uv run pytest -s tests/test_flink_client.py::test_drop_table`
 
 Otherwise, to run all the tests, use the following command:
 ```shell
-pytest -s tests/test_flink_client.py
+uv run pytest -s tests/test_flink_client.py
 ```
 
 > **Note:** _The tests are designed to be run in a specific order.  If you run them out of order, you may encounter errors.  The tests are also designed to be run against a Confluent Cloud environment.  If you run them against a local environment, you may encounter errors._
@@ -157,12 +157,12 @@ To run a specific test, use one of the following commands:
 
 Unit Test|Command
 -|-
-Delete a Kafka Topic|`pytest -s tests/test_kafka_client.py::test_delete_kafka_topic`
-Checks if a Kafka Topic Exist|`pytest -s tests/test_kafkaclient.py::test_kafka_topic_exist`
+Delete a Kafka Topic|`uv run pytest -s tests/test_kafka_client.py::test_delete_kafka_topic`
+Checks if a Kafka Topic Exist|`uv run pytest -s tests/test_kafkaclient.py::test_kafka_topic_exist`
 
 Otherwise, to run all the tests, use the following command:
 ```shell
-pytest -s tests/test_kafka_client.py
+uv run pytest -s tests/test_kafka_client.py
 ```
 
 > **Note:** _The tests are designed to be run in a specific order.  If you run them out of order, you may encounter errors.  The tests are also designed to be run against a Confluent Cloud environment.  If you run them against a local environment, you may encounter errors._
@@ -172,13 +172,13 @@ To run a specific test, use one of the following commands:
 
 Unit Test|Command
 -|-
-Get the Subject Compatibility Level|`pytest -s tests/test_schema_registry_client.py::test_get_subject_compatibility_level`
-Delete the Kafka Topic Key Schema Subject|`pytest -s tests/test_schema_registry_client.py::test_delete_kafka_topic_key_schema_subject`
-Delete the Kafka Topic Value Schema Subject|`pytest -s tests/test_schema_registry_client.py::test_delete_kafka_topic_value_schema_subject`
+Get the Subject Compatibility Level|`uv run pytest -s tests/test_schema_registry_client.py::test_get_subject_compatibility_level`
+Delete the Kafka Topic Key Schema Subject|`uv run pytest -s tests/test_schema_registry_client.py::test_delete_kafka_topic_key_schema_subject`
+Delete the Kafka Topic Value Schema Subject|`uv run pytest -s tests/test_schema_registry_client.py::test_delete_kafka_topic_value_schema_subject`
 
 Otherwise, to run all the tests, use the following command:
 ```shell
-pytest -s tests/test_schema_registry_client.py
+uv run pytest -s tests/test_schema_registry_client.py
 ```
 
 > **Note:** _The tests are designed to be run in a specific order.  If you run them out of order, you may encounter errors.  The tests are also designed to be run against a Confluent Cloud environment.  If you run them against a local environment, you may encounter errors._
@@ -188,12 +188,12 @@ To run a specific test, use one of the following commands:
 
 Unit Test|Command
 -|-
-Get the Tableflow Topic|`pytest -s tests/test_tableflow_client.py::test_get_tableflow_topic`
-Get the Tableflow Topic Table Path|`pytest -s tests/test_tableflow_client.py::test_get_tableflow_topic_table_path`
+Get the Tableflow Topic|`uv run pytest -s tests/test_tableflow_client.py::test_get_tableflow_topic`
+Get the Tableflow Topic Table Path|`uv run pytest -s tests/test_tableflow_client.py::test_get_tableflow_topic_table_path`
 
 Otherwise, to run all the tests, use the following command:
 ```shell
-pytest -s tests/test_tableflow_client.py
+uv run pytest -s tests/test_tableflow_client.py
 ```
 
 > **Note:** _The tests are designed to be run in a specific order.  If you run them out of order, you may encounter errors.  The tests are also designed to be run against a Confluent Cloud environment.  If you run them against a local environment, you may encounter errors._
@@ -203,12 +203,12 @@ To run a specific test, use one of the following commands:
 
 Unit Test|Command
 -|-
-Get the Topic Total Bytes|`pytest -s tests/test_metrics_client.py::test_get_topic_total_bytes`
-Get the Topic Total Records|`pytest -s tests/test_metrics_client.py::test_get_topic_total_records`
+Get the Topic Total Bytes|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_total_bytes`
+Get the Topic Total Records|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_total_records`
 
 Otherwise, to run all the tests, use the following command:
 ```shell
-pytest -s tests/test_metrics_client.py
+uv run pytest -s tests/test_metrics_client.py
 ```
 
 > **Note:** _The tests are designed to be run in a specific order.  If you run them out of order, you may encounter errors.  The tests are also designed to be run against a Confluent Cloud environment.  If you run them against a local environment, you may encounter errors._

@@ -1,6 +1,6 @@
 [project]
 name = "cc-clients-python_lib"
-version = "0.21.00.000"
+version = "0.22.00.000"
 description = "Confluent Cloud Clients Python Library"
 readme = "README.md"
 requires-python = ">=3.11.9"
@@ -24,6 +24,7 @@ dependencies = [
 ]
 
 [tool.pytest.ini_options]
+pythonpath = ["src"]
 log_file = "tests/test.log"
 log_file_level = "INFO"
 log_file_format = "%(asctime)s - %(levelname)s - %(message)s"

@@ -175,7 +175,7 @@ class MetricsClient():
                     totals += result.get("value", 0)
                 
                 return HttpStatus.OK, "", {
-                    'total_records': totals["records"],
+                    'total_records': totals,
                     'period_start': query_start_time.isoformat(),
                     'period_end': query_end_time.isoformat(),
                     'source': 'metrics_api'

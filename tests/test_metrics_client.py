@@ -2,6 +2,7 @@ import logging
 from dotenv import load_dotenv
 import os
 import pytest
+from datetime import datetime
 
 from cc_clients_python_lib.http_status import HttpStatus
 from cc_clients_python_lib.metrics_client import MetricsClient, METRICS_CONFIG
@@ -19,8 +20,11 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 # Initialize the global variables.
-config = {}
+metrics_config = {}
+kafka_cluster_id = ""
 kafka_topic_name = ""
+query_start_time = ""
+query_end_time = ""
 
 
 @pytest.fixture(autouse=True)
@@ -28,30 +32,47 @@ def load_configurations():
     """Load the Metrics configuration and Kafka test topic from the environment variables."""
     load_dotenv()
  
+    
+    # Set the Metrics configuration.
     global metrics_config
+    metrics_config[METRICS_CONFIG["confluent_cloud_api_key"]] = os.getenv("CONFLUENT_CLOUD_API_KEY")
+    metrics_config[METRICS_CONFIG["confluent_cloud_api_secret"]] = os.getenv("CONFLUENT_CLOUD_API_SECRET")
+
     global kafka_cluster_id
     global kafka_topic_name
-    global start_time
-    global end_time
+    global query_start_time
+    global query_end_time
 
     # Set the Kafka test topic.
     kafka_topic_name = os.getenv("KAFKA_TOPIC_NAME")
     kafka_cluster_id = os.getenv("KAFKA_CLUSTER_ID")
-    start_time = os.getenv("START_TIME")
-    end_time = os.getenv("END_TIME")
-
-    # Set the Metrics configuration.
-    metrics_config[METRICS_CONFIG["cloud_api_key"]] = os.getenv("CLOUD_API_KEY")
-    metrics_config[METRICS_CONFIG["cloud_api_secret"]] = os.getenv("CLOUD_API_SECRET")
+    query_start_time =  datetime.fromisoformat(os.getenv("QUERY_START_TIME").replace('Z', '+00:00'))
+    query_end_time = datetime.fromisoformat(os.getenv("QUERY_END_TIME").replace('Z', '+00:00'))
 
 
-def test_get_topic_bytes():
-    """Test the get_topic_bytes() function."""
+def test_get_topic_total_bytes():
+    """Test the get_topic_total_bytes() function."""
 
     # Instantiate the MetricsClient class.
     metrics_client = MetricsClient(metrics_config)
 
-    http_status_code, error_message, query_result = metrics_client.get_topic_bytes(kafka_cluster_id, kafka_topic_name, start_time, end_time)
+    http_status_code, error_message, query_result = metrics_client.get_topic_total_bytes(kafka_cluster_id, kafka_topic_name, query_start_time, query_end_time)
+ 
+    try:
+        logger.info("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, query_result)
+        assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
+    except AssertionError as e:
+        logger.error(e)
+        logger.error("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, query_result)
+    
+
+def test_get_topic_total_records():
+    """Test the get_topic_total_records() function."""
+
+    # Instantiate the MetricsClient class.
+    metrics_client = MetricsClient(metrics_config)
+
+    http_status_code, error_message, query_result = metrics_client.get_topic_total_records(kafka_cluster_id, kafka_topic_name, query_start_time, query_end_time)
  
     try:
         logger.info("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, query_result)

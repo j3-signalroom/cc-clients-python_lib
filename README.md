@@ -74,7 +74,8 @@ The **Tableflow Client** provides the following methods:
 
 ### **1.5 Metrics Client**
 The **Metrics Client** provides the following methods:
-- `get_topic_bytes`
+- `get_topic_total_bytes`
+- `get_topic_total_records`
 
 ## **2.0 Unit Tests**
 The library includes unit tests for each client. The tests are located in the `tests` directory.  To use them, you must clone the repo locally:
@@ -92,37 +93,38 @@ git clone https://github.com/j3-signalroom/cc-clients-python_lib.git
 Then within the `tests` directory, create the `.env` file and add the following environment variables, filling them with your Confluent Cloud credentials and other required values:
 
 ```ini
-SCHEMA_REGISTRY_URL=
-SCHEMA_REGISTRY_API_KEY=
-SCHEMA_REGISTRY_API_SECRET=
-KAFKA_TOPIC_NAME=
-FLINK_API_KEY=
-FLINK_API_SECRET=
-ORGANIZATION_ID=
-ENVIRONMENT_ID=
+BOOTSTRAP_SERVER_CLOUD_PROVIDER=
+BOOTSTRAP_SERVER_CLOUD_REGION=
+BOOTSTRAP_SERVER_ID=
 CLOUD_PROVIDER=
 CLOUD_REGION=
 COMPUTE_POOL_ID=
-PRINCIPAL_ID=
-FLINK_STATEMENT_NAME=
-FLINK_CATALOG_NAME=
-FLINK_DATABASE_NAME=
-FLINK_TABLE_NAME=
-BOOTSTRAP_SERVER_ID=
-BOOTSTRAP_SERVER_CLOUD_PROVIDER=
-BOOTSTRAP_SERVER_CLOUD_REGION=
-KAFKA_CLUSTER_ID=
-KAFKA_API_KEY=
-KAFKA_API_SECRET=
 CONFLUENT_CLOUD_API_KEY=
 CONFLUENT_CLOUD_API_SECRET=
+ENVIRONMENT_ID=
+FLINK_API_KEY=
+FLINK_API_SECRET=
+FLINK_CATALOG_NAME=
+FLINK_DATABASE_NAME=
+FLINK_STATEMENT_NAME=
+FLINK_TABLE_NAME=
+FLINK_URL=
+KAFKA_API_KEY=
+KAFKA_API_SECRET=
+KAFKA_CLUSTER_ID=
+KAFKA_TOPIC_NAME=
+ORGANIZATION_ID=
+PRINCIPAL_ID=
+QUERY_START_TIME=
+QUERY_END_TIME=
+SCHEMA_REGISTRY_API_KEY=
+SCHEMA_REGISTRY_API_SECRET=
+SCHEMA_REGISTRY_URL=
 TABLEFLOW_API_KEY=
 TABLEFLOW_API_SECRET=
-CLOUD_API_KEY=
-CLOUD_API_SECRET=
-START_TIME=
-END_TIME=
 ```
+
+> **Note:** _The `QUERY_START_TIME` and `QUERY_END_TIME` environment variables should be in the format `YYYY-MM-DDTHH:MM:SS`, for example, `2025-09-01T00:00:00`._
 
 ### **2.1 Flink Client**
 To run a specific test, use one of the following commands:
@@ -198,7 +200,8 @@ To run a specific test, use one of the following commands:
 
 Unit Test|Command
 -|-
-Get the Topic Bytes|`pytest -s tests/test_metrics_client.py::test_get_topic_bytes
+Get the Topic Total Bytes|`pytest -s tests/test_metrics_client.py::test_get_topic_total_bytes`
+Get the Topic Total Records|`pytest -s tests/test_metrics_client.py::test_get_topic_total_records`
 
 Otherwise, to run all the tests, use the following command:
 ```shell

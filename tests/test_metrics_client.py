@@ -82,13 +82,13 @@ def test_get_topic_total_records():
         logger.error("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, query_result)
 
 
-def test_get_topic_min_max_daily_total_bytes():
-    """Test the get_topic_min_max_daily_total() function for getting the min and max daily total bytes."""
+def test_get_topic_daily_aggregated_totals_bytes():
+    """Test the get_topic_daily_aggregated_totals() function for getting the daily aggregated totals bytes."""
 
     # Instantiate the MetricsClient class.
     metrics_client = MetricsClient(metrics_config)
 
-    http_status_code, error_message, query_result = metrics_client.get_topic_min_max_daily_total(KafkaMetric.RECEIVED_BYTES, kafka_cluster_id, kafka_topic_name)
+    http_status_code, error_message, query_result = metrics_client.get_topic_daily_aggregated_totals(KafkaMetric.RECEIVED_BYTES, kafka_cluster_id, kafka_topic_name)
  
     try:
         logger.info("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, query_result)
@@ -98,13 +98,13 @@ def test_get_topic_min_max_daily_total_bytes():
         logger.error("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, query_result)
     
 
-def test_get_topic_min_max_daily_total_records():
-    """Test the get_topic_min_max_daily_total() function for getting the min and max daily total records."""
+def test_get_topic_daily_aggregated_totals_records():
+    """Test the get_topic_daily_aggregated_totals() function for getting the daily aggregated totals records."""
 
     # Instantiate the MetricsClient class.
     metrics_client = MetricsClient(metrics_config)
 
-    http_status_code, error_message, query_result = metrics_client.get_topic_min_max_daily_total(KafkaMetric.RECEIVED_RECORDS, kafka_cluster_id, kafka_topic_name)
+    http_status_code, error_message, query_result = metrics_client.get_topic_daily_aggregated_totals(KafkaMetric.RECEIVED_RECORDS, kafka_cluster_id, kafka_topic_name)
  
     try:
         logger.info("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, query_result)

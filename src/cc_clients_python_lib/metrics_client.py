@@ -112,8 +112,8 @@ class MetricsClient():
         except Exception as e:
             return HttpStatus.BAD_REQUEST, f"Fail to query the Metrics API for topic {topic_name} because {e}.  The error details are: {response.json() if response.content else {}}", None
 
-    def get_topic_min_max_daily_total(self, kafka_metric: KafkaMetric, kafka_cluster_id: str, topic_name: str) -> Tuple[int, str, Dict | None]:
-        """This function retrieves the Kafka Metric Min and Max for a given Kafka topic within a rolling window of the last 7 days.
+    def get_topic_daily_aggregated_totals(self, kafka_metric: KafkaMetric, kafka_cluster_id: str, topic_name: str) -> Tuple[int, str, Dict | None]:
+        """This function retrieves the Kafka Metric Daily Aggregated Totals for a given Kafka topic within a rolling window of the last 7 days.
 
         Args:
             kafka_metric (KafkaMetric): The Kafka metric to query (e.g., RECEIVED_BYTES, RECEIVED_RECORDS).
@@ -181,7 +181,9 @@ class MetricsClient():
                 return HttpStatus.OK, "", {
                     'metric': kafka_metric.value,
                     'min_total': min(daily_totals) if daily_totals else 0,
-                    'max_total': max(daily_totals) if daily_totals else 0
+                    'avg_total': sum(daily_totals) / len(daily_totals) if daily_totals else 0,
+                    'max_total': max(daily_totals) if daily_totals else 0,
+                    'sum_total': sum(daily_totals) if daily_totals else 0
                 }
             except requests.exceptions.RequestException as e:
                 return response.status_code, f"Metrics API Request failed for topic {topic_name} because {e}.  The error details are: {response.json() if response.content else {}}", None

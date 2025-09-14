@@ -79,6 +79,11 @@ The **Metrics Client** provides the following methods:
     - Metric Types:
         - `RECEIVED_BYTES`
         - `RECEIVED_RECORDS`
+- `get_topic_min_max_daily_total`
+    > _**Note:**  "The `get_topic_min_max_daily_total` method can be used to get the min and max daily total bytes or min and max daily total records for a Kafka Topic within a rolling window of the last 7 days.  It requires an additional parameter to specify the metric type."_
+    - Metric Types:
+        - `RECEIVED_BYTES`
+        - `RECEIVED_RECORDS`
 
 ## **2.0 Unit Tests**
 The library includes unit tests for each client. The tests are located in the `tests` directory.  To use them, you must clone the repo locally:
@@ -95,7 +100,7 @@ git clone https://github.com/j3-signalroom/cc-clients-python_lib.git
 
 Then within the `tests` directory, create the `.env` file and add the following environment variables, filling them with your Confluent Cloud credentials and other required values:
 
-```ini
+```properties
 BOOTSTRAP_SERVER_CLOUD_PROVIDER=
 BOOTSTRAP_SERVER_CLOUD_REGION=
 BOOTSTRAP_SERVER_ID=
@@ -205,6 +210,8 @@ Unit Test|Command
 -|-
 Get the Topic Total Bytes|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_total_bytes`
 Get the Topic Total Records|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_total_records`
+Get the Topic Min and Max Daily Total Bytes|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_min_max_daily_total_bytes`
+Get the Topic Min and Max Daily Total Records|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_min_max_daily_total_records`
 
 Otherwise, to run all the tests, use the following command:
 ```shell

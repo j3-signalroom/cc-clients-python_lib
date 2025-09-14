@@ -79,8 +79,8 @@ The **Metrics Client** provides the following methods:
     - Metric Types:
         - `RECEIVED_BYTES`
         - `RECEIVED_RECORDS`
-- `get_topic_min_max_daily_total`
-    > _**Note:**  "The `get_topic_min_max_daily_total` method can be used to get the min and max daily total bytes or min and max daily total records for a Kafka Topic within a rolling window of the last 7 days.  It requires an additional parameter to specify the metric type."_
+- `get_topic_daily_aggregated_totals`
+    > _**Note:**  "The `get_topic_daily_aggregated_totals` method can be used to get the daily aggregated totals for a Kafka Topic within a rolling window of the last 7 days.  It requires an additional parameter to specify the metric type."_
     - Metric Types:
         - `RECEIVED_BYTES`
         - `RECEIVED_RECORDS`
@@ -210,8 +210,8 @@ Unit Test|Command
 -|-
 Get the Topic Total Bytes|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_total_bytes`
 Get the Topic Total Records|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_total_records`
-Get the Topic Min and Max Daily Total Bytes|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_min_max_daily_total_bytes`
-Get the Topic Min and Max Daily Total Records|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_min_max_daily_total_records`
+Get the Topic Daily Aggregated Totals Bytes|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_daily_aggregated_totals_bytes`
+Get the Topic Daily Aggregated Totals Records|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_daily_aggregated_totals_records`
 
 Otherwise, to run all the tests, use the following command:
 ```shell

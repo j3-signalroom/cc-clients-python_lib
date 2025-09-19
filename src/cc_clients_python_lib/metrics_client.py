@@ -180,6 +180,10 @@ class MetricsClient():
                 
                 return HttpStatus.OK, "", {
                     'metric': kafka_metric.value,
+                    'period_start': iso_start_time,
+                    'period_end': iso_end_time,
+                    'number_of_totals': len(daily_totals),
+                    'daily_total': daily_totals,                    
                     'min_total': min(daily_totals) if daily_totals else 0,
                     'avg_total': sum(daily_totals) / len(daily_totals) if daily_totals else 0,
                     'max_total': max(daily_totals) if daily_totals else 0,

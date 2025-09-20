@@ -254,8 +254,9 @@ uv add cc-clients-python-lib
 * [Tableflow Topics (tableflow/v1)](https://docs.confluent.io/cloud/current/api.html#tag/Tableflow-Topics-(tableflowv1))
 
 ### **4.5 Metrics Resources**
-* [Confluent Cloud Metrics API](https://api.telemetry.confluent.cloud/docs)
 * [Confluent Cloud Metrics API Version 2 Reference](https://api.telemetry.confluent.cloud/docs#tag/Version-2)
+* [Confluent Cloud Metrics API: Metrics Reference](https://api.telemetry.confluent.cloud/docs/descriptors/datasets/cloud)
+* [Confluent Cloud Metrics](https://docs.confluent.io/cloud/current/monitoring/metrics-api.html#ccloud-metrics)
 
 ### **4.6 Other Resources**
 * [How to programmatically pause and resume a Flink statement](.blog/how-to-programmatically-pause-and-resume-a-flink-statement.md)

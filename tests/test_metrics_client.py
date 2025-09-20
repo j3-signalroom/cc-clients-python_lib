@@ -67,9 +67,10 @@ def test_get_topic_total_bytes():
     http_status_code, error_message, query_result = metrics_client.get_topic_total(KafkaMetric.RECEIVED_BYTES, kafka_cluster_id, kafka_topic_name, query_start_time, query_end_time)
 
     try:
+        assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
+
         beautified = json.dumps(query_result, indent=4, sort_keys=True)
         logger.info("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, beautified)
-        assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
     except AssertionError as e:
         logger.error(e)
         logger.error("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, query_result)
@@ -93,9 +94,10 @@ def test_get_topic_total_records():
     http_status_code, error_message, query_result = metrics_client.get_topic_total(KafkaMetric.RECEIVED_RECORDS, kafka_cluster_id, kafka_topic_name, query_start_time, query_end_time)
  
     try:
+        assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
+
         beautified = json.dumps(query_result, indent=4, sort_keys=True)
         logger.info("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, beautified)
-        assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
     except AssertionError as e:
         logger.error(e)
         logger.error("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, query_result)
@@ -110,9 +112,10 @@ def test_get_topic_daily_aggregated_totals_bytes():
     http_status_code, error_message, query_result = metrics_client.get_topic_daily_aggregated_totals(KafkaMetric.RECEIVED_BYTES, kafka_cluster_id, kafka_topic_name)
  
     try:
+        assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
+        
         beautified = json.dumps(query_result, indent=4, sort_keys=True)
         logger.info("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, beautified)
-        assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
     except AssertionError as e:
         logger.error(e)
         logger.error("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, query_result)
@@ -133,3 +136,54 @@ def test_get_topic_daily_aggregated_totals_records():
     except AssertionError as e:
         logger.error(e)
         logger.error("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, query_result)
+
+
+def test_compute_topic_partition_count_based_on_received_bytes_record_count():
+    """Test computing the recommended partition count based on received bytes and record count."""
+                
+    # Instantiate the MetricsClient class.
+    metrics_client = MetricsClient(metrics_config)
+    
+    http_status_code, error_message, bytes_query_result = metrics_client.get_topic_daily_aggregated_totals(KafkaMetric.RECEIVED_BYTES, kafka_cluster_id, kafka_topic_name)
+    
+    try:
+        assert http_status_code == HttpStatus.OK, f"Received Bytes call -HTTP Status Code: {http_status_code}"
+
+        bytes_daily_totals = bytes_query_result.get('daily_total', [])
+    except AssertionError as e:
+        logger.error(e)
+        logger.error("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, bytes_query_result)
+        return
+
+    http_status_code, error_message, record_query_result = metrics_client.get_topic_daily_aggregated_totals(KafkaMetric.RECEIVED_RECORDS, kafka_cluster_id, kafka_topic_name)
+
+    try:
+        assert http_status_code == HttpStatus.OK, f"Received Records call - HTTP Status Code: {http_status_code}"
+
+        required_consumption_throughput_factor = 3
+
+        record_count = record_query_result.get('sum_total', 0)
+
+        records_daily_totals = record_query_result.get('daily_total', [])
+        avg_bytes_daily_totals = []
+
+        for index, record_total in enumerate(records_daily_totals):
+            if record_total:
+                avg_bytes_daily_totals.append(bytes_daily_totals[index]/record_total)
+
+        avg_bytes_per_record = sum(avg_bytes_daily_totals)/len(avg_bytes_daily_totals) if len(avg_bytes_daily_totals) > 0 else 0
+
+        logging.info(f"Confluent Metrics API - For topic {kafka_topic_name}, the average bytes per record is {avg_bytes_per_record:,.2f} bytes/record for a total of {record_count:,.0f} records.")
+
+        # Calculate consumer throughput and required throughput
+        consumer_throughput = avg_bytes_per_record * record_count
+        required_throughput = consumer_throughput * required_consumption_throughput_factor
+    except AssertionError as e:
+        logger.error(e)
+        logger.error("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, record_query_result)
+        return
+
+    # Calculate recommended partition count
+    recommended_partition_count = round(required_throughput / consumer_throughput)
+
+    logger.info(f"Confluent Metrics API - For topic {kafka_topic_name}, the recommended partition count is {recommended_partition_count} partitions to support a required consumption throughput of {required_throughput:,.2f} bytes/second.")

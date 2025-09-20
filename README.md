@@ -163,7 +163,7 @@ To run a specific test, use one of the following commands:
 Unit Test|Command
 -|-
 Delete a Kafka Topic|`uv run pytest -s tests/test_kafka_client.py::test_delete_kafka_topic`
-Checks if a Kafka Topic Exist|`uv run pytest -s tests/test_kafkaclient.py::test_kafka_topic_exist`
+Checks if a Kafka Topic Exist|`uv run pytest -s tests/test_kafka_client.py::test_kafka_topic_exist`
 
 Otherwise, to run all the tests, use the following command:
 ```shell
@@ -212,6 +212,7 @@ Get the Topic Total Bytes|`uv run pytest -s tests/test_metrics_client.py::test_g
 Get the Topic Total Records|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_total_records`
 Get the Topic Daily Aggregated Totals Bytes|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_daily_aggregated_totals_bytes`
 Get the Topic Daily Aggregated Totals Records|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_daily_aggregated_totals_records`
+Compute the Topic Partition Count Based on Received Bytes and Record Count|`uv run pytest -s tests/test_metrics_client.py::test_compute_topic_partition_count_based_on_received_bytes_record_count`
 
 Otherwise, to run all the tests, use the following command:
 ```shell

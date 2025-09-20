@@ -137,7 +137,6 @@ def test_get_topic_daily_aggregated_totals_records():
         logger.error(e)
         logger.error("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, query_result)
 
-
 def test_compute_topic_partition_count_based_on_received_bytes_record_count():
     """Test computing the recommended partition count based on received bytes and record count."""
                 

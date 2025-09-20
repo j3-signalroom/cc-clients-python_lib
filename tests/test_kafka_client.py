@@ -1,3 +1,4 @@
+import json
 import logging
 from dotenv import load_dotenv
 import os
@@ -68,6 +69,23 @@ def test_kafka_topic_exist():
 
     try:
         assert not exist, f"HTTP Status Code: {http_status_code}"
+    except AssertionError as e:
+        logger.info(f"HTTP Status Code: {http_status_code}, and the Error Message: {error_message}")
+        logger.error(e)
+
+
+def test_kafka_get_topic():
+    """Test the kafka_get_topic() function."""
+
+    # Instantiate the KafkaClient class.
+    kafka_client = KafkaClient(config)
+
+    http_status_code, error_message, topic_details = kafka_client.kafka_get_topic(kafka_topic_name)
+
+    try:
+        assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
+        beautified = json.dumps(topic_details, indent=4, sort_keys=True)
+        logger.info("HTTP Status Code: %d, Error Message: %s, Topic Details: %s", http_status_code, error_message, beautified)
     except AssertionError as e:
         logger.info(f"HTTP Status Code: {http_status_code}, and the Error Message: {error_message}")
         logger.error(e)

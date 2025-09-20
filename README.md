@@ -55,6 +55,7 @@ The **Flink Client** provides the following methods:
 The **Kafka Client** provides the following methods:
 - `delete_kafka_topic`
 - `kafka_topic_exist`
+- `kafka_get_topic`
 
 ### **1.3 Schema Registry Client**
 The **Schema Registry Client** provides the following methods:
@@ -164,6 +165,7 @@ Unit Test|Command
 -|-
 Delete a Kafka Topic|`uv run pytest -s tests/test_kafka_client.py::test_delete_kafka_topic`
 Checks if a Kafka Topic Exist|`uv run pytest -s tests/test_kafka_client.py::test_kafka_topic_exist`
+Get Kafka Topic Details|`uv run pytest -s tests/test_kafka_client.py::test_kafka_get_topic`
 
 Otherwise, to run all the tests, use the following command:
 ```shell

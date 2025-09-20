@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Dict, Tuple
 import requests
 import time
 from requests.auth import HTTPBasicAuth
@@ -101,4 +101,26 @@ class KafkaClient():
             return response.status_code, response.json(), True
         except requests.exceptions.RequestException as e:
             return response.status_code, f"Fail to determine if the Kafka topic exist because {e} and the response returned was {response.text}", False
+        
+    def kafka_get_topic(self, kafka_topic_name: str) -> Tuple[int, str, Dict]:
+        """This function submits a RESTful API call to get a Kafka topic.
+
+        Arg(s):
+            kafka_topic_name (str):  The Kafka topic name.
+
+        Returns:
+            int:    HTTP Status Code.
+            str:    HTTP Error, if applicable.
+            Dict:   The Kafka topic details if found, empty dict otherwise.
+        """
+        # Send a GET request to get the Kafka topic.
+        response = requests.get(f"{self.kafka_base_url}topics/{kafka_topic_name}", auth=HTTPBasicAuth(self.kafka_api_key, self.kafka_api_secret))
+
+        try:
+            # Raise HTTPError, if occurred.
+            response.raise_for_status()
+
+            return response.status_code, "", response.json()
+        except requests.exceptions.RequestException as e:
+            return response.status_code, f"Fail to determine if the Kafka topic exist because {e} and the response returned was {response.text}", None
     

@@ -18,6 +18,8 @@ The Confluent Cloud Clients Python Library provides a set of clients for interac
     * [**1.3 Schema Registry Client**](#13-schema-registry-client)
     * [**1.4 Tableflow Client**](#14-tableflow-client)
     * [**1.5 Metrics Client**](#15-metrics-client)
+        + [**1.5.1 Get Topic Totals**](#151-get-topic-totals)
+        + [**1.5.2 Is Topic Partition Hot**](#152-is-topic-partition-hot)
 - [**2.0 Unit Tests**](#20-unit-tests)
     * [**2.1 Flink Client**](#21-flink-client)
     * [**2.2 Kafka Client**](#22-kafka-client)
@@ -74,18 +76,27 @@ The **Tableflow Client** provides the following methods:
 - `get_tableflow_topic_table_path`
 
 ### **1.5 Metrics Client**
+
+#### **1.5.1 Get Topic Totals**
 The **Metrics Client** provides the following methods:
 - `get_topic_total`    
 - `get_topic_daily_aggregated_totals`
 
-
-The `get_topic_total` and `get_topic_daily_aggregated_totals` methods require an additional parameter to specify the metric type:
 Metric Type|Description
 -|-
 `RECEIVED_BYTES`|The delta count of bytes of the customer's data received from the network. Each sample is the number of bytes received since the previous data sample. The count is sampled every 60 seconds.
 `RECEIVED_RECORDS`|The delta count of records of the customer's data received from the network. Each sample is the number of records received since the previous data sample. The count is sampled every 60 seconds.
 `SENT_BYTES`|The delta count of bytes of the customer's data sent to the network. Each sample is the number of bytes sent since the previous data sample. The count is sampled every 60 seconds.
 `SENT_RECORDS`|The delta count of records of the customer's data sent to the network. Each sample is the number of records sent since the previous data sample. The count is sampled every 60 seconds.
+
+#### **1.5.2 Is Topic Partition Hot**
+The **Metrics Client** provides the following methods:
+- `is_topic_partition_hot`
+
+Metric Type|Description
+-|-
+`INGRESS`|An indicator of the presence of a hot partition caused by ingress throughput. The value is 1.0 when a hot partition is detected, and empty when there is no hot partition detected
+`EGRESS`|An indicator of the presence of a hot partition caused by egress throughput. The value is 1.0 when a hot partition is detected, and empty when there is no hot partition detected
 
 ## **2.0 Unit Tests**
 The library includes unit tests for each client. The tests are located in the `tests` directory.  To use them, you must clone the repo locally:
@@ -221,7 +232,8 @@ Get the Topic Sent Total Records|`uv run pytest -s tests/test_metrics_client.py:
 Get the Topic Sent Daily Aggregated Totals Bytes|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_sent_daily_aggregated_totals_bytes`
 Get the Topic Sent Daily Aggregated Totals Records|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_sent_daily_aggregated_totals_records`
 Compute the Topic Partition Count Based on Sent Bytes and Record Count|`uv run pytest -s tests/test_metrics_client.py::test_compute_topic_partition_count_based_on_sent_bytes_record_count`
-
+Check if a Topic Partition is Hot Based on Ingress|`uv run pytest -s tests/test_metrics_client.py::test_is_topic_partition_hot_by_ingress_throughput`
+Check if a Topic Partition is Hot Based on Egress|`uv run pytest -s tests/test_metrics_client.py::test_is_topic_partition_hot_by_egress_throughput`
 
 Otherwise, to run all the tests, use the following command:
 ```shell

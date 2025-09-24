@@ -25,6 +25,10 @@ METRICS_CONFIG = {
 class KafkaMetric(StrEnum):
     RECEIVED_BYTES = "io.confluent.kafka.server/received_bytes"
     RECEIVED_RECORDS = "io.confluent.kafka.server/received_records"
+    SENT_BYTES = "io.confluent.kafka.server/sent_bytes"
+    SENT_RECORDS = "io.confluent.kafka.server/sent_records"
+    HOT_PARTITION_INGRESS = "io.confluent.kafka.server/hot_partition_ingress"
+    HOT_PARTITION_EGRESS = "io.confluent.kafka.server/hot_partition_egress"
 
 
 class MetricsClient():

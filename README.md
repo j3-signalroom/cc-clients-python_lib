@@ -75,16 +75,17 @@ The **Tableflow Client** provides the following methods:
 
 ### **1.5 Metrics Client**
 The **Metrics Client** provides the following methods:
-- `get_topic_total`
-    > _**Note:**  "The `get_topic_total` method can be used to get the total bytes or total records for a Kafka Topic.  It requires an additional parameter to specify the metric type."_
-    - Metric Types:
-        - `RECEIVED_BYTES`
-        - `RECEIVED_RECORDS`
+- `get_topic_total`    
 - `get_topic_daily_aggregated_totals`
-    > _**Note:**  "The `get_topic_daily_aggregated_totals` method can be used to get the daily aggregated totals for a Kafka Topic within a rolling window of the last 7 days.  It requires an additional parameter to specify the metric type."_
-    - Metric Types:
-        - `RECEIVED_BYTES`
-        - `RECEIVED_RECORDS`
+
+
+The `get_topic_total` and `get_topic_daily_aggregated_totals` methods require an additional parameter to specify the metric type:
+Metric Type|Description
+-|-
+`RECEIVED_BYTES`|The delta count of bytes of the customer's data received from the network. Each sample is the number of bytes received since the previous data sample. The count is sampled every 60 seconds.
+`RECEIVED_RECORDS`|The delta count of records of the customer's data received from the network. Each sample is the number of records received since the previous data sample. The count is sampled every 60 seconds.
+`SENT_BYTES`|The delta count of bytes of the customer's data sent to the network. Each sample is the number of bytes sent since the previous data sample. The count is sampled every 60 seconds.
+`SENT_RECORDS`|The delta count of records of the customer's data sent to the network. Each sample is the number of records sent since the previous data sample. The count is sampled every 60 seconds.
 
 ## **2.0 Unit Tests**
 The library includes unit tests for each client. The tests are located in the `tests` directory.  To use them, you must clone the repo locally:
@@ -210,11 +211,17 @@ To run a specific test, use one of the following commands:
 
 Unit Test|Command
 -|-
-Get the Topic Total Bytes|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_total_bytes`
-Get the Topic Total Records|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_total_records`
-Get the Topic Daily Aggregated Totals Bytes|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_daily_aggregated_totals_bytes`
-Get the Topic Daily Aggregated Totals Records|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_daily_aggregated_totals_records`
+Get the Topic Received Total Bytes|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_received_total_bytes`
+Get the Topic Received Total Records|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_received_total_records`
+Get the Topic Received Daily Aggregated Totals Bytes|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_received_daily_aggregated_totals_bytes`
+Get the Topic Received Daily Aggregated Totals Records|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_received_daily_aggregated_totals_records`
 Compute the Topic Partition Count Based on Received Bytes and Record Count|`uv run pytest -s tests/test_metrics_client.py::test_compute_topic_partition_count_based_on_received_bytes_record_count`
+Get the Topic Sent Total Bytes|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_sent_total_bytes`
+Get the Topic Sent Total Records|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_sent_total_records`
+Get the Topic Sent Daily Aggregated Totals Bytes|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_sent_daily_aggregated_totals_bytes`
+Get the Topic Sent Daily Aggregated Totals Records|`uv run pytest -s tests/test_metrics_client.py::test_get_topic_sent_daily_aggregated_totals_records`
+Compute the Topic Partition Count Based on Sent Bytes and Record Count|`uv run pytest -s tests/test_metrics_client.py::test_compute_topic_partition_count_based_on_sent_bytes_record_count`
+
 
 Otherwise, to run all the tests, use the following command:
 ```shell

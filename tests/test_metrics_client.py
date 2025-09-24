@@ -6,7 +6,7 @@ import pytest
 from datetime import datetime, timedelta, timezone
 
 from cc_clients_python_lib.http_status import HttpStatus
-from cc_clients_python_lib.metrics_client import MetricsClient, METRICS_CONFIG, KafkaMetric
+from cc_clients_python_lib.metrics_client import MetricsClient, METRICS_CONFIG, KafkaMetric, DataMovementType
 
 
 __copyright__  = "Copyright (c) 2025 Jeffrey Jonathan Jennings"
@@ -328,3 +328,57 @@ def test_compute_topic_partition_count_based_on_sent_bytes_record_count():
     recommended_partition_count = round(required_throughput / consumer_throughput)
 
     logger.info(f"Confluent Metrics API - For topic {kafka_topic_name}, the recommended partition count is {recommended_partition_count} partitions to support a required consumption throughput of {required_throughput:,.2f} bytes/second.")
+
+def test_is_topic_partition_hot_by_ingress_throughput():
+    """Test the is_topic_partition_hot() function for checking if a topic partition is hot
+    by ingress throughput."""
+
+    # Instantiate the MetricsClient class.
+    metrics_client = MetricsClient(metrics_config)
+
+    # Calculate the ISO 8601 formatted start and end times within a rolling window for the last 1 day
+    utc_now = datetime.now(timezone.utc)
+    seven_days_ago = utc_now - timedelta(days=1)
+    iso_start_time = seven_days_ago.strftime('%Y-%m-%dT%H:%M:%S')
+    iso_end_time = utc_now.strftime('%Y-%m-%dT%H:%M:%S')
+
+    query_start_time =  datetime.fromisoformat(iso_start_time.replace('Z', '+00:00'))
+    query_end_time = datetime.fromisoformat(iso_end_time.replace('Z', '+00:00'))
+
+    http_status_code, error_message, is_partition_hot = metrics_client.is_topic_partition_hot(kafka_cluster_id, kafka_topic_name, DataMovementType.INGRESS, query_start_time, query_end_time)
+
+    try:
+        assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
+
+        beautified = json.dumps(is_partition_hot, indent=4, sort_keys=True)
+        logger.info("HTTP Status Code: %d, Error Message: %s, Is Partition Hot: %s", http_status_code, error_message, beautified)
+    except AssertionError as e:
+        logger.error(e)
+        logger.error("HTTP Status Code: %d, Error Message: %s, Is Partition Hot: %s", http_status_code, error_message, is_partition_hot)
+
+def test_is_topic_partition_hot_by_egress_throughput():
+    """Test the is_topic_partition_hot() function for checking if a topic partition is hot
+    by egress throughput."""
+
+    # Instantiate the MetricsClient class.
+    metrics_client = MetricsClient(metrics_config)
+
+    # Calculate the ISO 8601 formatted start and end times within a rolling window for the last 1 day
+    utc_now = datetime.now(timezone.utc)
+    seven_days_ago = utc_now - timedelta(days=1)
+    iso_start_time = seven_days_ago.strftime('%Y-%m-%dT%H:%M:%S')
+    iso_end_time = utc_now.strftime('%Y-%m-%dT%H:%M:%S')
+
+    query_start_time =  datetime.fromisoformat(iso_start_time.replace('Z', '+00:00'))
+    query_end_time = datetime.fromisoformat(iso_end_time.replace('Z', '+00:00'))
+
+    http_status_code, error_message, is_partition_hot = metrics_client.is_topic_partition_hot(kafka_cluster_id, kafka_topic_name, DataMovementType.EGRESS, query_start_time, query_end_time)
+
+    try:
+        assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
+
+        beautified = json.dumps(is_partition_hot, indent=4, sort_keys=True)
+        logger.info("HTTP Status Code: %d, Error Message: %s, Is Partition Hot: %s", http_status_code, error_message, beautified)
+    except AssertionError as e:
+        logger.error(e)
+        logger.error("HTTP Status Code: %d, Error Message: %s, Is Partition Hot: %s", http_status_code, error_message, is_partition_hot)

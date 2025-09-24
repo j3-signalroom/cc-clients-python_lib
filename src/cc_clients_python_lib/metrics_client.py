@@ -30,6 +30,11 @@ class KafkaMetric(StrEnum):
     HOT_PARTITION_INGRESS = "io.confluent.kafka.server/hot_partition_ingress"
     HOT_PARTITION_EGRESS = "io.confluent.kafka.server/hot_partition_egress"
 
+# Data Movement Types
+class DataMovementType(StrEnum):
+    INGRESS = "ingress"
+    EGRESS = "egress"
+
 
 class MetricsClient():
     def __init__(self, metrics_config: Dict):
@@ -192,6 +197,82 @@ class MetricsClient():
                     'avg_total': sum(daily_totals) / len(daily_totals) if daily_totals else 0,
                     'max_total': max(daily_totals) if daily_totals else 0,
                     'sum_total': sum(daily_totals) if daily_totals else 0
+                }
+            except requests.exceptions.RequestException as e:
+                return response.status_code, f"Metrics API Request failed for topic {topic_name} because {e}.  The error details are: {response.json() if response.content else {}}", None
+        except Exception as e:
+            return HttpStatus.BAD_REQUEST, f"Fail to query the Metrics API for topic {topic_name} because {e}.  The error details are: {response.json() if response.content else {}}", None
+
+    def is_topic_partition_hot(self, kafka_cluster_id: str, topic_name: str, data_movement_type: DataMovementType, query_start_time: datetime, query_end_time: datetime) -> Tuple[int, str, bool | None]:
+        """This function checks if a Kafka topic partition is considered "hot" based on the specified
+        data movement type (INGRESS or EGRESS) within a given time range.
+
+        Args:
+            kafka_cluster_id (str): The Kafka cluster ID.
+            topic_name (str): The Kafka topic name.
+            data_movement_type (DataMovementType): The data movement type (INGRESS or EGRESS).
+            query_start_time (datetime): The start time for the query.
+            query_end_time (datetime): The end time for the query.
+            
+        Returns:
+            Tuple[int, str, bool | None]: A tuple containing the HTTP status code, error
+            message (if any), and a boolean indicating whether the partition is hot if successful;
+            otherwise, None.
+        """
+        try:
+            # Convert datetime to ISO format with milliseconds
+            query_start_iso = query_start_time.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+            query_end_iso = query_end_time.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+
+            # Query for Kafka Metric Total
+            query_data = {
+                "aggregations": [
+                    {
+                        "metric": KafkaMetric.HOT_PARTITION_INGRESS.value if data_movement_type == DataMovementType.INGRESS else KafkaMetric.HOT_PARTITION_EGRESS.value
+                    }
+                ],
+                "filter": {
+                    "op": "AND",
+                    "filters": [
+                        {
+                            "field": "metric.topic", 
+                            "op": "EQ", 
+                            "value": topic_name
+                        },
+                        {
+                            "field": "resource.kafka.id", 
+                            "op": "EQ", 
+                            "value": kafka_cluster_id
+                        }
+                    ],
+                },
+                "granularity": "PT1H",
+                "group_by": [
+                    "metric.topic"
+                ],
+                "intervals": [
+                    f"{query_start_iso}/{query_end_iso}"
+                ]
+            }
+            
+            response = requests.post(url=f"{self.metrics_base_url}/query",
+                                     auth=HTTPBasicAuth(self.confluent_cloud_api_key, self.confluent_cloud_api_secret),
+                                     json=query_data,
+                                     timeout=30)
+            
+            try:
+                # Raise HTTPError, if occurred.
+                response.raise_for_status()
+
+                data = response.json()
+
+                is_partition_hot = True if data.get("data") else False
+
+                return HttpStatus.OK, "", {
+                    'metric': KafkaMetric.HOT_PARTITION_INGRESS.value if data_movement_type == DataMovementType.INGRESS else KafkaMetric.HOT_PARTITION_EGRESS.value,
+                    'is_partition_hot': is_partition_hot,
+                    'period_start': query_start_time.isoformat(),
+                    'period_end': query_end_time.isoformat()
                 }
             except requests.exceptions.RequestException as e:
                 return response.status_code, f"Metrics API Request failed for topic {topic_name} because {e}.  The error details are: {response.json() if response.content else {}}", None

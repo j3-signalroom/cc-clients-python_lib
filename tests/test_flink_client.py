@@ -4,7 +4,7 @@ import os
 import pytest
 
 from cc_clients_python_lib.flink_client import FlinkClient, FLINK_CONFIG, StatementPhase
-from cc_clients_python_lib.kafka_client import KAFKA_CONFIG
+from cc_clients_python_lib.kafka_topic_client import KAFKA_CONFIG
 from cc_clients_python_lib.schema_registry_client import SCHEMA_REGISTRY_CONFIG
 from cc_clients_python_lib.http_status import HttpStatus
 

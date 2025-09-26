@@ -5,6 +5,7 @@ import requests
 from requests.auth import HTTPBasicAuth
 
 from cc_clients_python_lib.http_status import HttpStatus
+from cc_clients_python_lib.constants import DEFAULT_REQUEST_TIMEOUT_IN_SECONDS
 
 
 __copyright__  = "Copyright (c) 2025 Jeffrey Jonathan Jennings"
@@ -42,7 +43,13 @@ class MetricsClient():
         self.confluent_cloud_api_secret = metrics_config[METRICS_CONFIG["confluent_cloud_api_secret"]]
         self.metrics_base_url = "https://api.telemetry.confluent.cloud/v2/metrics/cloud"
 
-    def get_topic_total(self, kafka_metric: KafkaMetric, kafka_cluster_id: str, topic_name: str, query_start_time: datetime, query_end_time: datetime) -> Tuple[int, str, Dict | None, Dict | None]:
+    def get_topic_total(self, 
+                        kafka_metric: KafkaMetric, 
+                        kafka_cluster_id: str, 
+                        topic_name: str, 
+                        query_start_time: datetime, 
+                        query_end_time: datetime, 
+                        timeout: int = DEFAULT_REQUEST_TIMEOUT_IN_SECONDS) -> Tuple[int, str, Dict | None, Dict | None]:
         """This function retrieves the Kafka Metric Total for a given Kafka topic within a specified time range.
 
         Args:
@@ -51,6 +58,7 @@ class MetricsClient():
             topic_name (str): The Kafka topic name.
             query_start_time (datetime): The start time for the query.
             query_end_time (datetime): The end time for the query.
+            timeout (int, optional): The request timeout in seconds. Defaults to DEFAULT_REQUEST_TIMEOUT_IN_SECONDS.
             
         Returns:
             Tuple[int, str, Dict | None, Dict | None]: A tuple containing the HTTP status code, error
@@ -97,7 +105,7 @@ class MetricsClient():
             response = requests.post(url=f"{self.metrics_base_url}/query",
                                      auth=HTTPBasicAuth(self.confluent_cloud_api_key, self.confluent_cloud_api_secret),
                                      json=query_data,
-                                     timeout=30)
+                                     timeout=timeout)
             
             # Extract rate limit information from response headers
             headers = dict(response.headers) if response.headers else None
@@ -131,14 +139,19 @@ class MetricsClient():
         except Exception as e:
             return HttpStatus.BAD_REQUEST, f"Fail to query the Metrics API for topic {topic_name} because {e}.  The error details are: {response.json() if response.content else {}}", None, None
 
-    def get_topic_daily_aggregated_totals(self, kafka_metric: KafkaMetric, kafka_cluster_id: str, topic_name: str) -> Tuple[int, str, Dict | None, Dict | None]:
+    def get_topic_daily_aggregated_totals(self, 
+                                          kafka_metric: KafkaMetric, 
+                                          kafka_cluster_id: str, 
+                                          topic_name: str,
+                                          timeout: int = DEFAULT_REQUEST_TIMEOUT_IN_SECONDS) -> Tuple[int, str, Dict | None, Dict | None]:
         """This function retrieves the Kafka Metric Daily Aggregated Totals for a given Kafka topic within a rolling window of the last 7 days.
 
         Args:
             kafka_metric (KafkaMetric): The Kafka metric to query (e.g., RECEIVED_BYTES, RECEIVED_RECORDS).
             kafka_cluster_id (str): The Kafka cluster ID.
             topic_name (str): The Kafka topic name.
-            
+            timeout (int, optional): The request timeout in seconds. Defaults to DEFAULT_REQUEST_TIMEOUT_IN_SECONDS.
+
         Returns:
             Tuple[int, str, Dict | None, Dict | None]: A tuple containing the HTTP status code, error
             message (if any), a dictionary with rate limit information, and a dictionary with aggregate
@@ -185,7 +198,7 @@ class MetricsClient():
             response = requests.post(url=f"{self.metrics_base_url}/query",
                                      auth=HTTPBasicAuth(self.confluent_cloud_api_key, self.confluent_cloud_api_secret),
                                      json=query_data,
-                                     timeout=30)
+                                     timeout=timeout)
             
             # Extract rate limit information from response headers
             headers = dict(response.headers) if response.headers else None
@@ -224,7 +237,13 @@ class MetricsClient():
         except Exception as e:
             return HttpStatus.BAD_REQUEST, f"Fail to query the Metrics API for topic {topic_name} because {e}.  The error details are: {response.json() if response.content else {}}", None, None
 
-    def is_topic_partition_hot(self, kafka_cluster_id: str, topic_name: str, data_movement_type: DataMovementType, query_start_time: datetime, query_end_time: datetime) -> Tuple[int, str, bool | None, Dict | None]:
+    def is_topic_partition_hot(self, 
+                               kafka_cluster_id: str, 
+                               topic_name: str, 
+                               data_movement_type: DataMovementType, 
+                               query_start_time: datetime, 
+                               query_end_time: datetime, 
+                               timeout: int = DEFAULT_REQUEST_TIMEOUT_IN_SECONDS) -> Tuple[int, str, bool | None, Dict | None]:
         """This function checks if a Kafka topic partition is considered "hot" based on the specified
         data movement type (INGRESS or EGRESS) within a given time range.
 
@@ -234,6 +253,7 @@ class MetricsClient():
             data_movement_type (DataMovementType): The data movement type (INGRESS or EGRESS).
             query_start_time (datetime): The start time for the query.
             query_end_time (datetime): The end time for the query.
+            timeout (int, optional): The request timeout in seconds. Defaults to DEFAULT_REQUEST_TIMEOUT_IN_SECONDS.
             
         Returns:
             Tuple[int, str, bool | None, Dict | None]: A tuple containing the HTTP status code, error
@@ -279,7 +299,7 @@ class MetricsClient():
             response = requests.post(url=f"{self.metrics_base_url}/query",
                                      auth=HTTPBasicAuth(self.confluent_cloud_api_key, self.confluent_cloud_api_secret),
                                      json=query_data,
-                                     timeout=30)
+                                     timeout=timeout)
             
             # Extract rate limit information from response headers
             headers = dict(response.headers) if response.headers else None

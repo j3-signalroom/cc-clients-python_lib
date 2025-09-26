@@ -42,7 +42,7 @@ class MetricsClient():
         self.confluent_cloud_api_secret = metrics_config[METRICS_CONFIG["confluent_cloud_api_secret"]]
         self.metrics_base_url = "https://api.telemetry.confluent.cloud/v2/metrics/cloud"
 
-    def get_topic_total(self, kafka_metric: KafkaMetric, kafka_cluster_id: str, topic_name: str, query_start_time: datetime, query_end_time: datetime) -> Tuple[int, str, Dict | None]:
+    def get_topic_total(self, kafka_metric: KafkaMetric, kafka_cluster_id: str, topic_name: str, query_start_time: datetime, query_end_time: datetime) -> Tuple[int, str, Dict | None, Dict | None]:
         """This function retrieves the Kafka Metric Total for a given Kafka topic within a specified time range.
 
         Args:
@@ -53,9 +53,9 @@ class MetricsClient():
             query_end_time (datetime): The end time for the query.
             
         Returns:
-            Tuple[int, str, Dict | None]: A tuple containing the HTTP status code, error
-            message (if any), and a dictionary with the specified total, and period start and end 
-            times if successful; otherwise, None.
+            Tuple[int, str, Dict | None, Dict | None]: A tuple containing the HTTP status code, error
+            message (if any), a dictionary with rate limit information, and a dictionary with the specified total,
+            and period start and end times if successful; otherwise, None.
         """
         try:
             # Convert datetime to ISO format with milliseconds
@@ -99,6 +99,16 @@ class MetricsClient():
                                      json=query_data,
                                      timeout=30)
             
+            # Extract rate limit information from response headers
+            headers = dict(response.headers) if response.headers else None
+            rate_limits = {}
+            if headers and "ratelimit-remaining" in headers:
+                rate_limits["remaining_count"] = int(headers["ratelimit-remaining"])
+            if headers and "ratelimit-limit" in headers:
+                rate_limits["limit_count"] = int(headers["ratelimit-limit"])
+            if headers and "ratelimit-reset" in headers:
+                rate_limits["reset_in_seconds"] = int(headers["ratelimit-reset"])
+
             try:
                 # Raise HTTPError, if occurred.
                 response.raise_for_status()
@@ -110,18 +120,18 @@ class MetricsClient():
                 for result in data.get("data", []):
                     total += result.get("value", 0)
 
-                return HttpStatus.OK, "", {
+                return HttpStatus.OK, "", rate_limits, {
                     'metric': kafka_metric.value,
                     'total': total,
                     'period_start': query_start_time.isoformat(),
                     'period_end': query_end_time.isoformat()
                 }
             except requests.exceptions.RequestException as e:
-                return response.status_code, f"Metrics API Request failed for topic {topic_name} because {e}.  The error details are: {response.json() if response.content else {}}", None
+                return response.status_code, f"Metrics API Request failed for topic {topic_name} because {e}.  The error details are: {response.json() if response.content else {}}", rate_limits, None
         except Exception as e:
-            return HttpStatus.BAD_REQUEST, f"Fail to query the Metrics API for topic {topic_name} because {e}.  The error details are: {response.json() if response.content else {}}", None
+            return HttpStatus.BAD_REQUEST, f"Fail to query the Metrics API for topic {topic_name} because {e}.  The error details are: {response.json() if response.content else {}}", None, None
 
-    def get_topic_daily_aggregated_totals(self, kafka_metric: KafkaMetric, kafka_cluster_id: str, topic_name: str) -> Tuple[int, str, Dict | None]:
+    def get_topic_daily_aggregated_totals(self, kafka_metric: KafkaMetric, kafka_cluster_id: str, topic_name: str) -> Tuple[int, str, Dict | None, Dict | None]:
         """This function retrieves the Kafka Metric Daily Aggregated Totals for a given Kafka topic within a rolling window of the last 7 days.
 
         Args:
@@ -130,8 +140,9 @@ class MetricsClient():
             topic_name (str): The Kafka topic name.
             
         Returns:
-            Tuple[int, str, Dict | None]: A tuple containing the HTTP status code, error
-            message (if any), and a dictionary with the specified max daily total if successful; otherwise, None.
+            Tuple[int, str, Dict | None, Dict | None]: A tuple containing the HTTP status code, error
+            message (if any), a dictionary with rate limit information, and a dictionary with aggregate
+            the specified max daily total if successful; otherwise, None.
         """
         try:
             # Calculate the ISO 8601 formatted start and end times within a rolling window for the last 7 days
@@ -176,6 +187,16 @@ class MetricsClient():
                                      json=query_data,
                                      timeout=30)
             
+            # Extract rate limit information from response headers
+            headers = dict(response.headers) if response.headers else None
+            rate_limits = {}
+            if headers and "ratelimit-remaining" in headers:
+                rate_limits["remaining_count"] = int(headers["ratelimit-remaining"])
+            if headers and "ratelimit-limit" in headers:
+                rate_limits["limit_count"] = int(headers["ratelimit-limit"])
+            if headers and "ratelimit-reset" in headers:
+                rate_limits["reset_in_seconds"] = int(headers["ratelimit-reset"])
+
             try:
                 # Raise HTTPError, if occurred.
                 response.raise_for_status()
@@ -187,7 +208,7 @@ class MetricsClient():
                 for result in data.get("data", []):
                     daily_totals.append(result.get("value", 0))
                 
-                return HttpStatus.OK, "", {
+                return HttpStatus.OK, "", rate_limits, {
                     'metric': kafka_metric.value,
                     'period_start': iso_start_time,
                     'period_end': iso_end_time,
@@ -199,11 +220,11 @@ class MetricsClient():
                     'sum_total': sum(daily_totals) if daily_totals else 0
                 }
             except requests.exceptions.RequestException as e:
-                return response.status_code, f"Metrics API Request failed for topic {topic_name} because {e}.  The error details are: {response.json() if response.content else {}}", None
+                return response.status_code, f"Metrics API Request failed for topic {topic_name} because {e}.  The error details are: {response.json() if response.content else {}}", rate_limits, None
         except Exception as e:
-            return HttpStatus.BAD_REQUEST, f"Fail to query the Metrics API for topic {topic_name} because {e}.  The error details are: {response.json() if response.content else {}}", None
+            return HttpStatus.BAD_REQUEST, f"Fail to query the Metrics API for topic {topic_name} because {e}.  The error details are: {response.json() if response.content else {}}", None, None
 
-    def is_topic_partition_hot(self, kafka_cluster_id: str, topic_name: str, data_movement_type: DataMovementType, query_start_time: datetime, query_end_time: datetime) -> Tuple[int, str, bool | None]:
+    def is_topic_partition_hot(self, kafka_cluster_id: str, topic_name: str, data_movement_type: DataMovementType, query_start_time: datetime, query_end_time: datetime) -> Tuple[int, str, bool | None, Dict | None]:
         """This function checks if a Kafka topic partition is considered "hot" based on the specified
         data movement type (INGRESS or EGRESS) within a given time range.
 
@@ -215,9 +236,9 @@ class MetricsClient():
             query_end_time (datetime): The end time for the query.
             
         Returns:
-            Tuple[int, str, bool | None]: A tuple containing the HTTP status code, error
-            message (if any), and a boolean indicating whether the partition is hot if successful;
-            otherwise, None.
+            Tuple[int, str, bool | None, Dict | None]: A tuple containing the HTTP status code, error
+            message (if any), a dictionary with rate limit information, and a boolean indicating whether
+            the partition is hot if successful; otherwise, None.
         """
         try:
             # Convert datetime to ISO format with milliseconds
@@ -260,6 +281,16 @@ class MetricsClient():
                                      json=query_data,
                                      timeout=30)
             
+            # Extract rate limit information from response headers
+            headers = dict(response.headers) if response.headers else None
+            rate_limits = {}
+            if headers and "ratelimit-remaining" in headers:
+                rate_limits["remaining_count"] = int(headers["ratelimit-remaining"])
+            if headers and "ratelimit-limit" in headers:
+                rate_limits["limit_count"] = int(headers["ratelimit-limit"])
+            if headers and "ratelimit-reset" in headers:
+                rate_limits["reset_in_seconds"] = int(headers["ratelimit-reset"])
+
             try:
                 # Raise HTTPError, if occurred.
                 response.raise_for_status()
@@ -268,13 +299,13 @@ class MetricsClient():
 
                 is_partition_hot = True if data.get("data") else False
 
-                return HttpStatus.OK, "", {
+                return HttpStatus.OK, "", rate_limits, {
                     'metric': KafkaMetric.HOT_PARTITION_INGRESS.value if data_movement_type == DataMovementType.INGRESS else KafkaMetric.HOT_PARTITION_EGRESS.value,
                     'is_partition_hot': is_partition_hot,
                     'period_start': query_start_time.isoformat(),
                     'period_end': query_end_time.isoformat()
                 }
             except requests.exceptions.RequestException as e:
-                return response.status_code, f"Metrics API Request failed for topic {topic_name} because {e}.  The error details are: {response.json() if response.content else {}}", None
+                return response.status_code, f"Metrics API Request failed for topic {topic_name} because {e}.  The error details are: {response.json() if response.content else {}}", rate_limits, None
         except Exception as e:
-            return HttpStatus.BAD_REQUEST, f"Fail to query the Metrics API for topic {topic_name} because {e}.  The error details are: {response.json() if response.content else {}}", None
+            return HttpStatus.BAD_REQUEST, f"Fail to query the Metrics API for topic {topic_name} because {e}.  The error details are: {response.json() if response.content else {}}", None, None

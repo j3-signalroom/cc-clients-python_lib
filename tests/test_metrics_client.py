@@ -64,16 +64,17 @@ def test_get_topic_received_total_bytes():
     query_start_time =  datetime.fromisoformat(iso_start_time.replace('Z', '+00:00'))
     query_end_time = datetime.fromisoformat(iso_end_time.replace('Z', '+00:00'))
 
-    http_status_code, error_message, query_result = metrics_client.get_topic_total(KafkaMetric.RECEIVED_BYTES, kafka_cluster_id, kafka_topic_name, query_start_time, query_end_time)
+    http_status_code, error_message, rate_limits, query_result = metrics_client.get_topic_total(KafkaMetric.RECEIVED_BYTES, kafka_cluster_id, kafka_topic_name, query_start_time, query_end_time)
 
     try:
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
 
-        beautified = json.dumps(query_result, indent=4, sort_keys=True)
-        logger.info("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, beautified)
+        beautified_rate_limits = json.dumps(rate_limits, indent=4, sort_keys=True)
+        beautified_result = json.dumps(query_result, indent=4, sort_keys=True)
+        logger.info("HTTP Status Code: %d, Error Message: %s, rate_limits: %s, Query Result: %s", http_status_code, error_message, beautified_rate_limits, beautified_result)
     except AssertionError as e:
         logger.error(e)
-        logger.error("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, query_result)
+        logger.error("HTTP Status Code: %d, Error Message: %s, rate_limits: %s, Query Result: %s", http_status_code, error_message, rate_limits, query_result)
     
 
 def test_get_topic_received_total_records():
@@ -91,16 +92,17 @@ def test_get_topic_received_total_records():
     query_start_time =  datetime.fromisoformat(iso_start_time.replace('Z', '+00:00'))
     query_end_time = datetime.fromisoformat(iso_end_time.replace('Z', '+00:00'))
 
-    http_status_code, error_message, query_result = metrics_client.get_topic_total(KafkaMetric.RECEIVED_RECORDS, kafka_cluster_id, kafka_topic_name, query_start_time, query_end_time)
+    http_status_code, error_message, rate_limits, query_result = metrics_client.get_topic_total(KafkaMetric.RECEIVED_RECORDS, kafka_cluster_id, kafka_topic_name, query_start_time, query_end_time)
  
     try:
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
 
-        beautified = json.dumps(query_result, indent=4, sort_keys=True)
-        logger.info("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, beautified)
+        beautified_rate_limits = json.dumps(rate_limits, indent=4, sort_keys=True)
+        beautified_result = json.dumps(query_result, indent=4, sort_keys=True)
+        logger.info("HTTP Status Code: %d, Error Message: %s, rate_limits: %s, Query Result: %s", http_status_code, error_message, beautified_rate_limits, beautified_result)
     except AssertionError as e:
         logger.error(e)
-        logger.error("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, query_result)
+        logger.error("HTTP Status Code: %d, Error Message: %s, rate_limits: %s, Query Result: %s", http_status_code, error_message, rate_limits, query_result)
 
 
 def test_get_topic_received_daily_aggregated_totals_bytes():
@@ -109,17 +111,17 @@ def test_get_topic_received_daily_aggregated_totals_bytes():
     # Instantiate the MetricsClient class.
     metrics_client = MetricsClient(metrics_config)
 
-    http_status_code, error_message, query_result = metrics_client.get_topic_daily_aggregated_totals(KafkaMetric.RECEIVED_BYTES, kafka_cluster_id, kafka_topic_name)
+    http_status_code, error_message, rate_limits, query_result = metrics_client.get_topic_daily_aggregated_totals(KafkaMetric.RECEIVED_BYTES, kafka_cluster_id, kafka_topic_name)
  
     try:
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
         
-        beautified = json.dumps(query_result, indent=4, sort_keys=True)
-        logger.info("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, beautified)
+        beautified_rate_limits = json.dumps(rate_limits, indent=4, sort_keys=True)
+        beautified_result = json.dumps(query_result, indent=4, sort_keys=True)
+        logger.info("HTTP Status Code: %d, Error Message: %s, rate_limits: %s, Query Result: %s", http_status_code, error_message, beautified_rate_limits, beautified_result)
     except AssertionError as e:
         logger.error(e)
-        logger.error("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, query_result)
-    
+        logger.error("HTTP Status Code: %d, Error Message: %s, rate_limits: %s, Query Result: %s", http_status_code, error_message, rate_limits, query_result)
 
 def test_get_topic_received_daily_aggregated_totals_records():
     """Test the get_topic_daily_aggregated_totals() function for getting the daily aggregated totals records."""
@@ -127,15 +129,18 @@ def test_get_topic_received_daily_aggregated_totals_records():
     # Instantiate the MetricsClient class.
     metrics_client = MetricsClient(metrics_config)
 
-    http_status_code, error_message, query_result = metrics_client.get_topic_daily_aggregated_totals(KafkaMetric.RECEIVED_RECORDS, kafka_cluster_id, kafka_topic_name)
+    http_status_code, error_message, rate_limits, query_result = metrics_client.get_topic_daily_aggregated_totals(KafkaMetric.RECEIVED_RECORDS, kafka_cluster_id, kafka_topic_name)
  
     try:
-        beautified = json.dumps(query_result, indent=4, sort_keys=True)
-        logger.info("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, beautified)
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
+
+
+        beautified_rate_limits = json.dumps(rate_limits, indent=4, sort_keys=True)
+        beautified_result = json.dumps(query_result, indent=4, sort_keys=True)
+        logger.info("HTTP Status Code: %d, Error Message: %s, rate_limits: %s, Query Result: %s", http_status_code, error_message, beautified_rate_limits, beautified_result)
     except AssertionError as e:
         logger.error(e)
-        logger.error("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, query_result)
+        logger.error("HTTP Status Code: %d, Error Message: %s, rate_limits: %s, Query Result: %s", http_status_code, error_message, rate_limits, query_result)
 
 
 def test_compute_topic_partition_count_based_on_received_bytes_record_count():
@@ -144,7 +149,7 @@ def test_compute_topic_partition_count_based_on_received_bytes_record_count():
     # Instantiate the MetricsClient class.
     metrics_client = MetricsClient(metrics_config)
     
-    http_status_code, error_message, bytes_query_result = metrics_client.get_topic_daily_aggregated_totals(KafkaMetric.RECEIVED_BYTES, kafka_cluster_id, kafka_topic_name)
+    http_status_code, error_message, _, bytes_query_result = metrics_client.get_topic_daily_aggregated_totals(KafkaMetric.RECEIVED_BYTES, kafka_cluster_id, kafka_topic_name)
     
     try:
         assert http_status_code == HttpStatus.OK, f"Received Bytes call -HTTP Status Code: {http_status_code}"
@@ -155,7 +160,7 @@ def test_compute_topic_partition_count_based_on_received_bytes_record_count():
         logger.error("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, bytes_query_result)
         return
 
-    http_status_code, error_message, record_query_result = metrics_client.get_topic_daily_aggregated_totals(KafkaMetric.RECEIVED_RECORDS, kafka_cluster_id, kafka_topic_name)
+    http_status_code, error_message, _, record_query_result = metrics_client.get_topic_daily_aggregated_totals(KafkaMetric.RECEIVED_RECORDS, kafka_cluster_id, kafka_topic_name)
 
     try:
         assert http_status_code == HttpStatus.OK, f"Received Records call - HTTP Status Code: {http_status_code}"
@@ -204,16 +209,17 @@ def test_get_topic_sent_total_bytes():
     query_start_time =  datetime.fromisoformat(iso_start_time.replace('Z', '+00:00'))
     query_end_time = datetime.fromisoformat(iso_end_time.replace('Z', '+00:00'))
 
-    http_status_code, error_message, query_result = metrics_client.get_topic_total(KafkaMetric.SENT_BYTES, kafka_cluster_id, kafka_topic_name, query_start_time, query_end_time)
+    http_status_code, error_message, rate_limits, query_result = metrics_client.get_topic_total(KafkaMetric.SENT_BYTES, kafka_cluster_id, kafka_topic_name, query_start_time, query_end_time)
 
     try:
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
 
-        beautified = json.dumps(query_result, indent=4, sort_keys=True)
-        logger.info("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, beautified)
+        beautified_rate_limits = json.dumps(rate_limits, indent=4, sort_keys=True)
+        beautified_result = json.dumps(query_result, indent=4, sort_keys=True)
+        logger.info("HTTP Status Code: %d, Error Message: %s, rate_limits: %s, Query Result: %s", http_status_code, error_message, beautified_rate_limits, beautified_result)
     except AssertionError as e:
         logger.error(e)
-        logger.error("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, query_result)
+        logger.error("HTTP Status Code: %d, Error Message: %s, rate_limits: %s, Query Result: %s", http_status_code, error_message, rate_limits, query_result)
     
 
 def test_get_topic_sent_total_records():
@@ -231,16 +237,17 @@ def test_get_topic_sent_total_records():
     query_start_time =  datetime.fromisoformat(iso_start_time.replace('Z', '+00:00'))
     query_end_time = datetime.fromisoformat(iso_end_time.replace('Z', '+00:00'))
 
-    http_status_code, error_message, query_result = metrics_client.get_topic_total(KafkaMetric.SENT_RECORDS, kafka_cluster_id, kafka_topic_name, query_start_time, query_end_time)
+    http_status_code, error_message, rate_limits, query_result = metrics_client.get_topic_total(KafkaMetric.SENT_RECORDS, kafka_cluster_id, kafka_topic_name, query_start_time, query_end_time)
  
     try:
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
 
-        beautified = json.dumps(query_result, indent=4, sort_keys=True)
-        logger.info("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, beautified)
+        beautified_rate_limits = json.dumps(rate_limits, indent=4, sort_keys=True)
+        beautified_result = json.dumps(query_result, indent=4, sort_keys=True)
+        logger.info("HTTP Status Code: %d, Error Message: %s, rate_limits: %s, Query Result: %s", http_status_code, error_message, beautified_rate_limits, beautified_result)
     except AssertionError as e:
         logger.error(e)
-        logger.error("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, query_result)
+        logger.error("HTTP Status Code: %d, Error Message: %s, rate_limits: %s, Query Result: %s", http_status_code, error_message, rate_limits, query_result)
 
 
 def test_get_topic_sent_daily_aggregated_totals_bytes():
@@ -249,16 +256,17 @@ def test_get_topic_sent_daily_aggregated_totals_bytes():
     # Instantiate the MetricsClient class.
     metrics_client = MetricsClient(metrics_config)
 
-    http_status_code, error_message, query_result = metrics_client.get_topic_daily_aggregated_totals(KafkaMetric.SENT_BYTES, kafka_cluster_id, kafka_topic_name)
+    http_status_code, error_message, rate_limits, query_result = metrics_client.get_topic_daily_aggregated_totals(KafkaMetric.SENT_BYTES, kafka_cluster_id, kafka_topic_name)
 
     try:
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
         
-        beautified = json.dumps(query_result, indent=4, sort_keys=True)
-        logger.info("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, beautified)
+        beautified_rate_limits = json.dumps(rate_limits, indent=4, sort_keys=True)
+        beautified_result = json.dumps(query_result, indent=4, sort_keys=True)
+        logger.info("HTTP Status Code: %d, Error Message: %s, rate_limits: %s, Query Result: %s", http_status_code, error_message, beautified_rate_limits, beautified_result)
     except AssertionError as e:
         logger.error(e)
-        logger.error("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, query_result)
+        logger.error("HTTP Status Code: %d, Error Message: %s, rate_limits: %s, Query Result: %s", http_status_code, error_message, rate_limits, query_result)
     
 
 def test_get_topic_sent_daily_aggregated_totals_records():
@@ -267,15 +275,17 @@ def test_get_topic_sent_daily_aggregated_totals_records():
     # Instantiate the MetricsClient class.
     metrics_client = MetricsClient(metrics_config)
 
-    http_status_code, error_message, query_result = metrics_client.get_topic_daily_aggregated_totals(KafkaMetric.SENT_RECORDS, kafka_cluster_id, kafka_topic_name)
+    http_status_code, error_message, rate_limits, query_result = metrics_client.get_topic_daily_aggregated_totals(KafkaMetric.SENT_RECORDS, kafka_cluster_id, kafka_topic_name)
  
     try:
-        beautified = json.dumps(query_result, indent=4, sort_keys=True)
-        logger.info("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, beautified)
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
+
+        beautified_rate_limits = json.dumps(rate_limits, indent=4, sort_keys=True)
+        beautified_result = json.dumps(query_result, indent=4, sort_keys=True)
+        logger.info("HTTP Status Code: %d, Error Message: %s, rate_limits: %s, Query Result: %s", http_status_code, error_message, beautified_rate_limits, beautified_result)
     except AssertionError as e:
         logger.error(e)
-        logger.error("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, query_result)
+        logger.error("HTTP Status Code: %d, Error Message: %s, rate_limits: %s, Query Result: %s", http_status_code, error_message, rate_limits, query_result)
 
 
 def test_compute_topic_partition_count_based_on_sent_bytes_record_count():
@@ -284,7 +294,7 @@ def test_compute_topic_partition_count_based_on_sent_bytes_record_count():
     # Instantiate the MetricsClient class.
     metrics_client = MetricsClient(metrics_config)
 
-    http_status_code, error_message, bytes_query_result = metrics_client.get_topic_daily_aggregated_totals(KafkaMetric.SENT_BYTES, kafka_cluster_id, kafka_topic_name)
+    http_status_code, error_message, _, bytes_query_result = metrics_client.get_topic_daily_aggregated_totals(KafkaMetric.SENT_BYTES, kafka_cluster_id, kafka_topic_name)
 
     
     try:
@@ -296,7 +306,7 @@ def test_compute_topic_partition_count_based_on_sent_bytes_record_count():
         logger.error("HTTP Status Code: %d, Error Message: %s, Query Result: %s", http_status_code, error_message, bytes_query_result)
         return
 
-    http_status_code, error_message, record_query_result = metrics_client.get_topic_daily_aggregated_totals(KafkaMetric.SENT_RECORDS, kafka_cluster_id, kafka_topic_name)
+    http_status_code, error_message, _, record_query_result = metrics_client.get_topic_daily_aggregated_totals(KafkaMetric.SENT_RECORDS, kafka_cluster_id, kafka_topic_name)
 
     try:
         assert http_status_code == HttpStatus.OK, f"Sent Records call - HTTP Status Code: {http_status_code}"
@@ -345,16 +355,17 @@ def test_is_topic_partition_hot_by_ingress_throughput():
     query_start_time =  datetime.fromisoformat(iso_start_time.replace('Z', '+00:00'))
     query_end_time = datetime.fromisoformat(iso_end_time.replace('Z', '+00:00'))
 
-    http_status_code, error_message, is_partition_hot = metrics_client.is_topic_partition_hot(kafka_cluster_id, kafka_topic_name, DataMovementType.INGRESS, query_start_time, query_end_time)
+    http_status_code, error_message, rate_limits, is_partition_hot = metrics_client.is_topic_partition_hot(kafka_cluster_id, kafka_topic_name, DataMovementType.INGRESS, query_start_time, query_end_time)
 
     try:
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
 
+        beautified_rate_limits = json.dumps(rate_limits, indent=4, sort_keys=True)
         beautified = json.dumps(is_partition_hot, indent=4, sort_keys=True)
-        logger.info("HTTP Status Code: %d, Error Message: %s, Is Partition Hot: %s", http_status_code, error_message, beautified)
+        logger.info("HTTP Status Code: %d, Error Message: %s, Rate Limits: %s, Is Partition Hot: %s", http_status_code, error_message, beautified_rate_limits, beautified)
     except AssertionError as e:
         logger.error(e)
-        logger.error("HTTP Status Code: %d, Error Message: %s, Is Partition Hot: %s", http_status_code, error_message, is_partition_hot)
+        logger.error("HTTP Status Code: %d, Error Message: %s, Rate Limits: %s, Is Partition Hot: %s", http_status_code, error_message, rate_limits, is_partition_hot)
 
 def test_is_topic_partition_hot_by_egress_throughput():
     """Test the is_topic_partition_hot() function for checking if a topic partition is hot
@@ -372,13 +383,14 @@ def test_is_topic_partition_hot_by_egress_throughput():
     query_start_time =  datetime.fromisoformat(iso_start_time.replace('Z', '+00:00'))
     query_end_time = datetime.fromisoformat(iso_end_time.replace('Z', '+00:00'))
 
-    http_status_code, error_message, is_partition_hot = metrics_client.is_topic_partition_hot(kafka_cluster_id, kafka_topic_name, DataMovementType.EGRESS, query_start_time, query_end_time)
+    http_status_code, error_message, rate_limits, is_partition_hot = metrics_client.is_topic_partition_hot(kafka_cluster_id, kafka_topic_name, DataMovementType.EGRESS, query_start_time, query_end_time)
 
     try:
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
 
+        beautified_rate_limits = json.dumps(rate_limits, indent=4, sort_keys=True)
         beautified = json.dumps(is_partition_hot, indent=4, sort_keys=True)
-        logger.info("HTTP Status Code: %d, Error Message: %s, Is Partition Hot: %s", http_status_code, error_message, beautified)
+        logger.info("HTTP Status Code: %d, Error Message: %s, Rate Limits: %s, Is Partition Hot: %s", http_status_code, error_message, beautified_rate_limits, beautified)
     except AssertionError as e:
         logger.error(e)
-        logger.error("HTTP Status Code: %d, Error Message: %s, Is Partition Hot: %s", http_status_code, error_message, is_partition_hot)
+        logger.error("HTTP Status Code: %d, Error Message: %s, Rate Limits: %s, Is Partition Hot: %s", http_status_code, error_message, beautified_rate_limits, beautified)

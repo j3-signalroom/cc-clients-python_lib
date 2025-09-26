@@ -23,7 +23,7 @@ KAFKA_CONFIG = {
     "kafka_cluster_id": "kafka_cluster_id"
 }
 
-class KafkaClient():
+class KafkaTopicClient():
     def __init__(self, kafka_config: dict):
         self.bootstrap_server_id = kafka_config[KAFKA_CONFIG["bootstrap_server_id"]]
         self.bootstrap_server_cloud_region = kafka_config[KAFKA_CONFIG["bootstrap_server_cloud_region"]]

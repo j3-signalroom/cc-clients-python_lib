@@ -10,7 +10,7 @@ from requests.auth import HTTPBasicAuth
 from cc_clients_python_lib.cc_openapi_v2_1 import JsonPatchRequestAddReplace, Op
 from cc_clients_python_lib.http_status import HttpStatus
 from cc_clients_python_lib.cc_openapi_v2_1.sql.v1 import Statement, StatementSpec
-from cc_clients_python_lib.kafka_client import KafkaClient
+from cc_clients_python_lib.kafka_topic_client import KafkaTopicClient
 from cc_clients_python_lib.schema_registry_client import SchemaRegistryClient
 
 
@@ -105,7 +105,7 @@ class FlinkClient():
 
         # If the kafka_config is supplied, instantiate the Kafka Client.
         if kafka_config is not None:
-            self.kafka_client = KafkaClient(kafka_config)
+            self.kafka_client = KafkaTopicClient(kafka_config)
 
         # If the sr_config is supplied, instantiate the Schema Registry Client.
         if sr_config is not None:

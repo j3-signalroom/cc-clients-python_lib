@@ -14,7 +14,7 @@ The Confluent Cloud Clients Python Library provides a set of clients for interac
 <!-- toc -->
 - [**1.0 Library Clients**](#10-library-clients)
     * [**1.1 Flink Client**](#11-flink-client)
-    * [**1.2 Kafka Client**](#12-kafka-client)
+    * [**1.2 Kafka Topic Client**](#12-kafka-topic-client)
     * [**1.3 Schema Registry Client**](#13-schema-registry-client)
     * [**1.4 Tableflow Client**](#14-tableflow-client)
     * [**1.5 Metrics Client**](#15-metrics-client)
@@ -22,7 +22,7 @@ The Confluent Cloud Clients Python Library provides a set of clients for interac
         + [**1.5.2 Is Topic Partition Hot**](#152-is-topic-partition-hot)
 - [**2.0 Unit Tests**](#20-unit-tests)
     * [**2.1 Flink Client**](#21-flink-client)
-    * [**2.2 Kafka Client**](#22-kafka-client)
+    * [**2.2 Kafka Topic Client**](#22-kafka-topic-client)
     * [**2.3 Schema Registry Client**](#23-schema-registry-client)
     * [**2.4 Tableflow Client**](#24-tableflow-client)
     * [**2.5 Metrics Client**](#25-metrics-client)
@@ -53,8 +53,8 @@ The **Flink Client** provides the following methods:
 - `update_statement`
 - `update_all_sink_statements`
 
-### **1.2 Kafka Client**
-The **Kafka Client** provides the following methods:
+### **1.2 Kafka Topic Client**
+The **Kafka Topic Client** provides the following methods:
 - `delete_kafka_topic`
 - `kafka_topic_exist`
 - `kafka_get_topic`
@@ -170,18 +170,18 @@ uv run pytest -s tests/test_flink_client.py
 
 > **Note:** _The tests are designed to be run in a specific order.  If you run them out of order, you may encounter errors.  The tests are also designed to be run against a Confluent Cloud environment.  If you run them against a local environment, you may encounter errors._
 
-### **2.2 Kafka Client**
+### **2.2 Kafka Topic Client**
 To run a specific test, use one of the following commands:
 
 Unit Test|Command
 -|-
-Delete a Kafka Topic|`uv run pytest -s tests/test_kafka_client.py::test_delete_kafka_topic`
-Checks if a Kafka Topic Exist|`uv run pytest -s tests/test_kafka_client.py::test_kafka_topic_exist`
-Get Kafka Topic Details|`uv run pytest -s tests/test_kafka_client.py::test_kafka_get_topic`
+Delete a Kafka Topic|`uv run pytest -s tests/test_kafka_topic_client.py::test_delete_kafka_topic`
+Checks if a Kafka Topic Exist|`uv run pytest -s tests/test_kafka_topic_client.py::test_kafka_topic_exist`
+Get Kafka Topic Details|`uv run pytest -s tests/test_kafka_topic_client.py::test_kafka_get_topic`
 
 Otherwise, to run all the tests, use the following command:
 ```shell
-uv run pytest -s tests/test_kafka_client.py
+uv run pytest -s tests/test_kafka_topic_client.py
 ```
 
 > **Note:** _The tests are designed to be run in a specific order.  If you run them out of order, you may encounter errors.  The tests are also designed to be run against a Confluent Cloud environment.  If you run them against a local environment, you may encounter errors._

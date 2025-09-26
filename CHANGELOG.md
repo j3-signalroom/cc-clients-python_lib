@@ -9,6 +9,9 @@ The format is base on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), 
 - Issue [#297](https://github.com/j3-signalroom/cc-clients-lib/issues/297)
 - Issue [#299](https://github.com/j3-signalroom/cc-clients-lib/issues/299)
 
+### Changed
+- Issue [#301](https://github.com/j3-signalroom/cc-clients-lib/issues/301)
+
 ## [0.27.00.000] - 2025-09-24
 ### Added
 - Issue [#295](https://github.com/j3-signalroom/cc-clients-lib/issues/295)

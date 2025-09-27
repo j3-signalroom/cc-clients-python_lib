@@ -181,7 +181,8 @@ class EnvironmentClient():
                 response.raise_for_status()
 
                 # Append the next collection of Resources to the current Resource list.
-                resources.extend(response.json().get("data"))
+                if response.json().get("data") is not None:
+                    resources.extend(response.json().get("data"))
 
                 # Retrieve the page token from the next page URL.
                 next_page_url = str(response.json().get("metadata").get("next"))

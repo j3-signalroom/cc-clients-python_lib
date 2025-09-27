@@ -35,12 +35,13 @@ def load_configurations():
     global environment_config
     environment_config[ENVIRONMENT_CONFIG["confluent_cloud_api_key"]] = os.getenv("CONFLUENT_CLOUD_API_KEY")
     environment_config[ENVIRONMENT_CONFIG["confluent_cloud_api_secret"]] = os.getenv("CONFLUENT_CLOUD_API_SECRET")
-    environment_config[ENVIRONMENT_CONFIG["environment_id"]] = os.getenv("ENVIRONMENT_ID")
 
+    global environment_id
     global kafka_cluster_id
     global principal_id
 
-    # Set the Kafka cluster ID and owner ID.
+    # Set the Environment ID, Kafka cluster ID and owner ID.
+    environment_id = os.getenv("ENVIRONMENT_ID")
     kafka_cluster_id = os.getenv("KAFKA_CLUSTER_ID")
     principal_id = os.getenv("PRINCIPAL_ID")
 
@@ -120,7 +121,7 @@ def test_get_kafka_cluster_list():
     # Instantiate the EnvironmentClient class.
     environment_client = EnvironmentClient(environment_config=environment_config)
 
-    http_status_code, error_message, kafka_clusters = environment_client.get_kafka_cluster_list()
+    http_status_code, error_message, kafka_clusters = environment_client.get_kafka_cluster_list(environment_id=environment_id)
  
     try:
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"

@@ -17,7 +17,6 @@ __status__     = "dev"
 
 # Environment Config Keys
 ENVIRONMENT_CONFIG = {
-    "environment_id": "environment_id",
     "confluent_cloud_api_key": "confluent_cloud_api_key",
     "confluent_cloud_api_secret": "confluent_cloud_api_secret"
 }
@@ -27,7 +26,6 @@ class EnvironmentClient():
     def __init__(self, environment_config: dict):
         self.confluent_cloud_api_key = str(environment_config[ENVIRONMENT_CONFIG["confluent_cloud_api_key"]])
         self.confluent_cloud_api_secret = str(environment_config[ENVIRONMENT_CONFIG["confluent_cloud_api_secret"]])
-        self.environment_id = environment_config[ENVIRONMENT_CONFIG["environment_id"]]
         self.base_url = "https://api.confluent.cloud"
 
     def create_kafka_api_key(self, kafka_cluster_id: str, principal_id: str) -> Tuple[int, str, Dict]:
@@ -119,17 +117,18 @@ class EnvironmentClient():
             return http_status_code, error_message, environments
 
 
-    def get_kafka_cluster_list(self, page_size: int = DEFAULT_PAGE_SIZE) -> Tuple[int, str, Dict]:
+    def get_kafka_cluster_list(self, environment_id: str, page_size: int = DEFAULT_PAGE_SIZE) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to get a list of Kafka clusters.
         Reference: https://docs.confluent.io/cloud/current/api.html#tag/Clusters-(cmkv2)/operation/listCmkV2Clusters
 
         Arg(s):
-            page_size (int):  The page size.
+            environment_id (str):  The environment ID.
+            page_size (int, Optional):  The page size. Defaults to DEFAULT_PAGE_SIZE.
 
         Return(s):
             Tuple[int, str, Dict]: A tuple of the HTTP status code, the response text, and the Kafka cluster list.
         """
-        return self.__get_resource_list(url=f"{self.base_url}/cmk/v2/clusters?environment={self.environment_id}",
+        return self.__get_resource_list(url=f"{self.base_url}/cmk/v2/clusters?environment={environment_id}",
                                         use_init_param=False,
                                         page_size=page_size)
 

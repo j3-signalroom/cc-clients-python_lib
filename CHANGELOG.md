@@ -11,6 +11,7 @@ The format is base on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), 
 
 ### Changed
 - Issue [#301](https://github.com/j3-signalroom/cc-clients-lib/issues/301)
+- Issue [#303](https://github.com/j3-signalroom/cc-clients-lib/issues/303)
 
 ## [0.27.00.000] - 2025-09-24
 ### Added

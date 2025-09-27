@@ -6,6 +6,7 @@ The Confluent Cloud Clients Python Library provides a set of clients for interac
 + **Schema Registry**
 + **Tableflow**
 + **Metrics**
++ **Environment**
 
 > **Note:** _This library is in active development and is subject to change.  It covers only the methods I have needed so far.  If you need a method that is not covered, please feel free to open an issue or submit a pull request._
 
@@ -20,12 +21,14 @@ The Confluent Cloud Clients Python Library provides a set of clients for interac
     * [**1.5 Metrics Client**](#15-metrics-client)
         + [**1.5.1 Get Topic Totals**](#151-get-topic-totals)
         + [**1.5.2 Is Topic Partition Hot**](#152-is-topic-partition-hot)
+    * [**1.6 Environment Client**](#16-environment-client)
 - [**2.0 Unit Tests**](#20-unit-tests)
     * [**2.1 Flink Client**](#21-flink-client)
     * [**2.2 Kafka Topic Client**](#22-kafka-topic-client)
     * [**2.3 Schema Registry Client**](#23-schema-registry-client)
     * [**2.4 Tableflow Client**](#24-tableflow-client)
     * [**2.5 Metrics Client**](#25-metrics-client)
+    * [**2.6 Environment Client**](#26-environment-client)
 - [**3.0 Installation**](#30-installation)
 + [**4.0 Resources**](#40-resources)
     * [**4.1 Architecture Design Records (ADRs)**](#41-architecture-design-records-adrs)
@@ -97,6 +100,11 @@ Metric Type|Description
 -|-
 `INGRESS`|An indicator of the presence of a hot partition caused by ingress throughput. The value is 1.0 when a hot partition is detected, and empty when there is no hot partition detected
 `EGRESS`|An indicator of the presence of a hot partition caused by egress throughput. The value is 1.0 when a hot partition is detected, and empty when there is no hot partition detected
+
+### **1.6 Environment Client**
+The **Environment Client** provides the following methods:
+- `get_environment_list`
+- `get_kafka_cluster_list`
 
 ## **2.0 Unit Tests**
 The library includes unit tests for each client. The tests are located in the `tests` directory.  To use them, you must clone the repo locally:
@@ -241,6 +249,22 @@ uv run pytest -s tests/test_metrics_client.py
 ```
 
 > **Note:** _The tests are designed to be run in a specific order.  If you run them out of order, you may encounter errors.  The tests are also designed to be run against a Confluent Cloud environment.  If you run them against a local environment, you may encounter errors._
+
+### **2.6 Environment Client**
+To run a specific test, use one of the following commands:
+
+Unit Test|Command
+-|-
+Get list of all the Environments|`uv run pytest -s tests/test_environment_client.py::test_get_environment_list`
+Get list of the all the Kafka clusters|`uv run pytest -s tests/test_environment_client.py::test_get_kafka_cluster_list`
+
+Otherwise, to run all the tests, use the following command:
+```shell
+uv run pytest -s tests/test_environment_client.py
+```
+
+> **Note:** _The tests are designed to be run in a specific order.  If you run them out of order, you may encounter errors.  The tests are also designed to be run against a Confluent Cloud environment.  If you run them against a local environment, you may encounter errors._
+
 
 ## **3.0 Installation**
 Install the Confluent Cloud Clients Python Library using **`pip`**:

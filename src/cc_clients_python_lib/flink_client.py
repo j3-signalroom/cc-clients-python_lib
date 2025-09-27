@@ -12,6 +12,9 @@ from cc_clients_python_lib.http_status import HttpStatus
 from cc_clients_python_lib.cc_openapi_v2_1.sql.v1 import Statement, StatementSpec
 from cc_clients_python_lib.kafka_topic_client import KafkaTopicClient
 from cc_clients_python_lib.schema_registry_client import SchemaRegistryClient
+from cc_clients_python_lib.constants import (DEFAULT_PAGE_SIZE,
+                                             QUERY_PARAMETER_PAGE_SIZE,
+                                             QUERY_PARAMETER_PAGE_TOKEN)
 
 
 __copyright__  = "Copyright (c) 2025 Jeffrey Jonathan Jennings"
@@ -48,13 +51,6 @@ DROP_STAGES = {
     "kafka_topic_drop": "kafka_topic_drop",
     "table_drop": "table_drop"
 }
-
-# Default values.
-DEFAULT_PAGE_SIZE = 10
-
-# Query Parameters.
-QUERY_PARAMETER_PAGE_SIZE = "page_size"
-QUERY_PARAMETER_PAGE_TOKEN = "page_token"
 
 
 class StatementPhase(StrEnum):

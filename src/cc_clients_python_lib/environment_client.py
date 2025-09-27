@@ -128,9 +128,26 @@ class EnvironmentClient():
         Return(s):
             Tuple[int, str, Dict]: A tuple of the HTTP status code, the response text, and the Kafka cluster list.
         """
-        return self.__get_resource_list(url=f"{self.base_url}/cmk/v2/clusters?environment={environment_id}",
-                                        use_init_param=False,
-                                        page_size=page_size)
+        http_status_code, error_message, raw_kafka_clusters = self.__get_resource_list(url=f"{self.base_url}/cmk/v2/clusters?environment={environment_id}",
+                                                                                       use_init_param=False,
+                                                                                       page_size=page_size)
+        if http_status_code != 200:
+            return http_status_code, error_message, None
+        else:
+            kafka_clusters = []
+            for raw_kafka_cluster in raw_kafka_clusters:
+                kafka_cluster = {}
+                kafka_cluster["id"] = raw_kafka_cluster.get("id")
+                kafka_cluster["display_name"] = raw_kafka_cluster.get("spec").get("display_name")
+                kafka_cluster["cloud_provider"] = raw_kafka_cluster.get("spec").get("cloud")
+                kafka_cluster["region_name"] = raw_kafka_cluster.get("spec").get("region")
+                kafka_cluster["environment_id"] = raw_kafka_cluster.get("spec").get("environment").get("id")
+                kafka_cluster["cluster_type_name"] = raw_kafka_cluster.get("spec").get("config").get("kind")
+                kafka_cluster["http_endpoint"] = raw_kafka_cluster.get("spec").get("http_endpoint")
+                kafka_cluster["kafka_bootstrap_endpoint"] = raw_kafka_cluster.get("spec").get("kafka_bootstrap_endpoint").replace("SASL_SSL://", "")
+                kafka_clusters.append(kafka_cluster)
+
+            return http_status_code, error_message, kafka_clusters
 
     def __get_resource_list(self, url: str, use_init_param: bool, page_size: int = DEFAULT_PAGE_SIZE) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to get a list of Resources.

@@ -30,6 +30,67 @@ class EnvironmentClient():
         self.environment_id = environment_config[ENVIRONMENT_CONFIG["environment_id"]]
         self.base_url = "https://api.confluent.cloud"
 
+    def create_kafka_api_key(self, kafka_cluster_id: str, principal_id: str) -> Tuple[int, str, Dict]:
+        """This function submits a RESTful API call to create a Kafka API key pair.
+        Reference: https://docs.confluent.io/cloud/current/api.html#tag/API-Keys-(iamv2)/operation/createIamV2ApiKey
+
+        Arg(s):
+            kafka_cluster_id (str):  The Kafka cluster ID.
+            principal_id (str): The principal ID for the Kafka API key.
+
+        Return(s):
+            Tuple[int, str, Dict]: A tuple of the HTTP status code, the error message (if any), and the Kafka API key pair.
+        """
+        payload = {
+            "spec": {
+                "display_name": "Kafka Cluster API Key",
+                "description": "API key for Kafka cluster operations",
+                "owner": {
+                    "id": principal_id
+                },
+                "resource": {
+                    "id": kafka_cluster_id
+                }
+            }
+        }
+
+        response = requests.post(url=f"{self.base_url}/iam/v2/api-keys",
+                                 auth=HTTPBasicAuth(self.confluent_cloud_api_key, self.confluent_cloud_api_secret),
+                                 json=payload)
+        
+        try:
+            # Raise HTTPError, if occurred.
+            response.raise_for_status()
+
+            api_key_pair = {}
+            api_key_pair["key"] = response.json().get("id")
+            api_key_pair["secret"] = response.json().get("spec").get("secret")
+
+            return response.status_code, "", api_key_pair
+        except requests.exceptions.RequestException as e:
+            return response.status_code, f"Fail to create the Kafka API key pair because {e}.  The error details are: {response.json() if response.content else {}}", response.json() if response.content else {}
+
+    def delete_kafka_api_key(self, api_key: str) -> Tuple[int, str]:
+        """This function submits a RESTful API call to delete a Kafka API key pair.
+        Reference: https://docs.confluent.io/cloud/current/api.html#tag/API-Keys-(iamv2)/operation/deleteIamV2ApiKey
+
+        Arg(s):
+            api_key (str):  The Kafka API key.
+
+        Return(s):
+            Tuple[int, str]: A tuple of the HTTP status code, and error message (if any).
+        """
+        response = requests.delete(url=f"{self.base_url}/iam/v2/api-keys/{api_key}",
+                                   auth=HTTPBasicAuth(self.confluent_cloud_api_key, self.confluent_cloud_api_secret))
+        
+        try:
+            # Raise HTTPError, if occurred.
+            response.raise_for_status()
+
+            return response.status_code, ""
+        except requests.exceptions.RequestException as e:
+            return response.status_code, f"Fail to delete the Kafka API key pair because {e}.  The error details are: {response.json() if response.content else {}}"
+        
     def get_environment_list(self, page_size: int = DEFAULT_PAGE_SIZE) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to get a list of environments.
         Reference: https://docs.confluent.io/cloud/current/api.html#tag/Environments-(orgv2)/operation/listOrgV2Environments

@@ -105,6 +105,8 @@ Metric Type|Description
 The **Environment Client** provides the following methods:
 - `get_environment_list`
 - `get_kafka_cluster_list`
+- `create_kafka_api_key`
+- `delete_kafka_api_key`
 
 ## **2.0 Unit Tests**
 The library includes unit tests for each client. The tests are located in the `tests` directory.  To use them, you must clone the repo locally:
@@ -257,6 +259,8 @@ Unit Test|Command
 -|-
 Get list of all the Environments|`uv run pytest -s tests/test_environment_client.py::test_get_environment_list`
 Get list of the all the Kafka clusters|`uv run pytest -s tests/test_environment_client.py::test_get_kafka_cluster_list`
+Create a Kafka API Key|`uv run pytest -s tests/test_environment_client.py::test_create_kafka_api_key`
+Delete a Kafka API Key|`uv run pytest -s tests/test_environment_client.py::test_delete_kafka_api_key`
 
 Otherwise, to run all the tests, use the following command:
 ```shell

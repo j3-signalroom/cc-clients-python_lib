@@ -8,6 +8,7 @@ The format is base on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), 
 ### Added
 - Issue [#297](https://github.com/j3-signalroom/cc-clients-lib/issues/297)
 - Issue [#299](https://github.com/j3-signalroom/cc-clients-lib/issues/299)
+- Issue [#305](https://github.com/j3-signalroom/cc-clients-lib/issues/305)
 
 ### Changed
 - Issue [#301](https://github.com/j3-signalroom/cc-clients-lib/issues/301)

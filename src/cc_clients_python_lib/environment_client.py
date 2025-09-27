@@ -90,8 +90,8 @@ class EnvironmentClient():
             return response.status_code, ""
         except requests.exceptions.RequestException as e:
             return response.status_code, f"Fail to delete the Kafka API key pair because {e}.  The error details are: {response.json() if response.content else {}}"
-        
-    def get_environment_list(self, page_size: int = DEFAULT_PAGE_SIZE) -> Tuple[int, str, Dict]:
+
+    def get_environment_list(self, page_size: int = DEFAULT_PAGE_SIZE) -> Tuple[int, str, Dict | None]:
         """This function submits a RESTful API call to get a list of environments.
         Reference: https://docs.confluent.io/cloud/current/api.html#tag/Environments-(orgv2)/operation/listOrgV2Environments
 
@@ -99,11 +99,25 @@ class EnvironmentClient():
             page_size (int):  The page size.
 
         Return(s):
-            Tuple[int, str, Dict]: A tuple of the HTTP status code, the response text, and the Environments list.
+            Tuple[int, str, Dict | None]: A tuple of the HTTP status code, the response text, and the Environments list.
         """
-        return self.__get_resource_list(url=f"{self.base_url}/org/v2/environments",
-                                        use_init_param=True,
-                                        page_size=page_size)
+        http_status_code, error_message, raw_environments = self.__get_resource_list(url=f"{self.base_url}/org/v2/environments",
+                                                                                 use_init_param=True,
+                                                                                 page_size=page_size)
+
+        if http_status_code != 200:
+            return http_status_code, error_message, None
+        else:
+            environments = []
+            for raw_environment in raw_environments:
+                environment = {}
+                environment["id"] = raw_environment.get("id")
+                environment["display_name"] = raw_environment.get("display_name")
+                environment["stream_governance_package_name"] = raw_environment.get("stream_governance_config").get("package")
+                environments.append(environment)
+
+            return http_status_code, error_message, environments
+
 
     def get_kafka_cluster_list(self, page_size: int = DEFAULT_PAGE_SIZE) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to get a list of Kafka clusters.

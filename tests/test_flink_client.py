@@ -233,5 +233,5 @@ def test_drop_table():
 
     # Drop the table.
     succeed, error_message, drop_stages = flink_client.drop_table(catalog_name, database_name, table_name)
-    logger.info(f"flink_client.drop_table: {succeed}, {error_message}, {drop_stages}")
+    logger.info("flink_client.drop_table: %s, %s, %s", succeed, error_message, drop_stages)
     assert succeed

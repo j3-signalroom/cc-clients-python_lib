@@ -55,7 +55,7 @@ def test_delete_kafka_topic():
     try:
         assert http_status_code == HttpStatus.NO_CONTENT, f"HTTP Status Code: {http_status_code}"
     except AssertionError as e:
-        logger.info(f"HTTP Status Code: {http_status_code}, and the Error Message: {error_message}")
+        logger.info("HTTP Status Code: %d, and the Error Message: %s", http_status_code, error_message)
         logger.error(e)
 
 
@@ -70,7 +70,7 @@ def test_kafka_topic_exist():
     try:
         assert exist, f"HTTP Status Code: {http_status_code}"
     except AssertionError as e:
-        logger.info(f"HTTP Status Code: {http_status_code}, and the Error Message: {error_message}")
+        logger.info("HTTP Status Code: %d, and the Error Message: %s", http_status_code, error_message)
         logger.error(e)
 
 
@@ -87,5 +87,5 @@ def test_kafka_get_topic():
         beautified = json.dumps(topic_details, indent=4, sort_keys=True)
         logger.info("HTTP Status Code: %d, Error Message: %s, Topic Details: %s", http_status_code, error_message, beautified)
     except AssertionError as e:
-        logger.info(f"HTTP Status Code: {http_status_code}, and the Error Message: {error_message}")
+        logger.info("HTTP Status Code: %d, and the Error Message: %s", http_status_code, error_message)
         logger.error(e)

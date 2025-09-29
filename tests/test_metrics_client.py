@@ -178,7 +178,7 @@ def test_compute_topic_partition_count_based_on_received_bytes_record_count():
 
         avg_bytes_per_record = sum(avg_bytes_daily_totals)/len(avg_bytes_daily_totals) if len(avg_bytes_daily_totals) > 0 else 0
 
-        logging.info(f"Confluent Metrics API - For topic {kafka_topic_name}, the average bytes per record is {avg_bytes_per_record:,.2f} bytes/record for a total of {record_count:,.0f} records.")
+        logging.info("Confluent Metrics API - For topic %s, the average bytes per record is %.2f bytes/record for a total of %.0f records.", kafka_topic_name, avg_bytes_per_record, record_count)
 
         # Calculate consumer throughput and required throughput
         consumer_throughput = avg_bytes_per_record * record_count
@@ -191,7 +191,7 @@ def test_compute_topic_partition_count_based_on_received_bytes_record_count():
     # Calculate recommended partition count
     recommended_partition_count = round(required_throughput / consumer_throughput)
 
-    logger.info(f"Confluent Metrics API - For topic {kafka_topic_name}, the recommended partition count is {recommended_partition_count} partitions to support a required consumption throughput of {required_throughput:,.2f} bytes/second.")
+    logger.info("Confluent Metrics API - For topic %s, the recommended partition count is %d partitions to support a required consumption throughput of %.2f bytes/second.", kafka_topic_name, recommended_partition_count, required_throughput)
 
 
 def test_get_topic_sent_total_bytes():
@@ -324,7 +324,7 @@ def test_compute_topic_partition_count_based_on_sent_bytes_record_count():
 
         avg_bytes_per_record = sum(avg_bytes_daily_totals)/len(avg_bytes_daily_totals) if len(avg_bytes_daily_totals) > 0 else 0
 
-        logging.info(f"Confluent Metrics API - For topic {kafka_topic_name}, the average bytes per record is {avg_bytes_per_record:,.2f} bytes/record for a total of {record_count:,.0f} records.")
+        logging.info("Confluent Metrics API - For topic %s, the average bytes per record is %.2f bytes/record for a total of %.0f records.", kafka_topic_name, avg_bytes_per_record, record_count)
 
         # Calculate consumer throughput and required throughput
         consumer_throughput = avg_bytes_per_record * record_count
@@ -337,7 +337,7 @@ def test_compute_topic_partition_count_based_on_sent_bytes_record_count():
     # Calculate recommended partition count
     recommended_partition_count = round(required_throughput / consumer_throughput)
 
-    logger.info(f"Confluent Metrics API - For topic {kafka_topic_name}, the recommended partition count is {recommended_partition_count} partitions to support a required consumption throughput of {required_throughput:,.2f} bytes/second.")
+    logger.info("Confluent Metrics API - For topic %s, the recommended partition count is %d partitions to support a required consumption throughput of %.2f bytes/second.", kafka_topic_name, recommended_partition_count, required_throughput)
 
 def test_is_topic_partition_hot_by_ingress_throughput():
     """Test the is_topic_partition_hot() function for checking if a topic partition is hot

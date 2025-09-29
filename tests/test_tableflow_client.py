@@ -52,8 +52,8 @@ def test_get_tableflow_topic():
     http_status_code, error_message, response = tableflow_client.get_tableflow_topic(kafka_topic_name, environment_id, kafka_cluster_id)
  
     try:
-        logger.info(f"Response: {response}")
-        logger.info(f"HTTP Status Code: {http_status_code}")
+        logger.info("Response: %s", response)
+        logger.info("HTTP Status Code: %d", http_status_code)
 
         assert http_status_code == HttpStatus.OK, error_message
     except AssertionError as e:
@@ -69,8 +69,8 @@ def test_get_tableflow_topic_table_path():
     http_status_code, error_message, table_path = tableflow_client.get_tableflow_topic_table_path(kafka_topic_name, environment_id, kafka_cluster_id)
 
     try:
-        logger.info(f"table_path: {table_path}")
-        logger.info(f"HTTP Status Code: {http_status_code}")
+        logger.info("table_path: %s", table_path)
+        logger.info("HTTP Status Code: %d", http_status_code)
 
         assert http_status_code == HttpStatus.OK, error_message
     except AssertionError as e:

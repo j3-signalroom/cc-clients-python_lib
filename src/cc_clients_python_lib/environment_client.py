@@ -111,7 +111,12 @@ class EnvironmentClient():
                 environment = {}
                 environment["id"] = raw_environment.get("id")
                 environment["display_name"] = raw_environment.get("display_name")
-                environment["stream_governance_package_name"] = raw_environment.get("stream_governance_config").get("package")
+
+                # Handle optional fields.
+                try:
+                    environment["stream_governance_package_name"] = raw_environment.get("stream_governance_config").get("package")
+                except AttributeError:
+                    environment["stream_governance_package_name"] = ""
                 environments.append(environment)
 
             return http_status_code, error_message, environments

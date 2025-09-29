@@ -261,6 +261,7 @@ Get list of all the Environments|`uv run pytest -s tests/test_environment_client
 Get list of the all the Kafka clusters|`uv run pytest -s tests/test_environment_client.py::test_get_kafka_cluster_list`
 Create a Kafka API Key|`uv run pytest -s tests/test_environment_client.py::test_create_kafka_api_key`
 Delete a Kafka API Key|`uv run pytest -s tests/test_environment_client.py::test_delete_kafka_api_key`
+Iterate through Environments Creating and Deleting Kafka API Keys|`uv run pytest -s tests/test_environment_client.py::test_iterating_through_environments_creating_and_deleting_kafka_api_keys`
 
 Otherwise, to run all the tests, use the following command:
 ```shell

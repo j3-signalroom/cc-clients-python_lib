@@ -191,7 +191,7 @@ class EnvironmentClient():
 
                 # Retrieve the page token from the next page URL.
                 next_page_url = str(response.json().get("metadata").get("next"))
-                page_token = next_page_url[next_page_url.find(f"&{QUERY_PARAMETER_PAGE_TOKEN}=") + page_token_parameter_length:]
+                page_token = next_page_url[next_page_url.find(f"?{QUERY_PARAMETER_PAGE_TOKEN}=") + page_token_parameter_length:]
 
             except requests.exceptions.RequestException as e:
                 return response.status_code, f"Fail to retrieve the resource list because {e}", response.json() if response.content else {}

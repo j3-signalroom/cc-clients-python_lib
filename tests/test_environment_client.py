@@ -57,7 +57,7 @@ def test_create_kafka_api_key():
         assert http_status_code == HttpStatus.ACCEPTED, f"HTTP Status Code: {http_status_code}"
 
         beautified = json.dumps(api_key_pair, indent=4, sort_keys=True)
-        logger.info(f"Kafka API Key Pair: {beautified}")
+        logger.info("Kafka API Key Pair: %s", beautified)
     except AssertionError as e:
         logger.error(e)
         logger.error("HTTP Status Code: %d, Error Message: %s, Kafka API Key Pair: %s", http_status_code, error_message, api_key_pair)
@@ -75,20 +75,20 @@ def test_delete_kafka_api_key():
         assert http_status_code == HttpStatus.ACCEPTED, f"HTTP Status Code: {http_status_code}"
 
         beautified = json.dumps(api_key_pair, indent=4, sort_keys=True)
-        logger.info(f"Kafka API Key Pair: {beautified}")
+        logger.info("Kafka API Key Pair: %s", beautified)
     except AssertionError as e:
         logger.error(e)
         logger.error("HTTP Status Code: %d, Error Message: %s, Kafka API Key Pair: %s", http_status_code, error_message, api_key_pair)
         return
 
-    time.sleep(10)  # Wait for 10 seconds before deleting the API key.
+    time.sleep(2)  # Wait for 2 seconds before deleting the API key.
 
     http_status_code, error_message = environment_client.delete_kafka_api_key(api_key=api_key_pair["key"])
  
     try:
         assert http_status_code == HttpStatus.NO_CONTENT, f"HTTP Status Code: {http_status_code}"
 
-        logger.info(f"Successfully deleted Kafka API Key: {api_key_pair['key']}")
+        logger.info("Successfully deleted Kafka API Key: %s", api_key_pair['key'])
     except AssertionError as e:
         logger.error(e)
         logger.error("HTTP Status Code: %d, Error Message: %s", http_status_code, error_message)
@@ -107,7 +107,7 @@ def test_iterating_through_environments_creating_and_deleting_kafka_api_keys():
     try:
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
 
-        logger.info(f"Environments: {len(environments)}")
+        logger.info("Environments: %d", len(environments))
 
         for environment in environments:
             http_status_code, error_message, kafka_clusters = environment_client.get_kafka_cluster_list(environment_id=environment_id)
@@ -115,7 +115,7 @@ def test_iterating_through_environments_creating_and_deleting_kafka_api_keys():
             try:
                 assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
 
-                logger.info(f"Kafka Clusters: {len(kafka_clusters)}")
+                logger.info("Kafka Clusters: %d", len(kafka_clusters))
 
                 environments_with_kafka_clusters[environment["id"]] = kafka_clusters
             except AssertionError as e:
@@ -149,7 +149,7 @@ def test_iterating_through_environments_creating_and_deleting_kafka_api_keys():
             try:
                 assert http_status_code == HttpStatus.NO_CONTENT, f"HTTP Status Code: {http_status_code}"
 
-                logger.info(f"Successfully deleted Kafka API Key: {api_key_pair['key']}")
+                logger.info("Successfully deleted Kafka API Key: %s", api_key_pair['key'])
             except AssertionError as e:
                 logger.error(e)
                 logger.error("HTTP Status Code: %d, Error Message: %s", http_status_code, error_message)
@@ -166,7 +166,7 @@ def test_get_environment_list():
     try:
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
 
-        logger.info(f"Environments: {len(environments)}")
+        logger.info("Environments: %d", len(environments))
 
         for environment in environments:
             beautified = json.dumps(environment, indent=4, sort_keys=True)
@@ -187,7 +187,7 @@ def test_get_kafka_cluster_list():
     try:
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
 
-        logger.info(f"Kafka Clusters: {len(kafka_clusters)}")
+        logger.info("Kafka Clusters: %d", len(kafka_clusters))
 
         for kafka_cluster in kafka_clusters:
             beautified = json.dumps(kafka_cluster, indent=4, sort_keys=True)

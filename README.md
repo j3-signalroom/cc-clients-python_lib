@@ -280,7 +280,7 @@ Unit Test|Command
 Create and Delete an API Key|`uv run pytest -s tests/test_iam_client.py::TestIamClient::test_create_and_delete_api_key`
 Iterate through Environments Creating and Deleting API Keys|`uv run pytest -s tests/test_iam_client.py::TestIamClient::test_creating_and_deleting_kafka_api_keys`
 
-Otherwise, to run all the tests, use the following command:
+Otherwise, to run entire test suite, use the following command:
 ```shell
 uv run pytest -s tests/test_iam_client.py
 ```

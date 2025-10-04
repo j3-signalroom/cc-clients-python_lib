@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is base on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.29.00.000] - 2025-10-04
+### Added
+- Issue [#331](https://github.com/j3-signalroom/cc-clients-lib/issues/331)
+- Issue [#332](https://github.com/j3-signalroom/cc-clients-lib/issues/332)
+- Issue [#333](https://github.com/j3-signalroom/cc-clients-lib/issues/333)
+
+### Changed
+- Issue [#334](https://github.com/j3-signalroom/cc-clients-lib/issues/334)
+
 ## [0.28.09.000] - 2025-09-30
 ### Fixed
 - Issue [#324](https://github.com/j3-signalroom/cc-clients-lib/issues/324)

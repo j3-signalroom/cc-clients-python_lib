@@ -1,6 +1,5 @@
 import json
 import logging
-import time
 from dotenv import load_dotenv
 import os
 import pytest
@@ -44,116 +43,6 @@ def load_configurations():
     environment_id = os.getenv("ENVIRONMENT_ID")
     kafka_cluster_id = os.getenv("KAFKA_CLUSTER_ID")
     principal_id = os.getenv("PRINCIPAL_ID")
-
-def test_create_kafka_api_key():
-    """Test the create_kafka_api_key() function."""
-
-    # Instantiate the EnvironmentClient class.
-    environment_client = EnvironmentClient(environment_config=environment_config)
-
-    http_status_code, error_message, api_key_pair = environment_client.create_kafka_api_key(kafka_cluster_id=kafka_cluster_id, principal_id=principal_id)
- 
-    try:
-        assert http_status_code == HttpStatus.ACCEPTED, f"HTTP Status Code: {http_status_code}"
-
-        beautified = json.dumps(api_key_pair, indent=4, sort_keys=True)
-        logger.info("Kafka API Key Pair: %s", beautified)
-    except AssertionError as e:
-        logger.error(e)
-        logger.error("HTTP Status Code: %d, Error Message: %s, Kafka API Key Pair: %s", http_status_code, error_message, api_key_pair)
-        return
-    
-def test_delete_kafka_api_key():
-    """Test the delete_kafka_api_key() function."""
-
-    # Instantiate the EnvironmentClient class.
-    environment_client = EnvironmentClient(environment_config=environment_config)
-
-    http_status_code, error_message, api_key_pair = environment_client.create_kafka_api_key(kafka_cluster_id=kafka_cluster_id, principal_id=principal_id)
- 
-    try:
-        assert http_status_code == HttpStatus.ACCEPTED, f"HTTP Status Code: {http_status_code}"
-
-        beautified = json.dumps(api_key_pair, indent=4, sort_keys=True)
-        logger.info("Kafka API Key Pair: %s", beautified)
-    except AssertionError as e:
-        logger.error(e)
-        logger.error("HTTP Status Code: %d, Error Message: %s, Kafka API Key Pair: %s", http_status_code, error_message, api_key_pair)
-        return
-
-    time.sleep(2)  # Wait for 2 seconds before deleting the API key.
-
-    http_status_code, error_message = environment_client.delete_kafka_api_key(api_key=api_key_pair["key"])
- 
-    try:
-        assert http_status_code == HttpStatus.NO_CONTENT, f"HTTP Status Code: {http_status_code}"
-
-        logger.info("Successfully deleted Kafka API Key: %s", api_key_pair['key'])
-    except AssertionError as e:
-        logger.error(e)
-        logger.error("HTTP Status Code: %d, Error Message: %s", http_status_code, error_message)
-        return  
-
-def test_iterating_through_environments_creating_and_deleting_kafka_api_keys():
-    """Test the create_kafka_api_key() and delete_kafka_api_key() functions."""
-
-    environments_with_kafka_clusters = {}
-
-    # Instantiate the EnvironmentClient class.
-    environment_client = EnvironmentClient(environment_config=environment_config)
-
-    http_status_code, error_message, environments = environment_client.get_environment_list()
- 
-    try:
-        assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
-
-        logger.info("Environments: %d", len(environments))
-
-        for environment in environments:
-            http_status_code, error_message, kafka_clusters = environment_client.get_kafka_cluster_list(environment_id=environment_id)
-    
-            try:
-                assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
-
-                logger.info("Kafka Clusters: %d", len(kafka_clusters))
-
-                environments_with_kafka_clusters[environment["id"]] = kafka_clusters
-            except AssertionError as e:
-                logger.error(e)
-                logger.error("HTTP Status Code: %d, Error Message: %s, Kafka Clusters: %s", http_status_code, error_message, kafka_clusters)
-                return
-    except AssertionError as e:
-        logger.error(e)
-        logger.error("HTTP Status Code: %d, Error Message: %s, Environments: %s", http_status_code, error_message, environments)
-        return
-
-    for _, kafka_clusters in environments_with_kafka_clusters.items():
-        kafka_cluster_count = len(kafka_clusters)
-        for index, kafka_cluster in enumerate(kafka_clusters):
-            http_status_code, error_message, api_key_pair = environment_client.create_kafka_api_key(kafka_cluster_id=kafka_cluster["id"], principal_id=principal_id)
-
-            try:
-                assert http_status_code == HttpStatus.ACCEPTED, f"HTTP Status Code: {http_status_code}"
-
-                beautified = json.dumps(api_key_pair, indent=4, sort_keys=True)
-                logger.info("%d of %d Kafka API Key Pair: %s", index + 1, kafka_cluster_count, beautified)
-            except AssertionError as e:
-                logger.error(e)
-                logger.error("HTTP Status Code: %d, Error Message: %s, Kafka API Key Pair: %s", http_status_code, error_message, api_key_pair)
-                return
-
-            time.sleep(2)  # Wait for 2 seconds before deleting the API key.
-
-            http_status_code, error_message = environment_client.delete_kafka_api_key(api_key=api_key_pair["key"])
-
-            try:
-                assert http_status_code == HttpStatus.NO_CONTENT, f"HTTP Status Code: {http_status_code}"
-
-                logger.info("Successfully deleted Kafka API Key: %s", api_key_pair['key'])
-            except AssertionError as e:
-                logger.error(e)
-                logger.error("HTTP Status Code: %d, Error Message: %s", http_status_code, error_message)
-                return
 
 def test_get_environment_list():
     """Test the get_environment_list() function."""

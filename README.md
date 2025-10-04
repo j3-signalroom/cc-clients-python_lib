@@ -75,6 +75,7 @@ The **Schema Registry Client** provides the following methods:
 - `get_topic_subject_latest_schema`
 - `register_topic_subject_schema`
 - `set_topic_subject_compatibility_level`
+- `get_schema_registry_cluster_list`
 
 ### **1.4 Tableflow Client**
 The **Tableflow Client** provides the following methods:

@@ -207,11 +207,12 @@ To run a specific test, use one of the following commands:
 
 Unit Test|Command
 -|-
-Get the Subject Compatibility Level|`uv run pytest -s tests/test_schema_registry_client.py::test_get_subject_compatibility_level`
-Delete the Kafka Topic Key Schema Subject|`uv run pytest -s tests/test_schema_registry_client.py::test_delete_kafka_topic_key_schema_subject`
-Delete the Kafka Topic Value Schema Subject|`uv run pytest -s tests/test_schema_registry_client.py::test_delete_kafka_topic_value_schema_subject`
+Get the Subject Compatibility Level|`uv run pytest -s tests/test_schema_registry_client.py::TestSchemaRegistryClient::test_get_subject_compatibility_level`
+Delete the Kafka Topic Key Schema Subject|`uv run pytest -s tests/test_schema_registry_client.py::TestSchemaRegistryClient::test_delete_kafka_topic_key_schema_subject`
+Delete the Kafka Topic Value Schema Subject|`uv run pytest -s tests/test_schema_registry_client.py::TestSchemaRegistryClient::test_delete_kafka_topic_value_schema_subject`
+Get list of all the Schema Registry Clusters|`uv run pytest -s tests/test_schema_registry_client.py::TestSchemaRegistryClient::test_getting_all_schema_registry_clusters`
 
-Otherwise, to run all the tests, use the following command:
+Otherwise, to run entire test suite, use the following command:
 ```shell
 uv run pytest -s tests/test_schema_registry_client.py
 ```

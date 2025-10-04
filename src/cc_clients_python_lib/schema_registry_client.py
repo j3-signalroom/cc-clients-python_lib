@@ -1,5 +1,5 @@
 import time
-from typing import Tuple
+from typing import Dict, Tuple
 import requests
 from requests.auth import HTTPBasicAuth
 import fastavro
@@ -7,6 +7,9 @@ from enum import StrEnum
 import json
 
 from cc_clients_python_lib.http_status import HttpStatus
+from cc_clients_python_lib.common import get_resource_list
+from cc_clients_python_lib.constants import DEFAULT_PAGE_SIZE
+
  
 
 __copyright__  = "Copyright (c) 2025 Jeffrey Jonathan Jennings"
@@ -21,7 +24,9 @@ __status__     = "dev"
 SCHEMA_REGISTRY_CONFIG = {
     "url": "url",
     "api_key": "api_key",
-    "api_secret": "api_secret"
+    "api_secret": "api_secret",
+    "confluent_cloud_api_key": "confluent_cloud_api_key",
+    "confluent_cloud_api_secret": "confluent_cloud_api_secret"
 }
 
 # The Kafka Topic Subject Compatibility Level List.
@@ -42,6 +47,9 @@ class SchemaRegistryClient():
         self.schema_registry_url = schema_registry_config[SCHEMA_REGISTRY_CONFIG["url"]]
         self.api_key = str(schema_registry_config[SCHEMA_REGISTRY_CONFIG["api_key"]])
         self.api_secret = str(schema_registry_config[SCHEMA_REGISTRY_CONFIG["api_secret"]])
+        self.confluent_cloud_api_key = schema_registry_config[SCHEMA_REGISTRY_CONFIG["confluent_cloud_api_key"]]
+        self.confluent_cloud_api_secret = schema_registry_config[SCHEMA_REGISTRY_CONFIG["confluent_cloud_api_secret"]]
+        self.base_url = "https://api.confluent.cloud"
        
  
     def get_topic_subject_latest_schema(self, subject_name: str) -> Tuple[int, str, dict]:
@@ -340,4 +348,35 @@ class SchemaRegistryClient():
         except requests.exceptions.RequestException as e:
             return delete_response.status_code, f"Delete topic value schema subject hard-delete failed because {e} and the response returned was {delete_response.text}"
 
- 
+    def get_schema_registry_cluster_list(self, environment_id: str, page_size: int = DEFAULT_PAGE_SIZE) -> Tuple[int, str, Dict]:
+        """This function submits a RESTful API call to get a list of Schema Registry clusters.
+        Reference: https://docs.confluent.io/cloud/current/api.html#tag/Clusters-(srcmv3)/operation/listSrcmV3Clusters
+
+        Arg(s):
+            environment_id (str):  The environment ID.
+            page_size (int, Optional):  The page size. Defaults to DEFAULT_PAGE_SIZE.
+
+        Return(s):
+            Tuple[int, str, Dict]: A tuple of the HTTP status code, the response text, and the Schema Registry cluster list.
+        """
+        http_status_code, error_message, raw_schema_registry_clusters = get_resource_list(cloud_api_key=self.confluent_cloud_api_key,
+                                                                                          cloud_api_secret=self.confluent_cloud_api_secret,
+                                                                                          url=f"{self.base_url}/srcm/v3/clusters?environment={environment_id}",
+                                                                                          use_init_param=False,
+                                                                                          page_size=page_size)
+        if http_status_code != HttpStatus.OK:
+            return http_status_code, error_message, None
+        else:
+            schema_registry_clusters = []
+            for raw_schema_registry_cluster in raw_schema_registry_clusters:
+                schema_registry_cluster = {}
+                schema_registry_cluster["id"] = raw_schema_registry_cluster.get("id")
+                schema_registry_cluster["stream_governance_package"] = raw_schema_registry_cluster.get("spec")["package"]
+                schema_registry_cluster["public_http_endpoint"] = raw_schema_registry_cluster.get("spec").get("http_endpoint")
+                schema_registry_cluster["private_regional_http_endpoints"] = raw_schema_registry_cluster.get("spec").get("private_networking_config").get("regional_endpoints")
+                schema_registry_cluster["catalog_http_endpoint"] = raw_schema_registry_cluster.get("spec").get("catalog_http_endpoint")
+                schema_registry_cluster["cloud_provider"] = raw_schema_registry_cluster.get("spec").get("cloud")
+                schema_registry_cluster["region_name"] = raw_schema_registry_cluster.get("spec").get("region")
+                schema_registry_clusters.append(schema_registry_cluster)
+
+            return http_status_code, error_message, schema_registry_clusters

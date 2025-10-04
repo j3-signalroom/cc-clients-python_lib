@@ -6,6 +6,7 @@ The format is base on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), 
 
 ## [0.29.00.000] - 2025-10-04
 ### Added
+- Issue [#326](https://github.com/j3-signalroom/cc-clients-lib/issues/326)
 - Issue [#327](https://github.com/j3-signalroom/cc-clients-lib/issues/327)
 - Issue [#328](https://github.com/j3-signalroom/cc-clients-lib/issues/328)
 - Issue [#329](https://github.com/j3-signalroom/cc-clients-lib/issues/329)

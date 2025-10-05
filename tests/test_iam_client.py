@@ -53,6 +53,52 @@ def environment_client():
 class TestIamClient:
     """Test Suite for the IamClient class."""
 
+    def test_get_all_api_keys_by_principal_id(self, iam_client, principal_id):
+        """Test the get_all_api_keys_by_principal_id() function."""
+    
+        http_status_code, error_message, api_keys = iam_client.get_all_api_keys_by_principal_id(principal_id=principal_id)
+    
+        try:
+            assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
+
+            logger.info("API Keys: %d", len(api_keys))
+
+            beautified = json.dumps(api_keys, indent=4, sort_keys=True)
+            logger.info("API Keys: %s", beautified)
+        except AssertionError as e:
+            logger.error(e)
+            logger.error("HTTP Status Code: %d, Error Message: %s, API Keys: %s", http_status_code, error_message, api_keys)
+            return
+        
+    def test_delete_all_api_keys_by_principal_id(self, iam_client, principal_id):
+        """Test the delete_api_key() function by deleting all API keys for the given Principal ID."""
+    
+        http_status_code, error_message, api_keys = iam_client.get_all_api_keys_by_principal_id(principal_id=principal_id)
+    
+        try:
+            assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
+
+            logger.info("API Keys: %d", len(api_keys))
+
+            beautified = json.dumps(api_keys, indent=4, sort_keys=True)
+            logger.info("API Keys: %s", beautified)
+        except AssertionError as e:
+            logger.error(e)
+            logger.error("HTTP Status Code: %d, Error Message: %s, API Keys: %s", http_status_code, error_message, api_keys)
+            return
+
+        for index, api_key in enumerate(api_keys.values()):
+            http_status_code, error_message = iam_client.delete_api_key(api_key=api_key["api_key"])
+    
+            try:
+                assert http_status_code == HttpStatus.NO_CONTENT, f"HTTP Status Code: {http_status_code}"
+
+                logger.info("%d of %d Successfully deleted API Key: %s", index + 1, len(api_keys), api_key['api_key'])
+            except AssertionError as e:
+                logger.error(e)
+                logger.error("HTTP Status Code: %d, Error Message: %s", http_status_code, error_message)
+                return
+            
     def test_create_and_delete_api_key(self, iam_client, kafka_cluster_id, principal_id):
         """Test the create_api_key() and delete_api_key() functions."""
 

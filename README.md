@@ -112,6 +112,7 @@ The **Environment Client** provides the following methods:
 
 ### **1.7 IAM Client**
 The **IAM Client** provides the following methods:
+- `get_all_api_keys_by_principal_id`
 - `create_api_key`
 - `delete_api_key`
 
@@ -279,6 +280,8 @@ uv run pytest -s tests/test_environment_client.py
 To run a specific test, use one of the following commands:
 Unit Test|Command
 -|-
+Get all API Keys by Principal ID|`uv run pytest -s tests/test_iam_client.py::TestIamClient::test_get_all_api_keys_by_principal_id`
+Delete all API Keys by Principal ID|`uv run pytest -s tests/test_iam_client.py::TestIamClient::test_delete_all_api_keys_by_principal_id`
 Create and Delete an API Key|`uv run pytest -s tests/test_iam_client.py::TestIamClient::test_create_and_delete_api_key`
 Iterate through Environments Creating and Deleting API Keys|`uv run pytest -s tests/test_iam_client.py::TestIamClient::test_creating_and_deleting_kafka_api_keys`
 

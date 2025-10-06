@@ -92,8 +92,8 @@ class IamClient():
             response.raise_for_status()
 
             api_key_pair = {}
-            api_key_pair["key"] = response.json().get("id")
-            api_key_pair["secret"] = response.json().get("spec").get("secret")
+            api_key_pair["key"] = response.json().get("id").strip()
+            api_key_pair["secret"] = response.json().get("spec").get("secret").strip()
 
             return response.status_code, "", api_key_pair
         except requests.exceptions.RequestException as e:

@@ -89,7 +89,7 @@ class EnvironmentClient():
                 kafka_cluster["environment_id"] = raw_kafka_cluster.get("spec").get("environment").get("id")
                 kafka_cluster["cluster_type_name"] = raw_kafka_cluster.get("spec").get("config").get("kind")
                 kafka_cluster["http_endpoint"] = raw_kafka_cluster.get("spec").get("http_endpoint")
-                kafka_cluster["kafka_bootstrap_endpoint"] = raw_kafka_cluster.get("spec").get("kafka_bootstrap_endpoint").replace("SASL_SSL://", "")
+                kafka_cluster["kafka_bootstrap_endpoint"] = raw_kafka_cluster.get("spec").get("kafka_bootstrap_endpoint").lower().replace("sasl_ssl://", "")
                 kafka_clusters.append(kafka_cluster)
 
             return http_status_code, error_message, kafka_clusters

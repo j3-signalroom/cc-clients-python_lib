@@ -44,13 +44,12 @@ def load_configurations():
     kafka_cluster_id = os.getenv("KAFKA_CLUSTER_ID")
     principal_id = os.getenv("PRINCIPAL_ID")
 
-def test_get_environment_list():
-    """Test the get_environment_list() function."""
+def test_get_environments():
 
     # Instantiate the EnvironmentClient class.
     environment_client = EnvironmentClient(environment_config=environment_config)
 
-    http_status_code, error_message, environments = environment_client.get_environment_list()
+    http_status_code, error_message, environments = environment_client.get_environments()
  
     try:
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"
@@ -64,13 +63,13 @@ def test_get_environment_list():
         logger.error("HTTP Status Code: %d, Error Message: %s, Environments: %s", http_status_code, error_message, environments)
         return
     
-def test_get_kafka_cluster_list():
-    """Test the get_kafka_cluster_list() function."""
+def test_get_kafka_clusters():
+    """Test the get_kafka_clusters() function."""
 
     # Instantiate the EnvironmentClient class.
     environment_client = EnvironmentClient(environment_config=environment_config)
 
-    http_status_code, error_message, kafka_clusters = environment_client.get_kafka_cluster_list(environment_id=environment_id)
+    http_status_code, error_message, kafka_clusters = environment_client.get_kafka_clusters(environment_id=environment_id)
  
     try:
         assert http_status_code == HttpStatus.OK, f"HTTP Status Code: {http_status_code}"

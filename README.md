@@ -266,8 +266,8 @@ To run a specific test, use one of the following commands:
 
 Unit Test|Command
 -|-
-Get list of all the Environments|`uv run pytest -s tests/test_environment_client.py::test_get_environment_list`
-Get list of the all the Kafka clusters|`uv run pytest -s tests/test_environment_client.py::test_get_kafka_cluster_list`
+Get list of all the Environments|`uv run pytest -s tests/test_environment_client.py::test_get_environments`
+Get list of the all the Kafka clusters|`uv run pytest -s tests/test_environment_client.py::test_get_kafka_clusters`
 
 Otherwise, to run all the tests, use the following command:
 ```shell

@@ -25,7 +25,7 @@ class EnvironmentClient():
         self.confluent_cloud_api_secret = str(environment_config[ENVIRONMENT_CONFIG["confluent_cloud_api_secret"]])
         self.base_url = "https://api.confluent.cloud"
 
-    def get_environment_list(self, page_size: int = DEFAULT_PAGE_SIZE) -> Tuple[int, str, Dict | None]:
+    def get_environments(self, page_size: int = DEFAULT_PAGE_SIZE) -> Tuple[int, str, Dict | None]:
         """This function submits a RESTful API call to get a list of environments.
         Reference: https://docs.confluent.io/cloud/current/api.html#tag/Environments-(orgv2)/operation/listOrgV2Environments
 
@@ -60,7 +60,7 @@ class EnvironmentClient():
             return http_status_code, error_message, environments
 
 
-    def get_kafka_cluster_list(self, environment_id: str, page_size: int = DEFAULT_PAGE_SIZE) -> Tuple[int, str, Dict]:
+    def get_kafka_clusters(self, environment_id: str, page_size: int = DEFAULT_PAGE_SIZE) -> Tuple[int, str, Dict]:
         """This function submits a RESTful API call to get a list of Kafka clusters.
         Reference: https://docs.confluent.io/cloud/current/api.html#tag/Clusters-(cmkv2)/operation/listCmkV2Clusters
 

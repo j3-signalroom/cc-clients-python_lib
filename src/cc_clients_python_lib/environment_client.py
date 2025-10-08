@@ -33,7 +33,7 @@ class EnvironmentClient():
             page_size (int):  The page size.
 
         Return(s):
-            Tuple[int, str, Dict | None]: A tuple of the HTTP status code, the response text, and the Environments list.
+            Tuple[int, str, Dict | None]: A tuple of the HTTP status code, the response text, and the Environments dictionary.
         """
         http_status_code, error_message, raw_environments = get_resource_list(cloud_api_key=self.confluent_cloud_api_key,
                                                                               cloud_api_secret=self.confluent_cloud_api_secret,
@@ -44,7 +44,7 @@ class EnvironmentClient():
         if http_status_code != 200:
             return http_status_code, error_message, None
         else:
-            environments = []
+            environments = {}
             for raw_environment in raw_environments:
                 environment = {}
                 environment["id"] = raw_environment.get("id")
@@ -55,7 +55,7 @@ class EnvironmentClient():
                     environment["stream_governance_package_name"] = raw_environment.get("stream_governance_config").get("package")
                 except AttributeError:
                     environment["stream_governance_package_name"] = ""
-                environments.append(environment)
+                environments[environment["id"]] = environment
 
             return http_status_code, error_message, environments
 
@@ -69,7 +69,7 @@ class EnvironmentClient():
             page_size (int, Optional):  The page size. Defaults to DEFAULT_PAGE_SIZE.
 
         Return(s):
-            Tuple[int, str, Dict]: A tuple of the HTTP status code, the response text, and the Kafka cluster list.
+            Tuple[int, str, Dict]: A tuple of the HTTP status code, the response text, and the Kafka clusters dictionary.
         """
         http_status_code, error_message, raw_kafka_clusters = get_resource_list(cloud_api_key=self.confluent_cloud_api_key,
                                                                                 cloud_api_secret=self.confluent_cloud_api_secret,
@@ -79,7 +79,7 @@ class EnvironmentClient():
         if http_status_code != 200:
             return http_status_code, error_message, None
         else:
-            kafka_clusters = []
+            kafka_clusters = {}
             for raw_kafka_cluster in raw_kafka_clusters:
                 kafka_cluster = {}
                 kafka_cluster["id"] = raw_kafka_cluster.get("id")
@@ -90,6 +90,6 @@ class EnvironmentClient():
                 kafka_cluster["cluster_type_name"] = raw_kafka_cluster.get("spec").get("config").get("kind")
                 kafka_cluster["http_endpoint"] = raw_kafka_cluster.get("spec").get("http_endpoint")
                 kafka_cluster["kafka_bootstrap_endpoint"] = raw_kafka_cluster.get("spec").get("kafka_bootstrap_endpoint").lower().replace("sasl_ssl://", "")
-                kafka_clusters.append(kafka_cluster)
+                kafka_clusters[kafka_cluster["id"]] = kafka_cluster
 
             return http_status_code, error_message, kafka_clusters

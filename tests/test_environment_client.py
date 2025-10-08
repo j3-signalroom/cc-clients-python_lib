@@ -57,9 +57,8 @@ def test_get_environment_list():
 
         logger.info("Environments: %d", len(environments))
 
-        for environment in environments:
-            beautified = json.dumps(environment, indent=4, sort_keys=True)
-            logger.info(beautified)
+        beautified = json.dumps(environments, indent=4, sort_keys=True)
+        logger.info(beautified)
     except AssertionError as e:
         logger.error(e)
         logger.error("HTTP Status Code: %d, Error Message: %s, Environments: %s", http_status_code, error_message, environments)
@@ -78,9 +77,8 @@ def test_get_kafka_cluster_list():
 
         logger.info("Kafka Clusters: %d", len(kafka_clusters))
 
-        for kafka_cluster in kafka_clusters:
-            beautified = json.dumps(kafka_cluster, indent=4, sort_keys=True)
-            logger.info(beautified)
+        beautified = json.dumps(kafka_clusters, indent=4, sort_keys=True)
+        logger.info(beautified)
     except AssertionError as e:
         logger.error(e)
         logger.error("HTTP Status Code: %d, Error Message: %s, Kafka Clusters: %s", http_status_code, error_message, kafka_clusters)
